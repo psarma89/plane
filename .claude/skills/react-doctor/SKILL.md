@@ -1,6 +1,6 @@
 ---
 name: react-doctor
-description: Use when finishing a feature, fixing a bug, before committing React code, or when the user types `/doctor`, asks to scan, triage, or clean up React diagnostics. Covers lint, accessibility, bundle size, architecture. Includes a regression check and a full local-triage workflow that fetches the canonical playbook.
+description: Use when finishing a feature, fixing a bug, before committing React code, or when the user types `/react-doctor`, asks to scan, triage, or clean up React diagnostics. Covers lint, accessibility, bundle size, architecture. Includes a regression check and a full local-triage workflow that fetches the canonical playbook. Do not claim the bare `/doctor` trigger, which belongs to the built-in Claude Code setup checkup.
 version: "1.1.0"
 ---
 
@@ -18,9 +18,9 @@ If the score dropped, fix the regressions before committing.
 
 Run `npx react-doctor@latest --verbose` (without `--diff`) to scan the full codebase. Fix issues by severity — errors first, then warnings.
 
-## /doctor — full local triage workflow
+## /react-doctor — full local triage workflow
 
-When the user types `/doctor`, says "run react doctor", or asks for a full triage / cleanup pass (not just a regression check), fetch the canonical local-triage playbook and follow every step in it:
+When the user types `/react-doctor`, says "run react doctor", or asks for a full triage / cleanup pass (not just a regression check), fetch the canonical local-triage playbook and follow every step in it:
 
 ```bash
 curl --fail --silent --show-error \

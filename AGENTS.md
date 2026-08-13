@@ -1,50 +1,27 @@
 # Agent Development Guide
 
-## Commands
+Plane is a pnpm and Turbo monorepo. `apps/` holds the deployables. `packages/` holds the shared libraries.
 
-- `pnpm dev` - Start all dev servers (web:3000, admin:3001)
-- `pnpm build` - Build all packages and apps
-- `pnpm check` - Run all checks (format, lint, types)
-- `pnpm check:lint` - OxLint across all packages
-- `pnpm check:types` - TypeScript type checking
-- `pnpm fix` - Auto-fix format and lint issues
-- `pnpm turbo run <command> --filter=<package>` - Target specific package/app
-- `pnpm --filter=@plane/ui storybook` - Start Storybook on port 6006
+## Gotchas
 
-## Code Style
+- Dev servers bind fixed ports. `web` takes 3000 and `admin` takes 3001. Storybook takes 6006 through `pnpm --filter=@plane/ui storybook`.
+- Internal dependencies use `workspace:*`. External dependencies use `catalog:`. Neither one takes a version range.
+- MobX stores live in `packages/shared-state`, not next to the components that read them.
+- Build every shared component in `@plane/ui` with a Storybook story. Do not add one straight to an app.
+- The files in `.github/instructions/` use Copilot `applyTo:` frontmatter. Claude Code does not read that frontmatter, so nothing in there loads on its own. Read `bash.instructions.md` for pnpm, Turbo, and Docker conventions. Read `typescript.instructions.md` for the TypeScript 5.0 to 5.8 patterns and the deprecated syntax to avoid.
 
-- **Imports**: Use `workspace:*` for internal packages, `catalog:` for external deps
-- **TypeScript**: Strict mode enabled, all files must be typed
-- **Formatting**: oxfmt, run `pnpm fix:format`
-- **Linting**: OxLint with shared `.oxlintrc.json` config
-- **Naming**: camelCase for variables/functions, PascalCase for components/types
-- **Error Handling**: Use try-catch with proper error types, log errors appropriately
-- **State Management**: MobX stores in `packages/shared-state`, reactive patterns
-- **Testing**: All features require unit tests, use existing test framework per package
-- **Components**: Build in `@plane/ui` with Storybook for isolated development
+## Backgrounds
 
-## Backend tests (Docker)
+Before you write any `bg-*`, `text-*`, or `border-*` class, use the `plane-backgrounds` skill. It carries the Canvas, Surface, and Layer rules that every app in `apps/` follows.
 
-The Django/pytest suite for `apps/api` runs in an isolated stack defined by `docker-compose-test.yml` at the repo root.
+## Backend tests run in Docker
 
-Prereq (once): `./setup.sh` — generates `apps/api/.env` from `.env.example`.
+The `apps/api` pytest suite needs the stack in `docker-compose-test.yml` at the repo root. It does not run against a local Python environment.
 
-- Full suite: `docker compose -f docker-compose-test.yml up --build --abort-on-container-exit --exit-code-from api-tests`
-- Subset: `docker compose -f docker-compose-test.yml run --rm api-tests pytest -m unit`
-- Teardown: `docker compose -f docker-compose-test.yml down -v`
+Run `./setup.sh` once first. It generates `apps/api/.env` from `.env.example`.
 
-See `apps/api/tests/RUNNING_TESTS.md` for the full walkthrough and troubleshooting; see `apps/api/tests/TESTING_GUIDE.md` for test conventions and fixtures.
+For the commands, read `apps/api/tests/RUNNING_TESTS.md`. For fixtures and conventions, read `apps/api/tests/TESTING_GUIDE.md`.
 
-## Further reading
+## Documentation
 
-Read these files before you change code in the area that they cover.
-
-- `docs/INDEX.md` is the map of the in-project knowledge system. `docs/AGENTS.md` gives the conventions for every page under `docs/`.
-- Additional `AGENTS.md` files live in sub-directories. They give more code requirements and conventions.
-- `.github/instructions/bash.instructions.md`: pnpm, Turbo, Docker, and monorepo layout conventions.
-- `.github/instructions/typescript.instructions.md`: TypeScript 5.0 to 5.8 features, patterns, and deprecated syntax to avoid.
-
-Two of these need a direct link, because an agent that works in one directory does not load files from another.
-
-- `packages/tailwind-config/AGENTS.md` defines the Canvas, Surface, and Layer background rules for every app in `apps/`. Read it before you write any `bg-*` class.
-- The files in `.github/instructions/` use Copilot `applyTo:` frontmatter, which Claude Code does not read.
+Before you add or change any page under `docs/`, read `docs/INDEX.md` for the map and `docs/AGENTS.md` for the conventions. Each subdirectory under `docs/` carries its own `AGENTS.md` with narrower rules for that section.
