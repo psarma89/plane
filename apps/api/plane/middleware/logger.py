@@ -105,7 +105,7 @@ class APITokenLogMiddleware:
             return None
 
         # Check if content is binary by looking for common binary file signatures
-        if content.startswith(b"\x89PNG") or content.startswith(b"\xff\xd8\xff") or content.startswith(b"%PDF"):
+        if content.startswith((b"\x89PNG", b"\xff\xd8\xff", b"%PDF")):
             return "[Binary Content]"
 
         try:

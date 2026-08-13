@@ -27,8 +27,6 @@ class DateCSVRangeFilter(filters.BaseCSVFilter, filters.DateFilter):
     inclusive whole days.
     """
 
-    pass
-
 
 class BaseFilterSet(FilterSet):
     @classmethod

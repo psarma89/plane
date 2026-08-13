@@ -254,7 +254,7 @@ class WorkspaceProjectMemberEndpoint(BaseAPIView):
         ).select_related("project", "member", "workspace")
         project_members = ProjectMemberRoleSerializer(project_members, many=True).data
 
-        project_members_dict = dict()
+        project_members_dict = {}
 
         # Construct a dictionary with project_id as key and project_members as value
         for project_member in project_members:

@@ -26,12 +26,10 @@ class BaseFormatter(ABC):
     @abstractmethod
     def encode(self, data: List[Dict]) -> Union[str, bytes]:
         """Data → formatted string/bytes"""
-        pass
 
     @abstractmethod
     def decode(self, content: Union[str, bytes]) -> List[Dict]:
         """Formatted string/bytes → data"""
-        pass
 
     @property
     @abstractmethod

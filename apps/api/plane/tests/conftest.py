@@ -13,7 +13,6 @@ from plane.db.models.api import APIToken
 @pytest.fixture(scope="session")
 def django_db_setup(django_db_setup):  # noqa: F811
     """Set up the Django database for the test session"""
-    pass
 
 
 @pytest.fixture

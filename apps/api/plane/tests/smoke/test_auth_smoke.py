@@ -61,9 +61,8 @@ class TestAuthSmoke:
         if response.status_code in [302, 303]:
             # Redirect-based auth: check that redirect URL doesn't contain error
             redirect_url = response.headers.get("Location", "")
-            assert "error" not in redirect_url and "error_code" not in redirect_url, (
-                "Successful login redirect should not contain error parameters"
-            )
+            assert "error" not in redirect_url, "Login redirect must not contain an error parameter"
+            assert "error_code" not in redirect_url, "Login redirect must not contain an error_code parameter"
 
         elif response.status_code == 200:
             # API token-based auth: check for tokens or user session
@@ -75,9 +74,8 @@ class TestAuthSmoke:
                         assert "refresh_token" in data, "JWT auth should return both access and refresh tokens"
                     # If it's a user session response
                     elif "user" in data:
-                        assert "is_authenticated" in data and data["is_authenticated"], (
-                            "User session response should indicate authentication"
-                        )
+                        assert "is_authenticated" in data, "User session response must include is_authenticated"
+                        assert data["is_authenticated"], "User session response must indicate authentication"
                     # Otherwise it should at least indicate success
                     else:
                         assert not any(error_key in data for error_key in ["error", "error_code", "detail"]), (
