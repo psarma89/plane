@@ -38,7 +38,7 @@ The last two rows matter. Where the task code lives is L3. Where the task execut
 
 | Kind | Answers | Diagram |
 | --- | --- | --- |
-| **Structural** | Which components exist in this container, and how do they connect? | `C4Component` |
+| **Structural** | Which components exist in this container, and how do they connect? | `flowchart` |
 | **Dynamic** | How do components inside this container work together for one feature? | `sequenceDiagram` |
 
 A dynamic page belongs here when every element it names shares one process. Otherwise it is L2.

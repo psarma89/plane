@@ -19,6 +19,6 @@ C4 already spans both system architecture and application architecture. The leve
 
 ## Related areas
 
-- [../clients/INDEX.md](../clients/INDEX.md) lists every interface a user or a script can reach.
+- [c4/context/01-system-context.md](./c4/context/01-system-context.md) lists every actor, every external system, and every interface a user or a script can reach.
 - [../security/INDEX.md](../security/INDEX.md) lists every restriction and the code that enforces it.
 - [../features/INDEX.md](../features/INDEX.md) holds the specs that drove each change.

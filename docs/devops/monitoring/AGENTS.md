@@ -34,7 +34,7 @@ List every failure a reader expects to be watched but is not. Give the reason.
 
 Plane runs as a self-hosted deployment and as a hosted service. The available tooling differs.
 
-State which deployment each signal exists in, with an **Availability** column. Use exactly one of three values. This set is not the four-value set in [`../../clients/AGENTS.md`](../../clients/AGENTS.md), which covers a different subject.
+State which deployment each signal exists in, with an **Availability** column. Use exactly one of three values. This set is not the four-value set in [`../../architecture/c4/context/AGENTS.md`](../../architecture/c4/context/AGENTS.md), which covers a different subject.
 
 | Value | Meaning |
 | --- | --- |

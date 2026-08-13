@@ -6,11 +6,11 @@ Read [`../AGENTS.md`](../AGENTS.md) for the shared rules, then [`AGENTS.md`](./A
 
 ## Pages
 
-> No page exists yet. Add the first page with [`TEMPLATE.md`](./TEMPLATE.md), then list it here.
-
 Entry format: `- [N. Title](./NN-slug.md) - one-line summary`
 
-<!-- - [1. System context](./01-system-context.md) - Actors, Plane as one box, and every external system. -->
+- [1. System context](./01-system-context.md) - Every actor, Plane as one box, and all 14 external systems the Community Edition source proves.
+
+One page covers the whole context. Add a second page only for a genuinely separate context.
 
 ## What the page must answer
 
@@ -19,11 +19,12 @@ Entry format: `- [N. Title](./NN-slug.md) - one-line summary`
 | Who reaches Plane? | Actors |
 | What does Plane call, and what calls Plane? | External systems |
 | What data crosses each boundary? | External systems, `Data sent` column |
-| Which integrations are optional? | External systems, `Availability` column |
+| Which integrations are optional? | External systems, `Required` column |
 | Which zones exist, and what is public? | Trust boundaries |
+| Which surfaces exist outside this repository? | Appendix A, Delivery surfaces |
+| Which editions and plans exist? | Appendix C, Editions and deployment |
 
 ## Related
 
 - [../containers/INDEX.md](../containers/INDEX.md) opens the box and names the deployable units.
-- [../../../clients/INDEX.md](../../../clients/INDEX.md) lists the surfaces each actor reaches.
 - [../../../security/INDEX.md](../../../security/INDEX.md) lists the controls on each boundary.

@@ -31,7 +31,7 @@ Plane is one software system, so no landscape page is needed today. If one becom
 
 - Name the role as the product names it: workspace owner, workspace admin, project member, guest.
 - Add an anonymous actor where a surface accepts unauthenticated traffic.
-- State which surface each actor reaches. Link to [`../../../clients/INDEX.md`](../../../clients/INDEX.md).
+- State which surface each actor reaches. The L1 page lists every surface in its `Delivery surfaces` appendix.
 
 ## External systems
 

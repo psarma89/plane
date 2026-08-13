@@ -141,6 +141,15 @@ A label names the thing. The prose table carries the detail.
 - Mark an optional or edition-gated unit in the boundary label. Example: `"Mobile app (commercial editions only)"`.
 - Keep a structural diagram under 20 nodes. If it needs more, split the page or move detail down a level.
 
+Pick the direction from the shape of the diagram, and check the rendered size.
+
+| Shape | Direction |
+| --- | --- |
+| One central node with many peripheral nodes | `flowchart LR` |
+| A few layers that stack, such as edge, application, data | `flowchart TB` |
+
+GitHub scales a diagram down to the width of the page. A wide `TB` diagram therefore renders its labels too small to read. An `LR` diagram grows downward instead, and stays legible. Render the page and look at the result before you commit it.
+
 ### The diagram leads
 
 A reader must get the answer from the picture. The prose exists to carry what a picture cannot: a protocol, a port, a version pin, a constraint.

@@ -39,7 +39,7 @@ This list is a backlog, not a claim that the pages exist. Delete a row when you 
 
 ## Containers with no Compose service
 
-A C4 container is not a Docker container. These Plane containers must appear on an L1 or L2 page even though `docker-compose.yml` does not list them. Source: [../../../clients/INDEX.md](../../../clients/INDEX.md).
+A C4 container is not a Docker container. These Plane containers must appear on an L1 or L2 page even though `docker-compose.yml` does not list them. Source: [../context/01-system-context.md](../context/01-system-context.md), Appendix A.
 
 | Container | Kind | Availability |
 | --- | --- | --- |

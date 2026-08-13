@@ -44,7 +44,7 @@ Update these pages in the same pull request that changes the code.
 | New deployable unit, queue, or data store | [`c4/containers/`](./c4/containers/INDEX.md) and [`../devops/infra/`](../devops/infra/INDEX.md) |
 | New external system integration | [`c4/context/`](./c4/context/INDEX.md) |
 | New module, store, or model inside one app | [`c4/components/`](./c4/components/INDEX.md) |
-| New or changed client surface | [`../clients/`](../clients/INDEX.md) |
+| New or changed client surface | [`c4/context/`](./c4/context/INDEX.md) Appendix A |
 | A feature spec reaches shipped state | The matching architecture page, plus the spec status |
 
 ## Relationship to feature specs

@@ -8,9 +8,9 @@ This level holds the L2 static view plus two supplementary C4 views that operate
 
 | Kind | Answers | Diagram | C4 type |
 | --- | --- | --- | --- |
-| **Structural** | What runs where, and what talks to what? | `C4Container` | Container diagram (L2) |
+| **Structural** | What runs where, and what talks to what? | `flowchart` | Container diagram (L2) |
 | **Dynamic** | How does one concern travel across containers, in order? | `sequenceDiagram` | Dynamic diagram |
-| **Deployment** | Where do container instances run, in one environment? | `C4Deployment` | Deployment diagram |
+| **Deployment** | Where do container instances run, in one environment? | `flowchart` | Deployment diagram |
 
 A dynamic page is the right home for a concern that used to need a separate system-level folder. Examples: the request lifecycle, Celery task dispatch, document sync, file upload.
 
@@ -36,7 +36,7 @@ If a page names a file inside one container, it is L3. Move it.
 `docker-compose.yml` is not the container list. It holds 13 services, and the C4 term is broader. [`../AGENTS.md`](../AGENTS.md) defines it.
 
 - Where a container maps to a Compose service, use that service name exactly. Write `plane-db`, not `postgres`.
-- Where a container has no Compose service, list it anyway. The desktop app and the mobile apps are C4 containers, and they live outside this repository. Cite [`../../../clients/INDEX.md`](../../../clients/INDEX.md).
+- Where a container has no Compose service, list it anyway. The desktop app and the mobile apps are C4 containers, and they live outside this repository. Cite [`../context/01-system-context.md`](../context/01-system-context.md), Appendix A.
 - A data store is a container. `plane-db` and the `plane-minio` bucket both count.
 - `migrator` runs once and exits. Label it a one-shot container.
 - Never label a component as a container. If it shares a process with other code, it is L3.

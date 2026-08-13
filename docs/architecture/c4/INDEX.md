@@ -48,4 +48,4 @@ Every page uses Mermaid. GitHub, VS Code, and most markdown viewers render it wi
 - [../INDEX.md](../INDEX.md) is the architecture landing page.
 - [../../devops/infra/INDEX.md](../../devops/infra/INDEX.md) covers each deployment target in depth.
 - [../../security/INDEX.md](../../security/INDEX.md) lists the restrictions these structures enforce.
-- [../../clients/INDEX.md](../../clients/INDEX.md) lists the surfaces these containers serve.
+- [context/01-system-context.md](./context/01-system-context.md) lists the surfaces these containers serve, in Appendix A.
