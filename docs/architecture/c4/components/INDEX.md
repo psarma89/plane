@@ -12,7 +12,7 @@ Entry format: `- [N. Title](./NN-slug.md) - container - Structural | Dynamic - o
 
 - [1. apps/api: module map](./01-api-module-map.md) - `apps/api` - Structural - Four parallel API surfaces over one model and one permission layer.
 - [2. apps/web: component map](./02-web-component-map.md) - `apps/web` - Structural - Route table, 30 MobX slices, and 46 services.
-- [3. apps/admin: component map](./03-admin-component-map.md) - `apps/admin` - Structural - God Mode. 5 stores and 6 settings areas.
+- [3. apps/admin: component map](./03-admin-component-map.md) - `apps/admin` - Structural - God Mode. 4 stores and 6 settings areas.
 - [4. apps/live: component map](./04-live-component-map.md) - `apps/live` - Structural - Express, Hocuspocus, and five extensions.
 - [5. apps/space: component map](./05-space-component-map.md) - `apps/space` - Structural - Plane Publish. The only SSR frontend, addressed by anchor.
 - [6. apps/proxy: component map](./06-proxy-component-map.md) - `apps/proxy` - Structural - The Caddy route table, in match order.

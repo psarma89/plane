@@ -15,6 +15,8 @@ An L1 page treats **Plane as one box**. It names who uses Plane and what Plane d
 
 If a sentence names a container, a file, or a class, the page is at the wrong level.
 
+One exception: an appendix may name a container. An appendix carries reference material that the page absorbed, not part of the context view. Keep the L1 view itself free of container names, and put anything that needs one below the `Related` section.
+
 ## Keep the page count at one, or close to it
 
 Plane has one system context. One page covers it. Add a second page only for a genuinely separate context, for example a hosted control plane that self-hosted installs never reach.
