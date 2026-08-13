@@ -75,6 +75,8 @@ flowchart TB
 
 The store is a module-level singleton created in `apps/web/core/lib/store-context.tsx`. There is no per-request store, which follows from SPA mode.
 
+> **The root `AGENTS.md` and `CLAUDE.md` are wrong about this.** Both state that "MobX stores live in `packages/shared-state`". They do not. Every per-app store lives in `apps/web/core/store/`, `apps/admin/store/`, or `apps/space/store/`. `packages/shared-state/src/store/index.ts` exports two things, `rich-filters` and `work-item-filters`, and `apps/web` takes exactly one of them: `WorkItemFilterStore`, at 21 import sites. Trust this page over that line.
+
 | Concern | Detail |
 | --- | --- |
 | Slices | 30 fields, from `workspaceRoot` to `timelineStore` |
