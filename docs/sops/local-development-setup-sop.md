@@ -11,7 +11,7 @@ Run the whole Plane stack on one machine, then sign in to the web app in a brows
 ## When to use
 
 - **Trigger**: A contributor needs a working Plane development environment on a new machine.
-- **Do not use this SOP when**: You only need the Django test suite. Read the "Backend tests (Docker)" section of [`../../AGENTS.md`](../../AGENTS.md) instead. That suite uses `docker-compose-test.yml` and needs no browser.
+- **Do not use this SOP when**: You only need the Django test suite. Read the "Backend tests run in Docker" section of [`../../AGENTS.md`](../../AGENTS.md) instead. That suite uses `docker-compose-test.yml` and needs no browser.
 
 ## Prerequisites
 
