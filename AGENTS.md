@@ -34,3 +34,14 @@ Prereq (once): `./setup.sh` — generates `apps/api/.env` from `.env.example`.
 - Teardown: `docker compose -f docker-compose-test.yml down -v`
 
 See `apps/api/tests/RUNNING_TESTS.md` for the full walkthrough and troubleshooting; see `apps/api/tests/TESTING_GUIDE.md` for test conventions and fixtures.
+
+## Further reading
+
+Read these files before you change code in the area that they cover.
+
+- `docs/`: the in-project system to organize knowledge and feature work. It holds `docs/linting.md` and `docs/clients/README.md`.
+- `.github/instructions/bash.instructions.md`: pnpm, Turbo, Docker, and monorepo layout conventions.
+- `.github/instructions/typescript.instructions.md`: TypeScript 5.0 to 5.8 features, patterns, and deprecated syntax to avoid.
+- `packages/tailwind-config/AGENTS.md`: conventions for that package.
+
+The two files in `.github/instructions/` use Copilot `applyTo:` frontmatter. Agents that do not load that directory on their own must read the files from this list.
