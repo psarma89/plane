@@ -1,32 +1,12 @@
-# N. <Title>
+# N. {Title}
 
 > **Last reviewed:** YYYY-MM-DD
 > **Level:** L2 Containers
 > **Kind:** Structural | Dynamic | Deployment
-> **Deployment environment:** <Deployment pages only. One environment. Delete otherwise.>
+> **Deployment environment:** {Deployment pages only. One environment. Delete otherwise.}
 > **Scope:** One sentence. For a dynamic page, state where the flow starts and where it ends.
 
-Read every value below from its source file. This template carries no repository facts on purpose, because a copied pin goes stale.
-
-## Which sections this page needs
-
-| Section | Structural | Dynamic | Deployment |
-| --- | --- | --- | --- |
-| N.1 Diagram | Yes | Yes | Yes |
-| N.2 Elements | Yes | As `Participants` | As nodes and instances |
-| N.3 Relationships | Yes | Delete | Yes |
-| N.4 Trust boundaries | Yes | Delete | Yes |
-| N.5 Deployment nodes | Delete | Delete | Yes |
-| N.6 Failure modes | Delete | Yes, never empty | Delete |
-| N.7 Configuration | Delete | Yes | Delete |
-| N.8 Notes | Yes | Yes | Yes |
-| N.9 Verification | Yes | Yes | Yes |
-
-### Related feature specs
-
-| Spec | Description | Status |
-| --- | --- | --- |
-| [<Feature name>](../../../features/new/<slug>.md) | One-line summary | <A status from `docs/features/AGENTS.md`> |
+Read every value on this page from its source file. This template carries no repository facts on purpose, because a copied pin goes stale.
 
 ## N.1 Diagram
 
@@ -34,131 +14,135 @@ Keep the block that matches the page kind. Delete the others.
 
 ### Structural
 
+Nest a `subgraph` per trust zone, so the picture carries the boundary.
+
 ```mermaid
-C4Container
-    title <System> containers
+flowchart TB
+    user(["{Actor}"])
 
-    Person(user, "<Actor>", "<How they reach the system>")
+    subgraph system["{System}"]
+        subgraph edge["Edge"]
+            a["{container-id}<br/><i>{technology}</i>"]
+        end
+        subgraph app["Application"]
+            b["{container-id}<br/><i>{technology}</i>"]
+        end
+        subgraph data["Data"]
+            store[("{container-id}<br/><i>{technology}</i>")]
+            queue[["{container-id}<br/><i>{technology}</i>"]]
+        end
+    end
 
-    Container_Boundary(system, "<System>") {
-        Container(a, "<container-id>", "<technology>", "<responsibility>")
-        Container(b, "<container-id>", "<technology>", "<responsibility>")
-    }
+    user -->|"{protocol}"| a
+    a -->|"{protocol}"| b
+    b -->|"{protocol}, {port}"| store
+    b -->|"{protocol}, {port}"| queue
 
-    ContainerDb(store, "<container-id>", "<technology>", "<what it stores>")
-    ContainerQueue(queue, "<container-id>", "<technology>", "<what it carries>")
-
-    Rel(user, a, "<protocol>")
-    Rel(a, b, "<protocol>")
-    Rel(b, store, "<protocol>")
-    Rel(b, queue, "<protocol>")
+    classDef person fill:#08427b,stroke:#052e56,color:#ffffff
+    classDef container fill:#1168bd,stroke:#0b4884,color:#ffffff
+    classDef ext fill:#999999,stroke:#6b6b6b,color:#ffffff
+    class user person
+    class a,b,store,queue container
 ```
 
 ### Dynamic
 
 ```mermaid
 sequenceDiagram
-    participant U as <Actor>
-    participant A as <container-id>
-    participant B as <container-id>
-    participant D as <container-id>
+    participant U as {Actor}
+    participant A as {container-id}
+    participant B as {container-id}
+    participant D as {container-id}
 
-    U->>A: <Action>
-    A->>B: <Request>
-    B->>D: <Write>
-    B-->>A: <Response>
+    U->>A: {Action}
+    A->>B: {Request}
+    B->>D: {Write}
+    B-->>A: {Response}
 ```
 
 ### Deployment
 
-Scope this diagram to one deployment environment.
+Scope this diagram to one deployment environment. Nest a `subgraph` per deployment node.
 
 ```mermaid
-C4Deployment
-    title <System> on <target>, <environment> environment
+flowchart TB
+    dns["{DNS record}<br/><i>Infrastructure node</i>"]
 
-    Deployment_Node(host, "<Host>", "<OS, size>") {
-        Deployment_Node(runtime, "<Runtime>", "<version>") {
-            Container(a, "<container-id>", "<technology>", "<responsibility>")
-            ContainerDb(store, "<container-id>", "<technology>", "<what it stores>")
-        }
-    }
+    subgraph host["{Host}<br/><i>{OS, size}</i>"]
+        subgraph runtime["{Runtime}<br/><i>{version}</i>"]
+            a["{container-id}<br/><i>{technology}</i>"]
+            store[("{container-id}<br/><i>{technology}</i>")]
+        end
+    end
 
-    Deployment_Node(net, "<DNS>", "Infrastructure node") {
-        Container(record, "<Record>", "-", "<What it points at>")
-    }
+    dns -->|"Resolves to"| a
+    a -->|"{protocol}, {port}"| store
 
-    Rel(record, a, "<Resolves to>")
-    Rel(a, store, "<protocol>")
+    classDef container fill:#1168bd,stroke:#0b4884,color:#ffffff
+    classDef ext fill:#999999,stroke:#6b6b6b,color:#ffffff
+    class a,store container
+    class dns ext
 ```
 
 ## N.2 Elements
 
-On a dynamic page, title this section `Participants`. On a deployment page, add a `Node` column.
+Title this section `Participants` on a dynamic page. Add a `Node` column on a deployment page.
 
 | Container | Technology | Responsibility | Exposure | Compose service |
 | --- | --- | --- | --- | --- |
-| `<container-id>` | <technology> | <What it is responsible for> | <Public, Internal, or Internal only> | yes |
-| `<client-side container>` | <technology> | <What it is responsible for> | Client device | no |
+| `{container-id}` | {technology} | {What it is responsible for} | Public / Internal / Internal only | yes |
+| `{client-side container}` | {technology} | {What it is responsible for} | Client device | no |
 
-Name the source of the pins, and the source of any container that has no Compose service. [`AGENTS.md`](./AGENTS.md) gives the rules for building this list.
+Name the source of every pin. Name the source of any container that has no Compose service.
 
 State what this list leaves out. A container list built only from Compose is incomplete.
 
 ## N.3 Relationships
 
+Structural and deployment pages only. Delete on a dynamic page, because the diagram already carries the order.
+
 | From | To | Protocol | Port | Carries |
 | --- | --- | --- | --- | --- |
-| `<container-id>` | `<container-id>` | <protocol> | <port> | <What flows> |
+| `{container-id}` | `{container-id}` | {protocol} | {port} | {What flows} |
 
 ## N.4 Trust boundaries
 
+Structural and deployment pages only. Delete on a dynamic page.
+
 | Zone | Contains | Exposure |
 | --- | --- | --- |
-| <Zone> | <Containers> | <Exposure> |
+| {Zone} | {Containers} | {Exposure} |
 
-## N.5 Deployment nodes
+## N.5 Failure modes
 
-| Node | Type | Nested in | Holds | Instances |
-| --- | --- | --- | --- | --- |
-| <Node> | Deployment node | <Parent, or -> | <Containers> | <count> |
-| <Node> | Infrastructure node | <Parent, or -> | - | - |
-
-Operational depth for this target lives in [`../../../devops/infra/`](../../../devops/infra/INDEX.md). Do not duplicate it. Link to it.
-
-## N.6 Failure modes
-
-Never leave this table empty on a dynamic page.
+Dynamic pages only. This section carries the value of the page, so never leave it empty.
 
 | Failure | Observable symptom | Recovery |
 | --- | --- | --- |
-| <What breaks> | <What a user or an operator sees> | [<SOP name>](../../../sops/<slug>-sop.md) |
+| {What breaks} | {What a user or an operator sees} | [{SOP name}](../../../sops/{slug}-sop.md) |
 
-## N.7 Configuration
+## N.6 Notes
 
-| Variable | Default | Effect |
-| --- | --- | --- |
-| `<ENV_VAR>` | `<default>` or `no default` | <What changes when you set it> |
-
-Canonical list: [`.env.example`](../../../../.env.example) and [`apps/api/.env.example`](../../../../apps/api/.env.example).
-
-## N.8 Notes
+Three bullets at most. Write what the picture cannot show.
 
 - **Primary path**: The route through the diagram when every step succeeds.
-- **Branch**: The main decision point and both outcomes.
+- **Branch**: The main decision point, and both outcomes.
 - **Design choice**: Something a reader cannot guess from the code.
 
-## N.9 Verification
+Name an environment variable here only when it changes the shape of the diagram. The canonical lists are [`.env.example`](../../../../.env.example) and [`apps/api/.env.example`](../../../../apps/api/.env.example). Operational depth for a deployment target lives in [`../../../devops/infra/`](../../../devops/infra/INDEX.md). Link to it and never copy it.
 
-- **Tests**: `<test path>`
-- **Command**: <The exact command that exercises this flow or starts these containers>
-- **Expected result**: <The observable proof>
-
-## N.10 Related
+## N.7 Related
 
 | Page | Why it matters here |
 | --- | --- |
-| [<L1 page>](../context/NN-slug.md) | The external boundary around these containers |
-| [<L3 page>](../components/NN-slug.md) | File-level detail inside one container |
-| [<Infra page>](../../../devops/infra/NN-slug.md) | How these containers deploy |
-| [<Security page>](../../../security/NN-slug.md) | The restriction enforced here |
+| [{L1 page}](../context/NN-slug.md) | The external boundary around these containers |
+| [{L3 page}](../components/NN-slug.md) | File-level detail inside one container |
+| [{Infra page}](../../../devops/infra/NN-slug.md) | How these containers deploy |
+
+### Related feature specs
+
+Delete this table when no spec drove a change to this page.
+
+| Spec | Description | Status |
+| --- | --- | --- |
+| [{Feature name}](../../../features/new/{slug}.md) | One-line summary | {A status from `docs/features/AGENTS.md`} |

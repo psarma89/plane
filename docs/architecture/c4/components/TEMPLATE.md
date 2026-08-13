@@ -1,18 +1,12 @@
-# N. <Container>: <Journey or Map Title>
+# N. {Container}: {Map or Journey Title}
 
 > **Last reviewed:** YYYY-MM-DD
 > **Level:** L3 Components
 > **Kind:** Structural | Dynamic
-> **Container:** `apps/web`
-> **Scope:** One sentence. State what the user does and what the outcome is.
+> **Container:** `apps/{name}`
+> **Scope:** One sentence that states what this container is responsible for.
 
 Every element on this page must share one process with the others. If one does not, the page is L2. See [`AGENTS.md`](./AGENTS.md).
-
-### Related feature specs
-
-| Spec | Description | Status |
-| --- | --- | --- |
-| [<Feature name>](../../../features/new/<slug>.md) | One-line summary | Shipped / In progress / Draft |
 
 ## N.1 Diagram
 
@@ -20,25 +14,28 @@ Keep the block that matches the page kind. Delete the other.
 
 ### Structural
 
-Every component below must share one process. Read each technology string from the container you are documenting.
+Put every component inside one `subgraph` for the container. Draw the containers it talks to outside that boundary, and mark them `ext`.
 
 ```mermaid
-C4Component
-    title Components inside <container> for <journey>
+flowchart TB
+    subgraph c["apps/{name}"]
+        entry["{entry point}<br/><i>{technology}</i>"]
+        view["{view layer}<br/><i>{technology}</i>"]
+        state["{state layer}<br/><i>{technology}</i>"]
+        svc["{service layer}<br/><i>{technology}</i>"]
+    end
 
-    Container_Boundary(c, "<container>") {
-        Component(entry, "<Entry point>", "<technology>", "<what it does>")
-        Component(view, "<View>", "<technology>", "<what it renders>")
-        Component(state, "<Store>", "<technology>", "<what state it owns>")
-        Component(svc, "<Service>", "<technology>", "<what it calls>")
-    }
+    other["{other container}<br/><i>{technology}</i>"]
 
-    Container(other, "<other container>", "<technology>", "<responsibility>")
+    entry --> view
+    view --> state
+    state --> svc
+    svc -->|"{protocol}"| other
 
-    Rel(entry, view, "<verb>")
-    Rel(view, state, "<verb>")
-    Rel(state, svc, "<verb>")
-    Rel(svc, other, "<protocol>")
+    classDef container fill:#1168bd,stroke:#0b4884,color:#ffffff
+    classDef ext fill:#999999,stroke:#6b6b6b,color:#ffffff
+    class entry,view,state,svc container
+    class other ext
 ```
 
 ### Dynamic
@@ -47,106 +44,65 @@ Every participant must share one process. A participant in another process makes
 
 ```mermaid
 sequenceDiagram
-    participant V as <View>
-    participant S as <Store>
-    participant C as <Service>
+    participant V as {View}
+    participant S as {Store}
+    participant C as {Service}
 
-    V->>S: <action>
-    S->>S: <local effect>
-    S->>C: <call>
-    C-->>S: <response>
-    S-->>V: <update>
+    V->>S: {action}
+    S->>S: {local effect}
+    S->>C: {call}
+    C-->>S: {response}
+    S-->>V: {update}
 ```
 
-## N.2 Key files
+## N.2 Components
 
-Delete a row that does not apply.
+One row per node in the diagram. This table saves the reader a code search, so it is the highest-value section on the page. Give every row a real path.
 
-| Layer | File |
-| --- | --- |
-| Route | `apps/web/app/routes/...` |
-| Layout | `apps/web/core/layouts/...` |
-| Component | `apps/web/core/components/...` |
-| Hook | `apps/web/core/hooks/...` |
-| Service | `apps/web/core/services/...` |
-| Store | `apps/web/core/store/...` |
-| Shared package | `packages/ui/...` |
-| API URL | `apps/api/plane/app/urls/...` |
-| API view | `apps/api/plane/app/views/...` |
-| Serializer | `apps/api/plane/app/serializers/...` |
-| Permission | `apps/api/plane/app/permissions/...` |
-| Model | `apps/api/plane/db/models/...` |
-| Background task | `apps/api/plane/bgtasks/...` |
+| Component | Path | Responsibility |
+| --- | --- | --- |
+| {Name as the diagram labels it} | `apps/{name}/...` | {What it owns} |
 
-## N.3 Key components
+## N.3 State
 
-**`<ComponentName>`** renders <what>. It <key behavior>. It blocks <user-facing constraint>.
+Delete this section on a container that holds no store. Say why, rather than leaving an empty table.
 
-- Background classes: `bg-surface-1` with `bg-layer-1` children. See `packages/tailwind-config/AGENTS.md`.
-- Translation keys: `<namespace>.<key>` in `packages/i18n/src/locales`.
-
-## N.4 Key state
-
-Delete this section on a container with no store, for example `apps/live`. Say why rather than leaving an empty table.
-
-**`<StoreName>`** (`apps/web/core/store/...`)
+**`{StoreName}`** (`apps/{name}/core/store/...`)
 
 | Observable | Type | Purpose |
 | --- | --- | --- |
-| `<name>` | `<type>` | What it holds and who reads it |
+| `{name}` | `{type}` | {What it holds, and who reads it} |
 
 | Action | Effect |
 | --- | --- |
-| `<actionName>` | What it changes, and which service it calls |
+| `{actionName}` | {What it changes, and which service it calls} |
 
-## N.5 Key data models
+## N.4 Notes
 
-**`<ModelName>`** (`<table_name>` table, `apps/api/plane/db/models/...`)
+Three bullets at most. Write what the picture cannot show.
 
-| Field | Type | Constraints |
-| --- | --- | --- |
-| `id` | UUID | Primary key, default `uuid4()` |
-| `name` | CharField(255) | Not null |
-| `created_at` | DateTimeField | Auto add |
-
-- Note any storage decision a reader cannot guess. Example: "Soft-deleted, not removed."
-
-## N.6 Data flow
-
-```mermaid
-flowchart TD
-    A[User action] --> B[Component handler]
-    B --> C[Store action]
-    C --> D[Service call]
-    D --> E[API view]
-    E --> F{Valid?}
-    F -->|Yes| G[Persist and return 200]
-    F -->|No| H[Return 400 with field errors]
-    G --> I[Store updates observable]
-    H --> J[Component shows inline error]
-```
-
-- **Primary path**: The route through the flow when every step succeeds.
-- **Branch**: The main decision point and both outcomes.
+- **Primary path**: The route through the diagram that carries the most traffic.
+- **Constraint**: A rule the code enforces, named with the symbol that enforces it.
 - **Design choice**: Something a reader cannot guess from the code.
 
-## N.7 Acceptance criteria
+Repo rules to respect when a note touches them:
 
-Write each rule from the code that enforces it. Mark a UI-only rule as "client-side only".
+- Name the Canvas, Surface, or Layer choice for a UI component. See `packages/tailwind-config/AGENTS.md`.
+- Name the translation key from `packages/i18n/src/locales`, never the English text.
+- Name the DRF permission class that guards an endpoint.
 
-- <Validation rule and where it is enforced>
-- <Permission boundary, with the DRF permission class that enforces it>
-- <Error handling behavior the user sees>
-
-## N.8 Verification
-
-- **Tests**: `apps/api/tests/...`, `apps/web/...`
-- **Command**: The exact command that exercises this journey.
-
-## N.9 Related
+## N.5 Related
 
 | Page | Why it matters here |
 | --- | --- |
-| [<L2 page>](../containers/NN-slug.md) | The flow that crosses into this container |
-| [<L4 page>](../code/NN-slug.md) | Call detail for one hard function here |
-| [<Security page>](../../../security/NN-slug.md) | The restriction enforced here |
+| [{L2 page}](../containers/NN-slug.md) | The flow that crosses into this container |
+| [{L4 page}](../code/NN-slug.md) | Call detail for one hard function here |
+| [{Security page}](../../../security/NN-slug.md) | The restriction enforced here |
+
+### Related feature specs
+
+Delete this table when no spec drove a change to this page.
+
+| Spec | Description | Status |
+| --- | --- | --- |
+| [{Feature name}](../../../features/new/{slug}.md) | One-line summary | {A status from `docs/features/AGENTS.md`} |

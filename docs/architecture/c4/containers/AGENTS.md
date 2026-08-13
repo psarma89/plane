@@ -80,6 +80,8 @@ A structural page and a deployment page both list each zone and its exposure. Us
 | Application | `web`, `admin`, `space`, `api`, `live`, `worker` | Internal |
 | Data | `plane-db`, `plane-redis`, `plane-mq`, `plane-minio` | Internal only |
 
-## Configuration on a dynamic page
+## Environment variables
 
-Name each environment variable in backticks, exactly as the code reads it. Give the default value, or write `no default`.
+[`TEMPLATE.md`](./TEMPLATE.md) carries no configuration section, because a copied variable list goes stale and [`.env.example`](../../../../.env.example) already holds the canonical one.
+
+Name a variable in a note only when it changes the shape of the diagram. An example is a variable that switches a container on. Write the name in backticks, exactly as the code reads it, and give the default value or write `no default`.

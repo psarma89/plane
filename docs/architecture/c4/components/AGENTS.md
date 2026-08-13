@@ -45,18 +45,28 @@ A dynamic page belongs here when every element it names shares one process. Othe
 
 State the kind in the header block.
 
-## One page per container, or per journey inside a container
+## One structural page per container is the baseline
 
-Both shapes are valid. Pick by size.
+C4 sets the completeness bar at a component diagram for each container. One structural page per application container meets that bar, and that is the baseline here.
 
-| Shape | Use when | Example title |
-| --- | --- | --- |
-| Per container | The container is small, or you need the map first | `Components inside apps/live` |
-| Per journey | The container is large and the journey is self-contained | `Web: work item detail and activity` |
+| Container | Structural page |
+| --- | --- |
+| `apps/api` | Yes |
+| `apps/web` | Yes |
+| `apps/admin` | Yes |
+| `apps/space` | Yes |
+| `apps/live` | Yes |
+| `apps/proxy` | Yes |
 
-`apps/api` and `apps/web` are large. Prefer per journey there. Name the container in the title. Example: `# 4. Web: cycles and modules`.
+A data store gets no page at this level. `plane-db`, `plane-redis`, `plane-mq`, and `plane-minio` hold no component that this repository owns.
 
-A journey is a thing a user sets out to do: sign in, plan a cycle, publish a board, administer an instance.
+Name the container in the title. Example: `# 2. apps/api: module map`.
+
+### Journey pages come second
+
+A journey is a thing a user sets out to do: sign in, plan a cycle, publish a board, administer an instance. `apps/api` and `apps/web` are large enough to earn several journey pages.
+
+Write the container page first. A journey page with no container map has no context.
 
 - **New page**: The feature adds a journey no existing page covers.
 - **Update an existing page**: The feature changes behavior inside a documented journey.
@@ -65,24 +75,18 @@ A new tab on an existing settings screen updates the settings page. It does not 
 
 ## Sections
 
-[`TEMPLATE.md`](./TEMPLATE.md) holds the section list and the key files table.
+[`TEMPLATE.md`](./TEMPLATE.md) holds the section list.
 
-Its key files table is the highest-value part of a page here, because it saves the reader a code search. Fill every row that applies.
+Its `Components` table is the highest-value part of a page here, because a real path saves the reader a code search. Give every diagram node a row, and give every row a path.
 
 Delete a section that does not apply to the container. An `apps/live` page has no MobX store. Say so rather than leaving an empty table.
 
-## Acceptance criteria
-
-Write each criterion from the code that enforces it, not from the product intent.
-
-- Good: "A cycle end date before its start date returns 400 from the serializer."
-- Bad: "Dates are validated correctly."
-
-If a rule exists only in the UI, say so. Write "client-side only".
-
 ## Repo rules to respect
+
+Apply these when a note touches them. Do not add a section for them.
 
 - Every `bg-*` class follows `packages/tailwind-config/AGENTS.md`. Name the Canvas, Surface, or Layer choice when a page documents UI.
 - Every user-facing string lives in `packages/i18n/src/locales`. Name the translation key, not the English text.
 - State lives in MobX stores. Name the store and the observable, not a local copy.
 - Name the DRF permission class that guards each endpoint.
+- Write a constraint from the code that enforces it, not from the product intent. Good: "A cycle end date before its start date returns 400 from the serializer." Bad: "Dates are validated correctly." If a rule exists only in the UI, write "client-side only".
