@@ -39,7 +39,7 @@ See `apps/api/tests/RUNNING_TESTS.md` for the full walkthrough and troubleshooti
 
 Read these files before you change code in the area that they cover.
 
-- The `docs/` directory is an in-project system to organize knowledge and feature work.
+- `docs/INDEX.md` is the map of the in-project knowledge system. `docs/AGENTS.md` gives the conventions for every page under `docs/`.
 - Additional `AGENTS.md` files live in sub-directories. They give more code requirements and conventions.
 - `.github/instructions/bash.instructions.md`: pnpm, Turbo, Docker, and monorepo layout conventions.
 - `.github/instructions/typescript.instructions.md`: TypeScript 5.0 to 5.8 features, patterns, and deprecated syntax to avoid.

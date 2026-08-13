@@ -128,6 +128,8 @@ See [CONTRIBUTING](./CONTRIBUTING.md)
 
 Explore Plane's [product documentation](https://docs.plane.so/) and [developer documentation](https://developers.plane.so/) to learn about features, setup, and usage.
 
+For in-repository knowledge about this codebase, start at [`docs/INDEX.md`](./docs/INDEX.md). It covers architecture, DevOps, security, operational procedures, and feature specifications.
+
 ## ❤️ Community
 
 Join the Plane community on [GitHub Discussions](https://github.com/orgs/makeplane/discussions) and our [Forum](https://forum.plane.so). We follow a [Code of conduct](https://github.com/makeplane/plane/blob/master/CODE_OF_CONDUCT.md) in all our community channels.

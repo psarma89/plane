@@ -1,4 +1,7 @@
-# Plane clients and interfaces
+# 1. Plane clients and interfaces
+
+> **Last reviewed:** 2026-08-12
+> **Canonical references:** <https://docs.plane.so>, <https://developers.plane.so>
 
 This document lists every way to consume Plane. It answers one question: what are all the interfaces?
 
