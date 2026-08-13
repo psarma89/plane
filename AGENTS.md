@@ -39,7 +39,7 @@ See `apps/api/tests/RUNNING_TESTS.md` for the full walkthrough and troubleshooti
 
 Read these files before you change code in the area that they cover.
 
-- `docs/`: the in-project system to organize knowledge and feature work. It holds `docs/linting.md` and `docs/clients/README.md`.
+- `docs/`: the in-project system to organize knowledge and feature work.
 - `.github/instructions/bash.instructions.md`: pnpm, Turbo, Docker, and monorepo layout conventions.
 - `.github/instructions/typescript.instructions.md`: TypeScript 5.0 to 5.8 features, patterns, and deprecated syntax to avoid.
 - `packages/tailwind-config/AGENTS.md`: conventions for that package.
