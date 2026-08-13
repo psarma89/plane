@@ -12,15 +12,7 @@ What we plan to build or change, and why. A page here is a specification. It is 
 
 ## Which one
 
-```mermaid
-flowchart TD
-    Q1{Does a user gain a<br/>new ability?} -->|Yes| NEW[new/]
-    Q1 -->|No| Q2{Does today's behavior<br/>match the docs?}
-    Q2 -->|Yes| CHG[changes/]
-    Q2 -->|No| BUG[bugfixes/]
-```
-
-A defect whose fix changes documented behavior goes in `changes/`. Link to it from `bugfixes/`.
+[`AGENTS.md`](./AGENTS.md) gives the questions that pick the sub-folder, and the boundary case where a defect belongs in `changes/`.
 
 ## Status values
 

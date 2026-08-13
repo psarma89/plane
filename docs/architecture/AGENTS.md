@@ -2,16 +2,9 @@
 
 Architecture pages describe **how Plane works today**. They are not proposals. A proposal belongs in [`../features/`](../features/INDEX.md).
 
-Every page lives under [`c4/`](./c4/INDEX.md). One structure covers every zoom level, because the [C4 model](https://c4model.com/) already spans both system architecture and application architecture.
+Every page lives under [`c4/`](./c4/INDEX.md). One structure covers every zoom level, because the [C4 model](https://c4model.com/) already spans both system architecture and application architecture. A separate `system/` and `application/` split is redundant, because the level already states the zoom.
 
-| C4 level | Covers | Folder |
-| --- | --- | --- |
-| L1 Context | System architecture: actors, Plane as one box, external systems | [`c4/context/`](./c4/context/INDEX.md) |
-| L2 Containers | System architecture: deployable units, traffic, runtime flows across containers | [`c4/containers/`](./c4/containers/INDEX.md) |
-| L3 Components | Application architecture: modules, routes, stores, and models inside one container | [`c4/components/`](./c4/components/INDEX.md) |
-| L4 Code | Application architecture: class and call detail for one hard algorithm | [`c4/code/`](./c4/code/INDEX.md) |
-
-A separate `system/` and `application/` split is redundant. The level already states the zoom.
+[`c4/AGENTS.md`](./c4/AGENTS.md) maps each level to its folder.
 
 ## Which level gets the page
 

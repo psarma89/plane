@@ -34,9 +34,15 @@ List every failure a reader expects to be watched but is not. Give the reason.
 
 Plane runs as a self-hosted deployment and as a hosted service. The available tooling differs.
 
-- State which deployment each signal exists in.
-- Use an **Availability** column with the value `Self-hosted`, `Cloud`, or `Both`.
-- Never assume a managed observability tool exists in a self-hosted install.
+State which deployment each signal exists in, with an **Availability** column. Use exactly one of three values. This set is not the four-value set in [`../../clients/AGENTS.md`](../../clients/AGENTS.md), which covers a different subject.
+
+| Value | Meaning |
+| --- | --- |
+| `Self-hosted` | Available in a self-hosted install |
+| `Cloud` | Available in the hosted service only |
+| `Both` | Available in both |
+
+Never assume a managed observability tool exists in a self-hosted install.
 
 ## Thresholds
 

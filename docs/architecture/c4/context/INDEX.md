@@ -12,10 +12,6 @@ Entry format: `- [N. Title](./NN-slug.md) - one-line summary`
 
 <!-- - [1. System context](./01-system-context.md) - Actors, Plane as one box, and every external system. -->
 
-## Expected page count
-
-One. Plane has one system context. Add a second page only for a genuinely separate context.
-
 ## What the page must answer
 
 | Question | Section |

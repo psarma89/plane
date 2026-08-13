@@ -20,7 +20,7 @@ Pick the folder by the question that the page answers. If two folders fit, write
 | File | Purpose | Required |
 | --- | --- | --- |
 | `AGENTS.md` | Conventions for the folder. The rules to follow to add a page. | Yes |
-| `INDEX.md` | The folder landing page. States the purpose and links every file in the folder. | Yes |
+| `INDEX.md` | The folder index, and the target every inbound link points at. States the purpose and links every file in the folder. | Yes |
 | `TEMPLATE.md` | The skeleton for a new page in the folder. | Only where the folder holds pages |
 
 A folder that only routes to sub-folders has no `TEMPLATE.md`. Five folders route: `docs/`, `architecture/`, `architecture/c4/`, `devops/`, and `features/`. Their sub-folders hold the templates.

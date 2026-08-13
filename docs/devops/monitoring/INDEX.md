@@ -26,15 +26,7 @@ This list is a backlog, not a claim that the pages exist. Delete a row when you 
 
 ## Availability
 
-State the deployment for every signal. Tooling differs between installs.
-
-| Value | Meaning |
-| --- | --- |
-| `Self-hosted` | Available in a self-hosted install |
-| `Cloud` | Available in the hosted service only |
-| `Both` | Available in both |
-
-Do not assume a managed observability tool exists in a self-hosted install.
+State the deployment for every signal. Tooling differs between installs. [`AGENTS.md`](./AGENTS.md) defines the three values.
 
 ## Related
 

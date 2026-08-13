@@ -12,9 +12,9 @@ Entry format: `- [Title](./<WORK-ITEM-ID>-<slug>-YYYY-MM-DD.md) - Status - one-l
 
 Order this index newest first. A reader looks for the most recent change to a feature.
 
-## Why the date is in the file name
+## Conventions
 
-One feature can change several times. The date keeps the record ordered and prevents an edit to history.
+[`AGENTS.md`](./AGENTS.md) gives the naming rule, including why the file name carries a date, and the sections every change spec needs.
 
 ## Related
 
