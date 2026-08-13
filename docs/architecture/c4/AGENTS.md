@@ -157,7 +157,9 @@ A reader must get the answer from the picture. The prose exists to carry what a 
 - Put the diagram first, directly under the header block. Never open a page with a paragraph.
 - Give a page one primary diagram. A second diagram needs its own reason.
 - Follow the diagram with one element table and, where the page needs it, one relationship table.
-- Every node in the diagram needs a row in the element table. A node with no row makes the page wrong.
+- Every node inside the page boundary needs a row in the element table. A node with no row makes the page wrong.
+- A node carrying the `ext` class needs no row. It sits outside the boundary and exists to give the reader context, so the page that owns it describes it instead. Link to that page.
+- A node carrying the `person` class needs no row in the element table either. An actor belongs in the `Actors` table, under the role name the product uses.
 - Write the rest as a short bullet list, never as paragraphs.
 
 Delete a section that carries nothing. An empty table is worse than a missing one.

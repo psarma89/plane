@@ -54,7 +54,8 @@ flowchart TB
 | Dashboard gate | `apps/admin/app/(all)/(dashboard)/layout.tsx` | Redirects to `/` when the user is not logged in |
 | Home switch | `apps/admin/app/(all)/(home)/page.tsx` | Spinner, failure view, setup form, or sign-in form |
 | Stores | `apps/admin/store/root.store.ts` | `ThemeStore`, `InstanceStore`, `UserStore`, `WorkspaceStore` |
-| Sidebar menu | `apps/admin/hooks/use-sidebar-menu/core.ts` | The six settings areas |
+| Sidebar menu | `apps/admin/hooks/use-sidebar-menu/core.ts` | Declares the six settings areas |
+| 6 settings areas | `apps/admin/app/(all)/(dashboard)/` | One page per area: general, email, workspace, authentication, ai, image. Section 3.4 lists what each one writes. |
 
 ## 3.3 State
 
