@@ -14,24 +14,9 @@ Entry format: `- [Title](./<WORK-ITEM-ID>-<slug>.md) - Severity - one-line sympt
 
 Order this index newest first.
 
-## Not every bug earns a page
-
-Most defects need only a pull request and a test. Write a record when at least one statement is true.
-
-- The defect reached users.
-- The root cause was not the obvious one.
-- The defect returned after an earlier fix.
-- The fix crosses two or more apps.
-- The defect needed a data repair.
-
 ## Severity
 
-| Severity | Meaning |
-| --- | --- |
-| `S1` | Data loss, or the product is unusable for many users |
-| `S2` | A core journey is broken. A workaround exists. |
-| `S3` | A non-core journey is broken, or the defect is cosmetic and visible |
-| `S4` | Cosmetic, or reachable only in an unusual path |
+[`AGENTS.md`](./AGENTS.md) defines `S1` to `S4`, and the five triggers that decide whether a defect earns a record at all.
 
 ## Related
 

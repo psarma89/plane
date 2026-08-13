@@ -104,4 +104,4 @@ Every page carries a `### Related feature specs` table after the title. Add a ro
 - A bug fix or a refactor that keeps the same structural relationships.
 - A feature that fits inside an existing component boundary.
 
-Update an existing page before you create a new one. A thin page set that stays true beats a wide page set that rots.
+Update an existing page before you create a new one.

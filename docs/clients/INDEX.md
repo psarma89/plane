@@ -32,14 +32,7 @@ Split a group out of page 01 when it grows past a short section. This list is a 
 
 ## Availability values
 
-Never state a capability without its availability.
-
-| Value | Meaning |
-| --- | --- |
-| `Cloud` | The hosted service only |
-| `Self-hosted` | A self-hosted deployment only |
-| `Both` | Both deployment models |
-| `Commercial` | Commercial editions only. Name the tier. |
+Never state a capability without its availability. [`AGENTS.md`](./AGENTS.md) defines the four values.
 
 ## Related
 

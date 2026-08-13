@@ -14,13 +14,7 @@ Entry format: `- [Title](./<WORK-ITEM-ID>-<slug>.md) - Status - one-line summary
 
 ## Status values
 
-| Status | Meaning |
-| --- | --- |
-| `Draft` | Written. Not agreed. |
-| `Agreed` | Reviewed and accepted. Work can start. |
-| `In progress` | Implementation started. |
-| `Shipped` | Merged and released. |
-| `Abandoned` | Will not be built. The reason is in the page. |
+[`../AGENTS.md`](../AGENTS.md) defines the five values.
 
 Keep this index grouped by status once more than five specs exist. Put `Draft` and `Agreed` first. A reader looks for open work.
 

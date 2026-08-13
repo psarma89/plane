@@ -27,7 +27,7 @@ Every row maps to a real path. This list is a backlog, not a claim that a page e
 
 ## Services in the root Compose stack
 
-Copied from `docker-compose.yml`. Update this table when a pin changes.
+This table is the canonical Compose inventory for the whole `docs/` tree. Read it from `docker-compose.yml`, and update it when a pin changes. It is not the full C4 container list, because some containers ship no Compose service. See [`../../architecture/c4/containers/INDEX.md`](../../architecture/c4/containers/INDEX.md).
 
 | Service | Image or build | Role |
 | --- | --- | --- |
@@ -41,7 +41,7 @@ Copied from `docker-compose.yml`. Update this table when a pin changes.
 | `migrator` | Built from `apps/api` | One-shot migration runner |
 | `live` | Built from `apps/live` | Hocuspocus collaboration server |
 | `plane-db` | `postgres:15.7-alpine` | Primary data store |
-| `plane-redis` | `valkey/valkey:7.2.11-alpine` | Cache and rate limits |
+| `plane-redis` | `valkey/valkey:7.2.11-alpine` | Cache and rate limits. Valkey, not Redis, despite the service name. |
 | `plane-mq` | `rabbitmq:3.13.6-management-alpine` | Celery broker |
 | `plane-minio` | `minio/minio` | Object storage |
 

@@ -49,12 +49,7 @@ flowchart LR
     A --> C[clients/<br/>how users reach it]
 ```
 
-| Direction | Rule |
-| --- | --- |
-| `features/` to `architecture/` | When a feature ships, update the architecture page to match the built result, not the proposed design. |
-| `architecture/` to `security/` | When a guard, permission, or gate changes, update the matching security catalog page. |
-| `architecture/` to `devops/` | When a deployable unit or dependency changes, update the matching infra page. |
-| `devops/` to `sops/` | A pipeline or infra page describes the shape. An SOP gives the steps to run it. |
+[`architecture/AGENTS.md`](./architecture/AGENTS.md) states which page to update for each kind of code change.
 
 ## Standalone pages
 

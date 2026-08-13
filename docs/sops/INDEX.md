@@ -33,11 +33,7 @@ This list is a backlog, not a claim that the pages exist. Delete a row when you 
 
 ## Risk levels
 
-| Level | Meaning |
-| --- | --- |
-| `Low` | Read-only, or fully reversible with no data loss |
-| `Medium` | Changes state. A rollback exists and is tested. |
-| `High` | Can lose data or cause an outage. Needs a second person. |
+[`AGENTS.md`](./AGENTS.md) defines `Low`, `Medium`, and `High`, and states what a `High` SOP needs.
 
 ## Related
 

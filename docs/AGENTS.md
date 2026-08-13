@@ -38,7 +38,7 @@ An `AGENTS.md` earns its tokens by holding what a reader cannot see from the fol
 - A numbered page set uses `NN-<slug>.md`. `NN` is zero-padded and starts at `01`.
 - A new page takes the next free number. Do not renumber an existing page.
 - Sections inside a numbered page use `## N.1` and `## N.2`, and match the page number.
-- `sops/` uses `<slug>-sop.md` and no number, because a runbook set has no reading order.
+- Three folders do not number their pages, because their sets have no reading order. `sops/` uses `<slug>-sop.md`, `features/` uses the work item slug, and `cicd/` names a page after its workflow file.
 - If a page tracks one Plane work item, prefix the slug with the work item ID. Example: `WEB-8632-stale-chunk-reload.md`.
 
 ## INDEX.md maintenance

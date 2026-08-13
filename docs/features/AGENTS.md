@@ -38,7 +38,7 @@ Every page carries a status in its header block. Use exactly one of five values.
 | `Shipped` | Merged and released. |
 | `Abandoned` | Will not be built. The reason is in the page. |
 
-Never delete an abandoned page. Set the status to `Abandoned` and write the reason. A rejected idea is knowledge.
+Never delete an abandoned page. Set the status to `Abandoned` and write the reason, so the next author does not re-propose it.
 
 ## A spec goes stale. Do not rewrite history.
 

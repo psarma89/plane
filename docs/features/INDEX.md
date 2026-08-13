@@ -26,17 +26,7 @@ A defect whose fix changes documented behavior goes in `changes/`. Link to it fr
 
 ## Status values
 
-Every page carries one status in its header block.
-
-| Status | Meaning |
-| --- | --- |
-| `Draft` | Written. Not agreed. |
-| `Agreed` | Reviewed and accepted. Work can start. |
-| `In progress` | Implementation started. |
-| `Shipped` | Merged and released. |
-| `Abandoned` | Will not be built. The reason is in the page. |
-
-Never delete an abandoned page. A rejected idea is knowledge.
+Every page carries one status in its header block. [`AGENTS.md`](./AGENTS.md) defines the five values and the rule for an abandoned page.
 
 ## Lifecycle
 

@@ -15,13 +15,7 @@ C4 already spans both system architecture and application architecture. The leve
 | **L3 Components** | Application architecture | [c4/components/](./c4/components/INDEX.md) |
 | **L4 Code** | Application architecture | [c4/code/](./c4/code/INDEX.md) |
 
-```mermaid
-flowchart TD
-    L1["L1 context/<br/>Who uses Plane, what it talks to"] --> L2
-    L2["L2 containers/<br/>Deployable units and flows between them"] --> L3
-    L3["L3 components/<br/>Modules, stores, and models in one container"] --> L4
-    L4["L4 code/<br/>One hard algorithm, rarely needed"]
-```
+[c4/INDEX.md](./c4/INDEX.md) shows how the four levels nest.
 
 ## Where to start
 

@@ -15,7 +15,7 @@ A signal row without all four facts is incomplete.
 3. **What it means when it moves.** The threshold and the direction.
 4. **What to do.** The SOP that recovers it.
 
-A signal that nobody watches is not monitoring. Mark it `Unwatched` and say so.
+Where nobody watches a signal, mark it `Unwatched`.
 
 ## Known blind spots
 

@@ -14,17 +14,7 @@ Entry format: `- [N. Title](./NN-slug.md) - Structural | Dynamic | Deployment - 
 
 ## Three page kinds
 
-| Kind | Answers | Diagram | C4 type |
-| --- | --- | --- | --- |
-| **Structural** | What runs where, and what talks to what? | `C4Container` | Container diagram (L2) |
-| **Dynamic** | How does one concern travel across containers, in order? | `sequenceDiagram` | Dynamic diagram |
-| **Deployment** | Where do container instances run, in one environment? | `C4Deployment` | Deployment diagram |
-
-A dynamic page covers a concern that crosses containers end to end. That is the same job a separate system-architecture folder once did. The container granularity makes it L2.
-
-A dynamic diagram can also sit at L3, when it shows components inside one container. File that page in [../components/](../components/INDEX.md).
-
-A deployment page is scoped to one deployment environment. Do not mix production and local development in one diagram.
+[`AGENTS.md`](./AGENTS.md) defines the structural, dynamic, and deployment kinds, and which sections each one needs.
 
 ## Suggested first pages
 
@@ -60,25 +50,9 @@ Read the vocabulary section in [../AGENTS.md](../AGENTS.md) before you build a c
 
 ## Services in the Compose stack
 
-Read from `docker-compose.yml`. This table is not the full container list. See the section above.
+[`../../../devops/infra/INDEX.md`](../../../devops/infra/INDEX.md) holds the canonical Compose inventory, with the image and the pin for each service. Read it there, and never copy a row here, because two copies drift.
 
-Pins live in [`../../../devops/infra/INDEX.md`](../../../devops/infra/INDEX.md). Do not copy a pin here, because two copies drift.
-
-| Service | Image or build | Role |
-| --- | --- | --- |
-| `proxy` | Built from `apps/proxy` | Caddy ingress and TLS |
-| `web` | Built from `apps/web` | Workspace app |
-| `admin` | Built from `apps/admin` | Instance admin |
-| `space` | Built from `apps/space` | Published pages |
-| `api` | Built from `apps/api` | Django REST API |
-| `worker` | Built from `apps/api` | Celery worker |
-| `beat-worker` | Built from `apps/api` | Celery beat scheduler |
-| `migrator` | Built from `apps/api` | One-shot migration runner |
-| `live` | Built from `apps/live` | Hocuspocus collaboration server |
-| `plane-db` | `postgres` | Primary data store |
-| `plane-redis` | `valkey/valkey` | Cache and rate limits. Valkey, not Redis, despite the name. |
-| `plane-mq` | `rabbitmq` | Celery broker |
-| `plane-minio` | `minio/minio` | Object storage |
+That inventory is not the full container list. Add the surfaces in the section above.
 
 ## Related
 

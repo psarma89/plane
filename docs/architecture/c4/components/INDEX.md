@@ -20,23 +20,9 @@ So one test decides whether a page belongs here. **If two things run in separate
 
 A Celery task definition sits in the `api` process, so it is L3. The same task executing in `worker` crosses a process, so it is L2.
 
-## Two page kinds
+## Page kinds and shapes
 
-| Kind | Answers | Diagram |
-| --- | --- | --- |
-| **Structural** | Which components exist in this container, and how do they connect? | `C4Component` |
-| **Dynamic** | How do components inside this container work together for one feature? | `sequenceDiagram` |
-
-A dynamic page belongs here only when every element it names shares one process. Otherwise file it in [../containers/](../containers/INDEX.md).
-
-## Two page shapes
-
-| Shape | Use when | Example title |
-| --- | --- | --- |
-| Per container | The container is small, or you need the map first | `Components inside apps/live` |
-| Per journey | The container is large and the journey is self-contained | `Web: work item detail and activity` |
-
-`apps/api` and `apps/web` are large. Prefer per journey there, and name the container in the title.
+[`AGENTS.md`](./AGENTS.md) defines the two kinds (structural and dynamic), the two shapes (per container and per journey), and the process test that decides whether a page belongs here or in [`../containers/`](../containers/INDEX.md).
 
 ## Suggested first pages
 
