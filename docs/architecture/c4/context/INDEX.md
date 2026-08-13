@@ -8,7 +8,7 @@ Read [`../AGENTS.md`](../AGENTS.md) for the shared rules, then [`AGENTS.md`](./A
 
 Entry format: `- [N. Title](./NN-slug.md) - one-line summary`
 
-- [1. System context](./01-system-context.md) - Every actor, Plane as one box, and all 14 external systems the Community Edition source proves.
+- [1. System context](./01-system-context.md) - Every actor, Plane as one box, and all 15 external systems the Community Edition source proves.
 
 One page covers the whole context. Add a second page only for a genuinely separate context.
 

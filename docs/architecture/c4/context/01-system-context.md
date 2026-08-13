@@ -40,6 +40,7 @@ flowchart LR
     subgraph obs["Product analytics"]
         posthog["PostHog"]
         scout["Scout APM"]
+        clarity["Microsoft Clarity<br/><i>Browser session recording</i>"]
     end
 
     subgraph content["Content and AI"]
@@ -70,6 +71,7 @@ flowchart LR
     plane -.->|"SMTP"| smtp
     plane -.->|"HTTPS, 4 event types"| posthog
     plane -.->|"HTTPS, traces"| scout
+    plane -.->|"Browser tag, session replay"| clarity
     plane -.->|"HTTPS, search terms"| unsplash
     plane -.->|"HTTPS, prompt text"| llm
     plane -.->|"HTTPS, HMAC signed"| hook
@@ -80,7 +82,7 @@ flowchart LR
     classDef ext fill:#999999,stroke:#6b6b6b,color:#ffffff
     class member,instadmin,visitor,integrator person
     class plane container
-    class s3,google,gh,gl,gitea,smtp,otlp,ghrel,posthog,scout,unsplash,llm,hook,acme ext
+    class s3,google,gh,gl,gitea,smtp,otlp,ghrel,posthog,scout,clarity,unsplash,llm,hook,acme ext
 ```
 
 ## 1.2 Actors
@@ -116,12 +118,15 @@ Every row is proven by Community Edition source. `Enabled by` names the variable
 | Gitea | OAuth sign-in | Email address, basic profile | no | `IS_GITEA_ENABLED` |
 | PostHog | Product analytics | Four event types only: workspace created, workspace deleted, user joined, user invited | no | `POSTHOG_API_KEY` and `POSTHOG_HOST` |
 | Scout APM | Application performance monitoring, production settings only | Request traces | no | `SCOUT_MONITOR`, `SCOUT_KEY` |
+| Microsoft Clarity | Session recording. The browser calls it directly, not the server. | Session replay of the web app | no | `VITE_ENABLE_SESSION_RECORDER` and `VITE_SESSION_RECORDER_KEY` |
 | Unsplash | Cover image search | User search terms | no | `UNSPLASH_ACCESS_KEY` |
 | LLM provider | AI text endpoints | User task text and prompt | no | `LLM_API_KEY` |
 | Webhook receiver | Outbound events to a customer URL | Work item, project, cycle, module, and comment events | no | Per workspace, in the UI |
 | Let's Encrypt | ACME certificate issuance at the proxy | Domain name | no | `CERT_EMAIL`, `CERT_ACME_CA` |
 
-Sources: `apps/api/plane/settings/common.py`, `apps/api/plane/utils/instance_config_variables/core.py`, `apps/api/plane/authentication/provider/oauth/`, `apps/proxy/Caddyfile.ce`.
+Sources: `apps/api/plane/settings/common.py`, `apps/api/plane/utils/instance_config_variables/core.py`, `apps/api/plane/authentication/provider/oauth/`, `apps/web/app/root.tsx`, `apps/proxy/Caddyfile.ce`.
+
+Two more external systems apply at install time rather than at run time, so the diagram leaves them out. `deployments/cli/community/install.sh` pulls release artifacts from GitHub Releases and container images from Docker Hub under the `makeplane` organization.
 
 ### What this repository does not contain
 
@@ -129,7 +134,7 @@ Do not add these to the diagram. The product documentation describes them, and n
 
 | Absent | Evidence |
 | --- | --- |
-| Sentry | No reference anywhere in `apps/` or `packages/` |
+| Sentry error monitoring | No `sentry_sdk` in `requirements/`, no `@sentry/*` dependency, nothing in `settings/production.py`. `packages/i18n` does ship translated `sentry_integration` copy in all 19 locales, for a product-level integration with no Community Edition backend. |
 | Prime, licensing, payment | `InstanceEdition` holds one value, `PLANE_COMMUNITY` |
 | SAML, OIDC, LDAP | Only four OAuth provider modules exist |
 | Slack, GitHub App | The web UI builds the OAuth URLs, but no backend route serves them |
