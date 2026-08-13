@@ -25,6 +25,8 @@ Pick the folder by the question that the page answers. If two folders fit, write
 
 A folder that only routes to sub-folders has no `TEMPLATE.md`. Five folders route: `docs/`, `architecture/`, `architecture/c4/`, `devops/`, and `features/`. Their sub-folders hold the templates.
 
+Before you add a page to any folder, read that folder's `AGENTS.md` and follow its `TEMPLATE.md`. No `INDEX.md` repeats that instruction.
+
 Two rules keep this tree small.
 
 1. **`TEMPLATE.md` is the section list.** No `AGENTS.md` repeats the sections of its own template. To learn which sections a page needs, open the template.
@@ -101,7 +103,7 @@ One exception. A verbatim quotation keeps the wording of its source, even where 
 - A page that restates code a reader can read faster than the page.
 - A planning or status note for a single conversation.
 
-## Related
+## Other files that carry rules
 
 - [`../AGENTS.md`](../AGENTS.md) covers repo commands, code style, and test commands.
 - `.github/instructions/` holds Copilot `applyTo:` instruction files. Claude Code does not load them.

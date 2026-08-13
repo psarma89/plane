@@ -16,8 +16,6 @@ Entry format: `- [N. Title](./NN-slug.md) - one-line summary`
 
 One. Plane has one system context. Add a second page only for a genuinely separate context.
 
-Do not create a page per integration. An integration is a row in the external systems table.
-
 ## What the page must answer
 
 | Question | Section |

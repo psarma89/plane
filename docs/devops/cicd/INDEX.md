@@ -2,8 +2,6 @@
 
 One page per pipeline. Each page states the trigger, the jobs, the merge gate, and the failure recovery.
 
-Read [`AGENTS.md`](./AGENTS.md) before you add a page. Follow [`TEMPLATE.md`](./TEMPLATE.md).
-
 ## Pages
 
 > No page exists yet. Add the first page with [`TEMPLATE.md`](./TEMPLATE.md), then list it here.

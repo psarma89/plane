@@ -31,8 +31,4 @@ A DevOps page describes the shape. An SOP gives the steps.
 
 If a page starts to read as a numbered procedure, move the procedure to an SOP. Link to it.
 
-## Cross-links
-
-- Link an infra page to the matching [`../architecture/c4/containers/`](../architecture/c4/containers/INDEX.md) diagram.
-- Link a monitoring page to the SOP that recovers the failure it detects.
-- Link a CI/CD page to the workflow file in `.github/workflows/`.
+Every infra page links to the [`../architecture/c4/containers/`](../architecture/c4/containers/INDEX.md) diagram that shows the same units.

@@ -38,7 +38,3 @@ A row without an availability value is incomplete.
 - Prefer the developer documentation site for an API detail.
 - Use an angle-bracket link for a bare URL. Example: `<https://developers.plane.so>`.
 - If an external number contradicts the code, trust the code and note the conflict.
-
-## Cross-links
-
-Name the container that serves each surface, and the restriction that guards it. [`INDEX.md`](./INDEX.md) holds the rest of the navigation.

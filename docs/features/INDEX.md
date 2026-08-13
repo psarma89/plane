@@ -2,8 +2,6 @@
 
 What we plan to build or change, and why. A page here is a specification. It is not a description of the current system.
 
-Read [`AGENTS.md`](./AGENTS.md) before you add a page.
-
 ## Sub-folders
 
 | Sub-folder | Holds | Index |

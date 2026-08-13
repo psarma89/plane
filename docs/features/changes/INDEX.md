@@ -2,8 +2,6 @@
 
 One page per change to behavior that already ships. Each page contrasts the current behavior with the new behavior.
 
-Read [`AGENTS.md`](./AGENTS.md) before you add a page. Follow [`TEMPLATE.md`](./TEMPLATE.md).
-
 ## Changes
 
 > No change spec exists yet. Add the first one with [`TEMPLATE.md`](./TEMPLATE.md), then list it here.
@@ -17,8 +15,6 @@ Order this index newest first. A reader looks for the most recent change to a fe
 ## Why the date is in the file name
 
 One feature can change several times. The date keeps the record ordered and prevents an edit to history.
-
-Never edit an old change page to describe a newer change. Write a new page.
 
 ## Related
 

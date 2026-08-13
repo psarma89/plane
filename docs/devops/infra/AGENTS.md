@@ -4,7 +4,7 @@ An infra page describes **one deployment target**: what it contains, how the par
 
 ## One page per target
 
-One page covers one target under `deployments/`, or the root Compose stack.
+One page covers one target under `deployments/`, or the root Compose stack. Every install, upgrade, and backup procedure lives in [`../../sops/`](../../sops/INDEX.md), never on an infra page.
 
 ## Targets in this repo
 
@@ -44,7 +44,3 @@ If the floor is untested, write `untested`. Do not guess.
 Some components exist in commercial editions only. Mark them.
 
 Use an **Availability** column with the value `Community`, `Commercial`, or `Both`.
-
-## Cross-links
-
-Every install, upgrade, and backup procedure lives in [`../../sops/`](../../sops/INDEX.md), never on this page. [`INDEX.md`](./INDEX.md) holds the rest of the navigation.

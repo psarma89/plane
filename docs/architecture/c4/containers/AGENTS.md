@@ -83,7 +83,3 @@ A structural page and a deployment page both list each zone and its exposure. Us
 ## Configuration on a dynamic page
 
 Name each environment variable in backticks, exactly as the code reads it. Give the default value, or write `no default`.
-
-## Cross-links
-
-Every failure mode names the SOP that recovers it. [`INDEX.md`](./INDEX.md) holds the rest of the navigation.

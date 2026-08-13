@@ -2,8 +2,6 @@
 
 How Plane ships, where it runs, and how a problem gets noticed.
 
-Read [`AGENTS.md`](./AGENTS.md) before you add a page.
-
 ## Areas
 
 | Area | Answers | Index |

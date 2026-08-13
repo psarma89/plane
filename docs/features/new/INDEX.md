@@ -2,8 +2,6 @@
 
 One page per capability that does not exist yet. Each page holds enough detail to build the feature without asking the author a question.
 
-Read [`AGENTS.md`](./AGENTS.md) before you add a page. Follow [`TEMPLATE.md`](./TEMPLATE.md).
-
 ## Specs
 
 > No spec exists yet. Add the first one with [`TEMPLATE.md`](./TEMPLATE.md), then list it here.

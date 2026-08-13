@@ -2,8 +2,6 @@
 
 How Plane works today. Every page lives under [`c4/`](./c4/INDEX.md), organized by the four levels of the [C4 model](https://c4model.com/).
 
-Read [`AGENTS.md`](./AGENTS.md) before you add a page.
-
 ## Why one structure
 
 C4 already spans both system architecture and application architecture. The level states the zoom, so no separate split is needed.

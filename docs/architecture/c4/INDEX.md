@@ -25,15 +25,7 @@ flowchart TD
 
 ## Supplementary diagrams
 
-C4 defines three optional supplementary types beyond the four levels. This tree adds no fifth folder. Each type files under the level of the elements it shows.
-
-| Type | Shows | Files under | Needed for Plane |
-| --- | --- | --- | --- |
-| System landscape | Several software systems inside one organization | [context/](./context/INDEX.md) | No. Plane is one software system. |
-| Dynamic | Runtime interaction for one feature or use case | [containers/](./containers/INDEX.md) or [components/](./components/INDEX.md) | Yes |
-| Deployment | Container instances mapped onto infrastructure, per environment | [containers/](./containers/INDEX.md) | Yes |
-
-A dynamic diagram can sit at more than one level. File it by the elements it names. A flow between `api` and `worker` is L2. A flow between two modules inside `apps/web` is L3.
+C4 defines three optional supplementary types beyond the four levels. This tree adds no fifth folder, because each type files under the level of the elements it shows. [`AGENTS.md`](./AGENTS.md) maps each type to its folder.
 
 ## Which level answers my question
 

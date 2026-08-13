@@ -2,8 +2,6 @@
 
 One page per operational task. Each page gives numbered steps, a verification, and a rollback.
 
-Read [`AGENTS.md`](./AGENTS.md) before you add a page. Follow [`TEMPLATE.md`](./TEMPLATE.md).
-
 ## Pages
 
 > No SOP exists yet. Add the first one with [`TEMPLATE.md`](./TEMPLATE.md), then list it here.

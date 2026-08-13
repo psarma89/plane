@@ -2,8 +2,6 @@
 
 Every way to consume Plane: the apps a person opens, the admin surfaces, the programmatic interfaces, and the third-party integrations.
 
-Read [`AGENTS.md`](./AGENTS.md) before you add a page. Follow [`TEMPLATE.md`](./TEMPLATE.md).
-
 ## Pages
 
 - [1. Plane clients and interfaces](./01-clients-and-interfaces.md) - Deployment models, end-user apps, admin surfaces, programmatic APIs, and the MCP server.

@@ -2,8 +2,6 @@
 
 One page per defect worth remembering. Each page records the symptom, the root cause, the fix, and the hypotheses that were wrong.
 
-Read [`AGENTS.md`](./AGENTS.md) before you add a page. Follow [`TEMPLATE.md`](./TEMPLATE.md).
-
 ## Records
 
 > No record exists yet. Add the first one with [`TEMPLATE.md`](./TEMPLATE.md), then list it here.

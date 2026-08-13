@@ -6,8 +6,6 @@
 
 This catalog answers one question: **what does Plane restrict, and where is each restriction enforced?** Every row points at a file and a symbol, so a reader can verify a control without asking an author.
 
-Read [`AGENTS.md`](./AGENTS.md) before you add a page. Follow [`TEMPLATE.md`](./TEMPLATE.md).
-
 ## Summary
 
 > No page exists yet. Add the first page with [`TEMPLATE.md`](./TEMPLATE.md), then fill the `Controls` count below.

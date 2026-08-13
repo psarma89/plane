@@ -15,6 +15,10 @@ A signal row without all four facts is incomplete.
 3. **What it means when it moves.** The threshold and the direction.
 4. **What to do.** The SOP that recovers it.
 
+Every alert row links to an SOP in [`../../sops/`](../../sops/INDEX.md). An alert with no SOP link is incomplete.
+
+Every signal area links to the [`../../architecture/c4/containers/`](../../architecture/c4/containers/INDEX.md) dynamic page whose failure modes it detects.
+
 Where nobody watches a signal, mark it `Unwatched`.
 
 ## Known blind spots
@@ -39,8 +43,3 @@ Plane runs as a self-hosted deployment and as a hosted service. The available to
 - Give a number and a window. Example: "Above 2 percent over 5 minutes."
 - Never write "high" or "elevated" without a number.
 - If no threshold is agreed, write `no threshold agreed`. Do not invent one.
-
-## Cross-links
-
-- Link every alert row to an SOP in [`../../sops/`](../../sops/INDEX.md).
-- Link every signal area to the [`../../architecture/c4/containers/`](../../architecture/c4/containers/INDEX.md) dynamic page whose failure modes it detects.

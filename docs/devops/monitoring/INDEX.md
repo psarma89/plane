@@ -2,8 +2,6 @@
 
 One page per signal area. Each page maps a signal to an alert, and the alert to a recovery procedure.
 
-Read [`AGENTS.md`](./AGENTS.md) before you add a page. Follow [`TEMPLATE.md`](./TEMPLATE.md).
-
 ## Pages
 
 > No page exists yet. Add the first page with [`TEMPLATE.md`](./TEMPLATE.md), then list it here.
