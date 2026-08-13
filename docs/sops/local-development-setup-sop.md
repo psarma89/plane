@@ -249,6 +249,11 @@ The commands above prove that the services answer. They do not prove that the pr
 2. Open the layout menu, select **Board**, then confirm that the columns Backlog, Todo, and In Progress hold cards.
 3. Open the layout menu, select **Timeline**, then confirm that the bars carry a duration. This layout replaces the older Gantt name.
 4. Select **Add work item**, enter a title, then select **Save**. Confirm that the new item appears in the list. This item comes after the snapshot in step 13, so the next `./reset.sh` removes it.
+5. Select any work item to open the peek view, then confirm that the header shows **Saved**.
+
+Check 5 is the only browser check that exercises the `live` service on port 3100. That service runs under `pnpm dev`, not under Docker. **Saved** means the editor reached the collaboration server, and that the server reached Valkey. If the header never leaves **Saving**, read the `live:dev` lines in the `pnpm dev` log.
+
+The seeded descriptions are long blocks of nonsense words. `create_issues` in `apps/api/plane/bgtasks/dummy_data_task.py` fills them from Faker. That output is correct, not corrupt data.
 
 ### Measured timings
 
@@ -283,7 +288,7 @@ Two paths exist. Pick the first one for daily work.
 
    Expected result: the script prints `Reset complete`, and the migrator log reports `No migrations to apply`.
 
-   `pnpm dev` runs outside Docker, so a reset does not stop it.
+   `pnpm dev` runs outside Docker, so a reset does not stop it. The reset removes the Valkey container, so the `live` service loses its connection. It reconnects on its own. The log reports `Redis client ready` about 3 seconds later.
 
 2. Remove everything that this SOP created.
 
