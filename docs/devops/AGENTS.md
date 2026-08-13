@@ -51,6 +51,6 @@ If a page starts to read as a numbered procedure, move the procedure to an SOP. 
 
 ## Cross-links
 
-- Link an infra page to the matching [`../architecture/c4/`](../architecture/c4/INDEX.md) container diagram.
+- Link an infra page to the matching [`../architecture/c4/containers/`](../architecture/c4/containers/INDEX.md) diagram.
 - Link a monitoring page to the SOP that recovers the failure it detects.
 - Link a CI/CD page to the workflow file in `.github/workflows/`.

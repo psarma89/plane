@@ -103,5 +103,5 @@ A changed key needs a review pass across every locale in `packages/i18n/src/loca
 
 | Page | Why it matters here |
 | --- | --- |
-| [<Architecture page>](../../architecture/application/NN-slug.md) | The journey this change alters |
+| [<Architecture page>](../../architecture/c4/components/NN-slug.md) | The journey this change alters |
 | [<Bugfix record>](../bugfixes/<slug>.md) | The defect that triggered this change |

@@ -77,6 +77,6 @@ Use an **Availability** column with the value `Community`, `Commercial`, or `Bot
 
 ## Cross-links
 
-- Link to [`../../architecture/c4/`](../../architecture/c4/INDEX.md) for the container diagram.
+- Link to [`../../architecture/c4/containers/`](../../architecture/c4/containers/INDEX.md) for the container diagram.
 - Link to [`../../sops/`](../../sops/INDEX.md) for every install, upgrade, and backup procedure.
 - Link to [`../cicd/`](../cicd/INDEX.md) for the pipeline that builds the images.

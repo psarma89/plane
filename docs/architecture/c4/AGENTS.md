@@ -1,31 +1,40 @@
-# C4 Diagram Conventions
+# C4 Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. This file adds the rules that apply to `docs/architecture/c4/`.
+Read [`../AGENTS.md`](../AGENTS.md) first. This file adds the rules that apply to every folder under `docs/architecture/c4/`.
 
-C4 pages describe **structure**: what the pieces are and how they connect. They never describe file-level detail. That belongs in [`../application/`](../application/INDEX.md).
+The [C4 model](https://c4model.com/) gives four zoom levels. Together they cover system architecture and application architecture, so this tree holds every architecture page.
 
-## Page set
+## This folder is a router
 
-This folder uses fixed file names, not sequential numbers. The C4 model defines the levels.
+`docs/architecture/c4/` holds no pages of its own. It has no `TEMPLATE.md`. Every page lives in one of four level folders.
 
-| File | Level | Scope |
+| Folder | Level | Scope |
 | --- | --- | --- |
-| `l1-context.md` | L1 | Actors, Plane as one box, and every external system |
-| `l2-containers.md` | L2 | Deployable units inside the Plane boundary and the traffic between them |
-| `l3-frontend.md` | L3 | Components inside the React Router apps: routes, stores, shared packages |
-| `l3-backend.md` | L3 | Components inside the Django API: apps, views, serializers, tasks |
-| `l3-realtime.md` | L3 | Components inside the Hocuspocus collaboration server |
-| `deployment.md` | Deployment | How containers map onto Docker Compose, Swarm, and Kubernetes targets |
+| [`context/`](./context/INDEX.md) | L1 | Actors, Plane as one box, every external system |
+| [`containers/`](./containers/INDEX.md) | L2 | Deployable units, the traffic between them, and runtime flows that cross them |
+| [`components/`](./components/INDEX.md) | L3 | Modules, routes, stores, and models inside one container |
+| [`code/`](./code/INDEX.md) | L4 | Classes and calls for one hard algorithm. Rare. |
 
-Add a new `l3-<name>.md` page only when a major subsystem does not fit an existing L3 page. Add the new file to [`INDEX.md`](./INDEX.md) in the same commit.
+Each level folder carries its own `AGENTS.md` with the rules for that level. Read this file, then that one.
 
-## Diagram syntax
+## Rules that apply at every level
 
-- Use Mermaid C4 syntax for structural diagrams: `C4Context`, `C4Container`, `C4Component`.
-- Use `flowchart` or `sequenceDiagram` for a flow inside an L3 page.
+The sections below hold once. A level folder repeats nothing from here.
+
+### Naming
+
+- Files use `NN-<slug>.md`, zero-padded from `01`, inside each level folder.
+- A new page takes the next free number in its folder. Do not renumber an existing page.
+- Sections use `## N.1` and `## N.2`, and match the page number.
+- Numbers restart at `01` in each level folder. `context/01-...` and `components/01-...` can both exist.
+
+### Diagram syntax
+
+- Use Mermaid C4 syntax for a structural diagram: `C4Context`, `C4Container`, `C4Component`.
+- Use `sequenceDiagram` for a runtime flow, and `flowchart` for a decision path.
 - Keep one diagram under about 15 nodes. Split a larger diagram into sections in the same page.
 
-## Labels
+### Labels
 
 - Keep a node description to 3 to 6 words. Put the detail in the prose table.
   - Good: `"React Router app, MobX stores"`
@@ -35,14 +44,14 @@ Add a new `l3-<name>.md` page only when a major subsystem does not fit an existi
   - Bad: `Rel(web, api, "Sends REST requests to fetch and update work items")`
 - Use an empty label (`""`) when the boundary already explains the link.
 
-## Node names
+### Node names
 
 - In L1 and L2, use the real product or service name: `Caddy`, `PostgreSQL`, `Valkey`, `RabbitMQ`, `MinIO`.
-- In L2, use the Compose service name in the node ID so a reader can match the diagram to `docker-compose.yml`.
-- In L3, code-level names are correct: `apps/web/core/store/`, `plane/app/views/`.
+- In L2, use the Compose service name in the node ID, so a reader can match the diagram to `docker-compose.yml`.
+- In L3 and L4, code-level names are correct: `apps/web/core/store/`, `plane/app/views/`.
 - Put the version or tier in the description, not the label. Example: `"PostgreSQL 15.7"`.
 
-## Node order and grouping
+### Node order and grouping
 
 - Mermaid lays out nodes in declaration order. Declare a node where you want it to appear.
 - Group related nodes together to cut arrow crossing.
@@ -50,40 +59,22 @@ Add a new `l3-<name>.md` page only when a major subsystem does not fit an existi
 - Use `Enterprise_Boundary` to group external systems by purpose, for example "Object storage" or "Email".
 - Mark an optional or edition-gated unit in the boundary label. Example: `"(Commercial editions only)"`.
 
-## Prose tables
+### Prose tables
 
 Every diagram needs a table below it. The table is the source of truth.
 
 - If a node is in the diagram, it must have a row in the table.
 - The table carries the protocol, the port, the data class, and the availability.
-- An external systems table needs a **Data sent** column that names the data category.
-- Mark an edition-gated integration with an **Availability** column. Example: `"Community and commercial"`.
+- Keep the diagram and the table in sync. A node with no row makes the page wrong.
 
-## Trust boundaries
+### Related feature specs
 
-Every L2 page needs a trust boundary table. List each zone and its exposure.
+Every page carries a `### Related feature specs` table after the title. Add a row when a spec drives a change to the page. Use the status values `Shipped`, `Partial`, or `Draft`.
 
-| Zone | Contains | Exposure |
-| --- | --- | --- |
-| Internet | Browser, mobile app, webhook consumer | Public |
-| Edge | `proxy` | Public ingress |
-| Application | `web`, `admin`, `space`, `api`, `live`, `worker` | Internal |
-| Data | `plane-db`, `plane-redis`, `plane-mq`, `plane-minio` | Internal only |
+### When not to add a page
 
-## When to update
-
-| Trigger | Action |
-| --- | --- |
-| New external system integration | Add a node and a table row to `l1-context.md` |
-| New container, database, or queue | Add a node and a table row to `l2-containers.md` |
-| New deployment target under `deployments/` | Add a section to `deployment.md` |
-| New shared package or store area | Add a section to `l3-frontend.md` |
-| New Django app or Celery task group | Add a section to `l3-backend.md` |
-| A system or integration is removed | Remove the node and the row |
-| A service is renamed | Update the label and the row |
-
-## When not to update
-
-- A new route or endpoint inside an existing module. That is too granular for L3.
+- A new route or endpoint inside a documented module. Update the existing L3 page.
 - A bug fix or a refactor that keeps the same structural relationships.
 - A feature that fits inside an existing component boundary.
+
+Update an existing page before you create a new one. A thin page set that stays true beats a wide page set that rots.

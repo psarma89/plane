@@ -46,6 +46,6 @@ What this surface cannot do. A reader plans around a stated limit.
 
 | Page | Why it matters here |
 | --- | --- |
-| [<C4 level>](../architecture/c4/<level>.md) | The container that serves this surface |
+| [<L2 structural page>](../architecture/c4/containers/NN-slug.md) | The container that serves this surface |
 | [<Security page>](../security/NN-slug.md) | The restriction that guards this surface |
 | [<Infra page>](../devops/infra/NN-slug.md) | The target that hosts this surface |

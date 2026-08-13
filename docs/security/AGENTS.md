@@ -40,7 +40,7 @@ The header carries a `> **Last reviewed:** YYYY-MM-DD` line and a list of canoni
 - **One control per row.** A layered control gets one row per layer. A server-side check and a client-side check are two rows.
 - **`Where enforced`** holds a backticked path from the repo root, plus the symbol in backticks. Example: `` `apps/api/plane/app/permissions/project.py` (`ProjectAdminPermission`) ``.
 - **Never cite a line number.** Line numbers rot on the next edit.
-- **`Reference`** prefers a relative link to the canonical doc. Use `[Arch](../architecture/system/NN-slug.md)` or `[SOP](../sops/<slug>-sop.md)`. Write `-` when no canonical doc exists.
+- **`Reference`** prefers a relative link to the canonical doc. Use `[Arch](../architecture/c4/components/NN-slug.md)` or `[SOP](../sops/<slug>-sop.md)`. Write `-` when no canonical doc exists.
 - **No paragraphs in a row.** If a control needs more than a sentence, the canonical doc is thin. Fix that doc. Keep the row short.
 
 ## When to add a row

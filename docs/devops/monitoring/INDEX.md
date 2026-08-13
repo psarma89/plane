@@ -40,6 +40,6 @@ Do not assume a managed observability tool exists in a self-hosted install.
 
 ## Related
 
-- [../../architecture/system/INDEX.md](../../architecture/system/INDEX.md) lists the failure modes these signals detect.
+- [../../architecture/c4/containers/INDEX.md](../../architecture/c4/containers/INDEX.md) lists the failure modes these signals detect.
 - [../../sops/INDEX.md](../../sops/INDEX.md) holds the recovery steps for every alert.
 - [../infra/INDEX.md](../infra/INDEX.md) covers the deployment target that emits each signal.

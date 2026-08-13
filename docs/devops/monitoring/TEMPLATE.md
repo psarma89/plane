@@ -58,5 +58,5 @@ How to prove the signal still flows.
 
 | Page | Why it matters here |
 | --- | --- |
-| [<System page>](../../architecture/system/NN-slug.md) | The failure modes this area detects |
+| [<L2 dynamic page>](../../architecture/c4/containers/NN-slug.md) | The failure modes this area detects |
 | [<Infra page>](../infra/NN-slug.md) | The target that emits these signals |

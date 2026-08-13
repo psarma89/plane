@@ -43,6 +43,6 @@ Never state a capability without its availability.
 
 ## Related
 
-- [../architecture/c4/INDEX.md](../architecture/c4/INDEX.md) shows the container that serves each surface.
+- [../architecture/c4/containers/INDEX.md](../architecture/c4/containers/INDEX.md) shows the container that serves each surface.
 - [../security/INDEX.md](../security/INDEX.md) lists the restriction that guards each surface.
 - [../devops/infra/INDEX.md](../devops/infra/INDEX.md) covers the deployment target that hosts each surface.

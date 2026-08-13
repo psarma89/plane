@@ -66,6 +66,6 @@ Never write a real API key, a token, or a workspace slug from a live install. Us
 
 ## Cross-links
 
-- Link to [`../architecture/c4/`](../architecture/c4/INDEX.md) for the container that serves each surface.
+- Link to [`../architecture/c4/containers/`](../architecture/c4/containers/INDEX.md) for the container that serves each surface.
 - Link to [`../security/`](../security/INDEX.md) for the restriction that guards each surface.
 - Link to [`../devops/infra/`](../devops/infra/INDEX.md) for the deployment target that hosts each surface.

@@ -1,23 +1,38 @@
-# C4 Architecture Diagrams
+# C4 Architecture
 
-Structural view of Plane with the [C4 model](https://c4model.com/). Four zoom levels, from system context down to components.
+Every architecture page, organized by the four levels of the [C4 model](https://c4model.com/). The four levels cover system architecture and application architecture together.
 
-Read [`AGENTS.md`](./AGENTS.md) before you add a page. Follow [`TEMPLATE.md`](./TEMPLATE.md).
+Read [`AGENTS.md`](./AGENTS.md) for the rules that apply at every level. Each level folder adds its own.
 
 ## Levels
 
-| Level | Scope | Page |
-| --- | --- | --- |
-| **L1 Context** | Actors, Plane as one box, external systems | `l1-context.md` |
-| **L2 Containers** | Deployable units and the traffic between them | `l2-containers.md` |
-| **L3 Frontend** | Components inside the React Router apps | `l3-frontend.md` |
-| **L3 Backend** | Components inside the Django API | `l3-backend.md` |
-| **L3 Realtime** | Components inside the Hocuspocus collaboration server | `l3-realtime.md` |
-| **Deployment** | Container to deployment target mapping | `deployment.md` |
+| Level | Folder | Scope | Reads as |
+| --- | --- | --- | --- |
+| **L1** | [context/](./context/INDEX.md) | Actors, Plane as one box, every external system | System architecture |
+| **L2** | [containers/](./containers/INDEX.md) | Deployable units, their traffic, and flows across them | System architecture |
+| **L3** | [components/](./components/INDEX.md) | Modules, routes, stores, and models inside one container | Application architecture |
+| **L4** | [code/](./code/INDEX.md) | Classes and calls for one hard algorithm. Rare. | Application architecture |
 
-Start at L1 for the shape of the product. Drill into L2 and L3 as needed.
+Start at L1 for the shape of the product. Drill down only as far as the question needs.
 
-> No page exists yet. This index lists the planned page set. Add a page with [`TEMPLATE.md`](./TEMPLATE.md), then replace its row above with a link and a one-line summary.
+```mermaid
+flowchart TD
+    L1["L1 context/<br/>Who uses Plane, what it talks to"] --> L2
+    L2["L2 containers/<br/>Deployable units and flows between them"] --> L3
+    L3["L3 components/<br/>Modules, stores, and models in one container"] --> L4
+    L4["L4 code/<br/>One hard algorithm, rarely needed"]
+```
+
+## Which level answers my question
+
+| Question | Level |
+| --- | --- |
+| Who uses Plane, and what does Plane depend on? | L1 |
+| What runs where, and what talks to what? | L2 |
+| How does a request travel from the browser to the database? | L2 |
+| Which files build this screen or this endpoint? | L3 |
+| Which store owns this state? | L3 |
+| Why does this one function order things this way? | L4 |
 
 ## Format
 
@@ -26,6 +41,6 @@ Every page uses Mermaid. GitHub, VS Code, and most markdown viewers render it wi
 ## Related
 
 - [../INDEX.md](../INDEX.md) is the architecture landing page.
-- [../system/INDEX.md](../system/INDEX.md) traces one runtime concern across apps.
-- [../application/INDEX.md](../application/INDEX.md) names the files inside one app.
-- [../../devops/infra/INDEX.md](../../devops/infra/INDEX.md) covers each deployment target in detail.
+- [../../devops/infra/INDEX.md](../../devops/infra/INDEX.md) covers each deployment target in depth.
+- [../../security/INDEX.md](../../security/INDEX.md) lists the restrictions these structures enforce.
+- [../../clients/INDEX.md](../../clients/INDEX.md) lists the surfaces these containers serve.

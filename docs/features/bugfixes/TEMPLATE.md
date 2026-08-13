@@ -87,5 +87,5 @@ What this class of defect can still cause elsewhere.
 
 | Page | Why it matters here |
 | --- | --- |
-| [<Architecture page>](../../architecture/application/NN-slug.md) | The journey this defect broke |
+| [<Architecture page>](../../architecture/c4/components/NN-slug.md) | The journey this defect broke |
 | [<Change spec>](../changes/<slug>-YYYY-MM-DD.md) | The behavior change the fix required |

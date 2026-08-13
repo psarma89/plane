@@ -2,7 +2,7 @@
 
 > **Last reviewed:** YYYY-MM-DD
 > **Canonical references:**
-> - [Architecture: <page>](../architecture/system/NN-slug.md)
+> - [Architecture: <page>](../architecture/c4/containers/NN-slug.md)
 > - [SOP: <slug>](../sops/<slug>-sop.md)
 
 ## N.1 Overview
@@ -15,7 +15,7 @@ One control per row. A layered control gets one row per layer. Never cite a line
 
 | # | Restriction | Where enforced | Reference |
 | --- | --- | --- | --- |
-| N.2.1 | Only a project admin can change project settings | `apps/api/plane/app/permissions/project.py` (`ProjectAdminPermission`) | [Arch](../architecture/application/NN-slug.md) |
+| N.2.1 | Only a project admin can change project settings | `apps/api/plane/app/permissions/project.py` (`ProjectAdminPermission`) | [Arch](../architecture/c4/components/NN-slug.md) |
 | N.2.2 | An API key request is rejected without a valid `X-API-Key` header | `apps/api/plane/api/middleware/api_authentication.py` (`APIKeyAuthentication`) | - |
 | N.2.3 | A request body above the configured limit is rejected before parsing | `apps/api/plane/middleware/request_body_size.py` | - |
 

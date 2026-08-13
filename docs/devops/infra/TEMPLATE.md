@@ -83,6 +83,6 @@ State numbers. If untested, write `untested`.
 
 | Page | Why it matters here |
 | --- | --- |
-| [<C4 deployment>](../../architecture/c4/<level>.md) | How containers map to this target |
+| [<L2 structural page>](../../architecture/c4/containers/NN-slug.md) | How containers map to this target |
 | [<SOP>](../../sops/<slug>-sop.md) | Install and upgrade steps |
 | [<CI page>](../cicd/<slug>.md) | The pipeline that builds these images |

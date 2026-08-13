@@ -1,20 +1,38 @@
-# N. <Journey Title>
+# N. <Container>: <Journey or Map Title>
 
 > **Last reviewed:** YYYY-MM-DD
-> **App:** `apps/web`
-> **Scope:** One sentence that states what the user does and what the outcome is.
+> **Level:** L3 Components
+> **Container:** `apps/web`
+> **Scope:** One sentence. State what the user does and what the outcome is.
 
 ### Related feature specs
 
 | Spec | Description | Status |
 | --- | --- | --- |
-| [<Feature name>](../../features/new/<slug>.md) | One-line summary | Shipped / Partial / Draft |
+| [<Feature name>](../../../features/new/<slug>.md) | One-line summary | Shipped / Partial / Draft |
 
-## N.1 <Sub-journey title>
+## N.1 Component diagram
 
-One line on what the user does and the result.
+```mermaid
+C4Component
+    title Components inside apps/web for <journey>
 
-### Key files
+    Container_Boundary(web, "web") {
+        Component(route, "Route", "React Router", "Loads the screen")
+        Component(view, "Detail panel", "React", "Renders and edits fields")
+        Component(store, "<Store>", "MobX", "Owns the observable state")
+        Component(svc, "<Service>", "TypeScript", "Calls the REST API")
+    }
+
+    Container(api, "api", "Django, DRF", "REST API")
+
+    Rel(route, view, "Renders")
+    Rel(view, store, "Reads, dispatches")
+    Rel(store, svc, "Calls")
+    Rel(svc, api, "REST, JSON")
+```
+
+## N.2 Key files
 
 Delete a row that does not apply.
 
@@ -30,17 +48,20 @@ Delete a row that does not apply.
 | API URL | `apps/api/plane/app/urls/...` |
 | API view | `apps/api/plane/app/views/...` |
 | Serializer | `apps/api/plane/app/serializers/...` |
+| Permission | `apps/api/plane/app/permissions/...` |
 | Model | `apps/api/plane/db/models/...` |
 | Background task | `apps/api/plane/bgtasks/...` |
 
-### Key components
+## N.3 Key components
 
 **`<ComponentName>`** renders <what>. It <key behavior>. It blocks <user-facing constraint>.
 
 - Background classes: `bg-surface-1` with `bg-layer-1` children. See `packages/tailwind-config/AGENTS.md`.
 - Translation keys: `<namespace>.<key>` in `packages/i18n/src/locales`.
 
-### Key state
+## N.4 Key state
+
+Delete this section on a container with no store, for example `apps/live`. Say why rather than leaving an empty table.
 
 **`<StoreName>`** (`apps/web/core/store/...`)
 
@@ -52,7 +73,7 @@ Delete a row that does not apply.
 | --- | --- |
 | `<actionName>` | What it changes, and which service it calls |
 
-### Key data models
+## N.5 Key data models
 
 **`<ModelName>`** (`<table_name>` table, `apps/api/plane/db/models/...`)
 
@@ -64,7 +85,7 @@ Delete a row that does not apply.
 
 - Note any storage decision a reader cannot guess. Example: "Soft-deleted, not removed."
 
-### Data flow
+## N.6 Data flow
 
 ```mermaid
 flowchart TD
@@ -83,19 +104,23 @@ flowchart TD
 - **Branch**: The main decision point and both outcomes.
 - **Design choice**: Something a reader cannot guess from the code.
 
-### Acceptance criteria
+## N.7 Acceptance criteria
 
 Write each rule from the code that enforces it. Mark a UI-only rule as "client-side only".
 
 - <Validation rule and where it is enforced>
-- <Permission or role boundary>
+- <Permission boundary, with the DRF permission class that enforces it>
 - <Error handling behavior the user sees>
 
-### Verification
+## N.8 Verification
 
 - **Tests**: `apps/api/tests/...`, `apps/web/...`
-- **Command**: The exact command that exercises the journey.
+- **Command**: The exact command that exercises this journey.
 
----
+## N.9 Related
 
-<!-- Repeat ## N.2 and ## N.3 for each sub-journey in this page. -->
+| Page | Why it matters here |
+| --- | --- |
+| [<L2 page>](../containers/NN-slug.md) | The flow that crosses into this container |
+| [<L4 page>](../code/NN-slug.md) | Call detail for one hard function here |
+| [<Security page>](../../../security/NN-slug.md) | The restriction enforced here |

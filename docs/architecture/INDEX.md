@@ -1,30 +1,35 @@
 # Architecture
 
-How Plane works today, at three zoom levels. Start wide and drill down.
+How Plane works today. Every page lives under [`c4/`](./c4/INDEX.md), organized by the four levels of the [C4 model](https://c4model.com/).
 
 Read [`AGENTS.md`](./AGENTS.md) before you add a page.
 
-## Zoom levels
+## Why one structure
 
-| Level | Scope | Index |
+C4 already spans both system architecture and application architecture. The level states the zoom, so no separate split is needed.
+
+| Level | Reads as | Folder |
 | --- | --- | --- |
-| **C4** | The product as boxes and arrows: actors, containers, external systems | [c4/INDEX.md](./c4/INDEX.md) |
-| **System** | One runtime concern end to end, across two or more apps | [system/INDEX.md](./system/INDEX.md) |
-| **Application** | Inside one app: components, stores, models, routes | [application/INDEX.md](./application/INDEX.md) |
+| **L1 Context** | System architecture | [c4/context/](./c4/context/INDEX.md) |
+| **L2 Containers** | System architecture | [c4/containers/](./c4/containers/INDEX.md) |
+| **L3 Components** | Application architecture | [c4/components/](./c4/components/INDEX.md) |
+| **L4 Code** | Application architecture | [c4/code/](./c4/code/INDEX.md) |
 
 ```mermaid
 flowchart TD
-    C4[c4/<br/>What are the pieces?] --> SYS[system/<br/>How does a concern flow?]
-    SYS --> APP[application/<br/>Which files do the work?]
+    L1["L1 context/<br/>Who uses Plane, what it talks to"] --> L2
+    L2["L2 containers/<br/>Deployable units and flows between them"] --> L3
+    L3["L3 components/<br/>Modules, stores, and models in one container"] --> L4
+    L4["L4 code/<br/>One hard algorithm, rarely needed"]
 ```
 
 ## Where to start
 
 | You want to | Read |
 | --- | --- |
-| Understand Plane for the first time | [c4/l1-context.md](./c4/INDEX.md), then [c4/l2-containers.md](./c4/INDEX.md) |
-| Trace a request from browser to database | [system/INDEX.md](./system/INDEX.md) |
-| Change a screen or an endpoint | [application/INDEX.md](./application/INDEX.md) |
+| Understand Plane for the first time | [c4/context/](./c4/context/INDEX.md), then [c4/containers/](./c4/containers/INDEX.md) |
+| Trace a request from browser to database | [c4/containers/](./c4/containers/INDEX.md) |
+| Change a screen or an endpoint | [c4/components/](./c4/components/INDEX.md) |
 | Deploy or operate the product | [../devops/INDEX.md](../devops/INDEX.md) |
 
 ## Related areas

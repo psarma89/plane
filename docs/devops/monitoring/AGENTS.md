@@ -68,4 +68,4 @@ Plane runs as a self-hosted deployment and as a hosted service. The available to
 ## Cross-links
 
 - Link every alert row to an SOP in [`../../sops/`](../../sops/INDEX.md).
-- Link every signal area to the [`../../architecture/system/`](../../architecture/system/INDEX.md) page whose failure modes it detects.
+- Link every signal area to the [`../../architecture/c4/containers/`](../../architecture/c4/containers/INDEX.md) dynamic page whose failure modes it detects.

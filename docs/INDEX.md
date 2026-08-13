@@ -9,9 +9,11 @@ Read [`AGENTS.md`](./AGENTS.md) before you add or edit any page.
 ```
 docs/
 ├── architecture/     How Plane works today
-│   ├── c4/             Structural zoom levels (C4 model)
-│   ├── system/         Runtime topology, services, data stores
-│   └── application/    Per-app internals and user journeys
+│   └── c4/             The four C4 zoom levels
+│       ├── context/      L1  Actors and external systems
+│       ├── containers/   L2  Deployable units and flows across them
+│       ├── components/   L3  Modules and stores inside one container
+│       └── code/         L4  One hard algorithm (rare)
 ├── clients/          Every way to consume Plane
 ├── devops/           How the code ships, runs, and stays watched
 │   ├── cicd/           Pipelines and required checks
@@ -29,7 +31,7 @@ docs/
 
 | Area | Use it when you need to know | Index |
 | --- | --- | --- |
-| Architecture | Where the code lives and how the pieces connect | [architecture/INDEX.md](./architecture/INDEX.md) |
+| Architecture | Where the code lives and how the pieces connect, at four C4 zoom levels | [architecture/INDEX.md](./architecture/INDEX.md) |
 | Clients | Which interfaces exist and how a user reaches them | [clients/INDEX.md](./clients/INDEX.md) |
 | DevOps | Which pipeline runs, which alert fires, which target deploys | [devops/INDEX.md](./devops/INDEX.md) |
 | Features | What a planned or shipped change is meant to do | [features/INDEX.md](./features/INDEX.md) |

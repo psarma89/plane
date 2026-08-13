@@ -47,7 +47,7 @@ Copied from `docker-compose.yml`. Update this table when a pin changes.
 
 ## Related
 
-- [../../architecture/c4/INDEX.md](../../architecture/c4/INDEX.md) draws these containers and their traffic.
+- [../../architecture/c4/containers/INDEX.md](../../architecture/c4/containers/INDEX.md) draws these containers and their traffic.
 - [../cicd/INDEX.md](../cicd/INDEX.md) covers the pipelines that build the images.
 - [../../sops/INDEX.md](../../sops/INDEX.md) holds install, upgrade, and backup procedures.
 - [../../../CONTRIBUTING.md](../../../CONTRIBUTING.md) covers local setup with `setup.sh`.
