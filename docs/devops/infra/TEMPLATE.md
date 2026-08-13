@@ -14,38 +14,30 @@ Every service in the source file needs one row. Copy the pin character for chara
 
 | Service | Image or build context | Pin | Port | Role | Availability |
 | --- | --- | --- | --- | --- | --- |
-| `proxy` | `apps/proxy` | - | 80, 443 | Caddy ingress and TLS | Both |
-| `plane-db` | `postgres` | `15.7-alpine` | 5432 | Primary data store | Both |
+| `<service>` | `<image or context>` | `<pin, or ->` | <port> | <What it does> | Community / Commercial / Both |
 
-Source of these pins: `<path>`.
+Source of these pins: `<path>`. Read each pin from that file, never from another doc.
 
 ## N.3 Volumes and state
 
 | Volume | Mounted by | Holds | Loss impact |
 | --- | --- | --- | --- |
-| `pgdata` | `plane-db` | Every workspace and work item row | Total data loss |
-| `uploads` | `plane-minio` | Attachments and avatars | Attachments unavailable |
+| `<volume>` | `<service>` | <What it holds> | <What is lost if it goes> |
 
 ## N.4 Network and ingress
 
 ```mermaid
 flowchart LR
-    U[Client] --> P[proxy]
-    P --> W[web]
-    P --> A[api]
-    A --> D[plane-db]
+    U[Client] --> P[<ingress service>]
+    P --> A[<service>]
+    A --> D[<data store>]
 ```
 
-Routes come from `apps/proxy/Caddyfile.ce`. Keep this table in sync with that file.
+Read every route from the proxy configuration for this target, for example `apps/proxy/Caddyfile.ce`. Keep this table in sync with that file.
 
 | Path | Routes to | Notes |
 | --- | --- | --- |
-| `/spaces/*` | `space:3000` | Published boards and intake forms |
-| `/god-mode/*` | `admin:3000` | Instance admin |
-| `/live/*` | `live:3000` | Collaboration WebSocket |
-| `/api/*`, `/auth/*`, `/static/*` | `api:8000` | REST API, auth, static assets |
-| `/{$BUCKET_NAME}/*` | `plane-minio:9000` | Object storage |
-| `/*` | `web:3000` | Workspace app, catch-all |
+| `<path pattern>` | `<service>:<port>` | <What it serves> |
 
 ## N.5 Required configuration
 

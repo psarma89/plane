@@ -8,7 +8,7 @@
 
 | Spec | Description | Status |
 | --- | --- | --- |
-| [<Feature name>](../../../features/new/<slug>.md) | One-line summary | Shipped / Partial / Draft |
+| [<Feature name>](../../../features/new/<slug>.md) | One-line summary | Shipped / In progress / Draft |
 
 ## N.1 Diagram
 

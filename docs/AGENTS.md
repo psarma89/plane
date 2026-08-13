@@ -23,9 +23,14 @@ Pick the folder by the question that the page answers. If two folders fit, write
 | `INDEX.md` | The folder landing page. States the purpose and links every file in the folder. | Yes |
 | `TEMPLATE.md` | The skeleton for a new page in the folder. | Only where the folder holds pages |
 
-A folder that only routes to sub-folders has no `TEMPLATE.md`. `architecture/`, `devops/`, and `features/` are routers. Their sub-folders hold the templates.
+A folder that only routes to sub-folders has no `TEMPLATE.md`. Five folders route: `docs/`, `architecture/`, `architecture/c4/`, `devops/`, and `features/`. Their sub-folders hold the templates.
 
-A child `AGENTS.md` states only what differs from its parent. Read the parent `AGENTS.md` first.
+Two rules keep this tree small.
+
+1. **`TEMPLATE.md` is the section list.** No `AGENTS.md` repeats the sections of its own template. To learn which sections a page needs, open the template.
+2. **A child `AGENTS.md` states only what differs from its parent.** Read the parent first.
+
+An `AGENTS.md` earns its tokens by holding what a reader cannot see from the folder itself: a repository fact, a trap, or the reason behind a rule.
 
 ## Naming
 
@@ -49,6 +54,19 @@ Entry format for a numbered set: `- [N. Title](./NN-slug.md) - one-line summary`
 - Name the symbol (class, function, or decorator) in backticks next to the path.
 - Never cite a line number. Line numbers rot on the next edit.
 - Never link to a source blob URL. The commit hash rots.
+
+## Versions and pins
+
+Copy a version, an image tag, or a numeric limit from the source file, character for character. Cite that source file next to the value. Never copy a pin from one doc into another, because a stale pin then spreads to every page that trusts it.
+
+## Secrets and values
+
+Every folder inherits these four rules. No sub-folder repeats them.
+
+- Name an environment variable. Never write its value.
+- Write `<redacted>` where a value belongs.
+- Never write a production hostname, an internal IP address, a bucket name, or a live workspace slug.
+- Treat `.env.example` and `apps/api/.env.example` as the canonical variable list.
 
 ## Diagrams
 

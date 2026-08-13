@@ -1,14 +1,8 @@
 # Architecture Docs Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. This file adds the rules that apply to `docs/architecture/`.
-
 Architecture pages describe **how Plane works today**. They are not proposals. A proposal belongs in [`../features/`](../features/INDEX.md).
 
-## This folder is a router
-
-`docs/architecture/` holds no pages of its own. It has no `TEMPLATE.md`. Every page lives under [`c4/`](./c4/INDEX.md).
-
-One structure covers every zoom level, because the [C4 model](https://c4model.com/) already spans both system architecture and application architecture.
+Every page lives under [`c4/`](./c4/INDEX.md). One structure covers every zoom level, because the [C4 model](https://c4model.com/) already spans both system architecture and application architecture.
 
 | C4 level | Covers | Folder |
 | --- | --- | --- |
@@ -30,20 +24,7 @@ Ask the questions in order. Stop at the first `yes`.
 | Does the page name files, modules, stores, or models inside one container? | L3 `components/` |
 | Does the page trace one algorithm through classes and calls? | L4 `code/` |
 
-Examples:
-
-| Page subject | Level |
-| --- | --- |
-| Every external service Plane calls | L1 |
-| The set of deployable containers and the traffic between them | L2 |
-| How a Celery task travels from `api` to `worker` and reports failure | L2 |
-| How Yjs document sync flows between `apps/live` and `apps/web` | L2 |
-| Which MobX store owns cycle state in `apps/web` | L3 |
-| How the work item detail panel loads and saves a field | L3 |
-| The routes, serializers, and models inside `apps/api` | L3 |
-| The exact ordering rules inside one conflict-resolution function | L4 |
-
-If a subject fits two levels, write the deeper page and link up.
+If a subject fits two levels, write the deeper page and link up. Each level folder gives its own boundary cases.
 
 ## Scope of the repo
 

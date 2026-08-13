@@ -1,14 +1,6 @@
 # Client Docs Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. This file adds the rules that apply to `docs/clients/`.
-
 A client page answers one question: **what are all the ways to consume Plane, and how does a user or a script reach each one?** It describes the surface, not the internals. Internals live in [`../architecture/`](../architecture/INDEX.md).
-
-## Naming
-
-- Files use `NN-<slug>.md`, zero-padded from `01`.
-- A new page takes the next free number. Do not renumber an existing page.
-- Sections use `## N.1` and `## N.2`, and match the page number.
 
 ## Surface against implementation
 
@@ -20,20 +12,7 @@ A client page answers one question: **what are all the ways to consume Plane, an
 
 If a sentence names a Python class or a React component, it belongs in `architecture/`. Move it.
 
-## Required sections
-
-Follow [`TEMPLATE.md`](./TEMPLATE.md). Every page needs these sections.
-
-| Section | Content |
-| --- | --- |
-| Header block | `Last reviewed` stamp and the canonical external doc link |
-| Overview | Two sentences on what this surface is for |
-| Surfaces | Table of each client, its platform, and its availability |
-| Access | The entry point, the authentication, and the limits |
-| Availability | Which deployment model and which edition offers it |
-| Known constraints | What the surface cannot do |
-
-## Availability is mandatory
+## Availability
 
 Plane ships as a hosted service and as a self-hosted deployment. Editions differ. Never state a capability without its availability.
 
@@ -60,12 +39,6 @@ A row without an availability value is incomplete.
 - Use an angle-bracket link for a bare URL. Example: `<https://developers.plane.so>`.
 - If an external number contradicts the code, trust the code and note the conflict.
 
-## Never write a secret
-
-Never write a real API key, a token, or a workspace slug from a live install. Use a placeholder.
-
 ## Cross-links
 
-- Link to [`../architecture/c4/containers/`](../architecture/c4/containers/INDEX.md) for the container that serves each surface.
-- Link to [`../security/`](../security/INDEX.md) for the restriction that guards each surface.
-- Link to [`../devops/infra/`](../devops/infra/INDEX.md) for the deployment target that hosts each surface.
+Name the container that serves each surface, and the restriction that guards it. [`INDEX.md`](./INDEX.md) holds the rest of the navigation.

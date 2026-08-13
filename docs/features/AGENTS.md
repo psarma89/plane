@@ -1,12 +1,8 @@
 # Feature Docs Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. This file adds the rules that apply to `docs/features/`.
-
 A feature page states **what we plan to build or change, and why**. It is a specification, not a description of the current system. The current system lives in [`../architecture/`](../architecture/INDEX.md).
 
-## This folder is a router
-
-`docs/features/` holds no pages of its own. It has no `TEMPLATE.md`. Every page lives in one of three sub-folders.
+Every page lives in one of three sub-folders.
 
 | Sub-folder | Holds |
 | --- | --- |
@@ -28,12 +24,9 @@ The boundary case: a defect whose fix changes documented behavior goes in `chang
 
 ## Naming
 
-- Prefix the slug with the Plane work item ID when one exists. Example: `WEB-8632-stale-chunk-reload.md`.
-- Without a work item ID, use the bare slug. Example: `bulk-work-item-import.md`.
-- `changes/` adds a date suffix, because one feature can change several times. Example: `WEB-1234-cycle-dates-2026-08-12.md`.
-- Use lower-kebab-case for the slug. Keep the work item ID in its original case.
+[`../AGENTS.md`](../AGENTS.md) gives the work item ID prefix. One addition applies here: keep the work item ID in its original case, even though the rest of the slug is lower-kebab-case.
 
-## Status is mandatory
+## Status
 
 Every page carries a status in its header block. Use exactly one of five values.
 

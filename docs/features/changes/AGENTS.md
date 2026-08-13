@@ -1,7 +1,5 @@
 # Change Spec Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. This file adds the rules that apply to `docs/features/changes/`.
-
 A page here specifies **a change to behavior that already ships**. The value of the page is the contrast: what happens today, and what will happen instead.
 
 ## Naming
@@ -10,26 +8,9 @@ A page here specifies **a change to behavior that already ships**. The value of 
 - The date is mandatory here. One feature can change several times. The date keeps the record ordered.
 - Never edit an old change page to describe a newer change. Write a new page.
 
-## Required sections
-
-Follow [`TEMPLATE.md`](./TEMPLATE.md). Every page needs these sections.
-
-| Section | Content |
-| --- | --- |
-| Header block | Status, owner, date, work item link, pull request link |
-| Why now | The trigger. What forces the change today. |
-| Current behavior | What happens today, including the edge cases |
-| New behavior | What will happen instead, including the edge cases |
-| Contract changes | Every endpoint, request, response, and error that changes |
-| Backwards compatibility | Whether an existing client breaks, and the plan |
-| Data changes | Migration, backfill, and defaults |
-| Frontend impact | Screens, states, and copy that change |
-| Regression plan | The flows that must not break, plus the tests |
-| Rollout | Feature flag, staged steps, and the rollback |
-
 ## Current behavior against new behavior
 
-Both sections are mandatory. Write them as parallel lists so a reader can diff them by eye.
+Write them as parallel lists so a reader can diff them by eye.
 
 - Include the edge cases in both. A change spec that only covers the happy path hides the risk.
 - State the behavior, not the code. "A cycle with no end date sorts last" beats "the queryset orders by `end_date`".

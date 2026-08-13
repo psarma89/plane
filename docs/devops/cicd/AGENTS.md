@@ -1,7 +1,5 @@
 # CI/CD Docs Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. This file adds the rules that apply to `docs/devops/cicd/`.
-
 A CI/CD page describes **one pipeline**. It states the trigger, the jobs, the gate, and the failure recovery.
 
 ## One page per workflow
@@ -24,20 +22,6 @@ Write the facts the YAML hides.
 | Which secret the job needs, and who grants it | The literal `env:` block |
 | How long the job takes, and what makes it slow | Every action version |
 | What to do when the job fails | The YAML syntax |
-
-## Required sections
-
-Follow [`TEMPLATE.md`](./TEMPLATE.md). Every page needs these sections.
-
-| Section | Content |
-| --- | --- |
-| Header block | Workflow file path, `Last reviewed` stamp |
-| Purpose | Two sentences on what the pipeline protects |
-| Triggers | Table of every event, branch filter, and path filter |
-| Jobs | Table of each job, what it runs, and whether it blocks a merge |
-| Secrets and permissions | Table of names only, never values |
-| Failure playbook | Table of the common failure, the cause, and the fix |
-| Cost and duration | Typical wall-clock time and the slowest job |
 
 ## Blocking against advisory
 

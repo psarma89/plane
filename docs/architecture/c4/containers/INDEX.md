@@ -60,7 +60,9 @@ Read the vocabulary section in [../AGENTS.md](../AGENTS.md) before you build a c
 
 ## Services in the Compose stack
 
-Copied from `docker-compose.yml`. Update this table when a pin changes. This table is not the full container list. See the section above.
+Read from `docker-compose.yml`. This table is not the full container list. See the section above.
+
+Pins live in [`../../../devops/infra/INDEX.md`](../../../devops/infra/INDEX.md). Do not copy a pin here, because two copies drift.
 
 | Service | Image or build | Role |
 | --- | --- | --- |
@@ -73,9 +75,9 @@ Copied from `docker-compose.yml`. Update this table when a pin changes. This tab
 | `beat-worker` | Built from `apps/api` | Celery beat scheduler |
 | `migrator` | Built from `apps/api` | One-shot migration runner |
 | `live` | Built from `apps/live` | Hocuspocus collaboration server |
-| `plane-db` | `postgres:15.7-alpine` | Primary data store |
-| `plane-redis` | `valkey/valkey:7.2.11-alpine` | Cache and rate limits |
-| `plane-mq` | `rabbitmq:3.13.6-management-alpine` | Celery broker |
+| `plane-db` | `postgres` | Primary data store |
+| `plane-redis` | `valkey/valkey` | Cache and rate limits. Valkey, not Redis, despite the name. |
+| `plane-mq` | `rabbitmq` | Celery broker |
 | `plane-minio` | `minio/minio` | Object storage |
 
 ## Related

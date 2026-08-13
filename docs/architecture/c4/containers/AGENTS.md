@@ -1,7 +1,5 @@
 # L2 Containers Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. It holds the naming, diagram, label, and table rules for every level. This file adds only what is specific to L2.
-
 An L2 page opens the Plane box. It names the **deployable units, the traffic between them, and the runtime flows that cross them**.
 
 ## Three page kinds
@@ -33,14 +31,12 @@ A dynamic diagram can also sit at L3, when it shows components inside one contai
 
 If a page names a file inside one container, it is L3. Move it.
 
-## A C4 container is not a Docker container
+## Building the container list
 
-Read the vocabulary section in [`../AGENTS.md`](../AGENTS.md) before you list containers. The C4 term is broader than a Compose service.
+`docker-compose.yml` is not the container list. It holds 13 services, and the C4 term is broader. [`../AGENTS.md`](../AGENTS.md) defines it.
 
-A container is any application or data store that must run for Plane to work. Apply these rules.
-
-- Where a container maps to a service in `docker-compose.yml`, use that service name exactly. Write `plane-db`, not `postgres`.
-- Where a container has no Compose service, list it anyway. The desktop app and the mobile apps are C4 containers. Cite [`../../../clients/INDEX.md`](../../../clients/INDEX.md) as the source.
+- Where a container maps to a Compose service, use that service name exactly. Write `plane-db`, not `postgres`.
+- Where a container has no Compose service, list it anyway. The desktop app and the mobile apps are C4 containers, and they live outside this repository. Cite [`../../../clients/INDEX.md`](../../../clients/INDEX.md).
 - A data store is a container. `plane-db` and the `plane-minio` bucket both count.
 - `migrator` runs once and exits. Label it a one-shot container.
 - Never label a component as a container. If it shares a process with other code, it is L3.
@@ -63,34 +59,19 @@ Plane ships several targets. Write one page per target, or one page with one sec
 
 [`../../../devops/infra/`](../../../devops/infra/INDEX.md) covers each target in operational depth: pins, volumes, resource floors, and verification. A deployment page here stays at the diagram and the mapping. Do not duplicate the infra page. Link to it.
 
-## Required sections
+## Failure modes carry the value on a dynamic page
 
-Follow [`TEMPLATE.md`](./TEMPLATE.md). The template marks which sections apply to each kind.
+[`TEMPLATE.md`](./TEMPLATE.md) marks which sections apply to each kind. One section needs more than a heading.
 
-| Section | Structural | Dynamic | Deployment |
-| --- | --- | --- | --- |
-| Header block with `Kind` | Required | Required | Required |
-| Related feature specs | Required | Required | Required |
-| Diagram | Required | Required | Required |
-| Elements | Required | Required as Participants | Required as nodes and instances |
-| Relationships with protocol and port | Required | Not required | Required |
-| Trust boundaries | Required | Not required | Required |
-| Failure modes | Not required | Required | Not required |
-| Configuration | Not required | Required | Not required |
-| Deployment environment | Not required | Not required | Required |
-| Verification | Required | Required | Required |
-
-## Failure modes are mandatory on a dynamic page
-
-A dynamic page without a failure modes table is incomplete. For each failure, state three things.
+A dynamic page earns its keep through its failure modes table. For each failure, state three things.
 
 1. What breaks.
 2. What a user or an operator observes.
 3. What recovers it, or which SOP recovers it.
 
-## Trust boundaries are mandatory on a structural and a deployment page
+## Trust boundaries
 
-List each zone and its exposure. Use this shape.
+A structural page and a deployment page both list each zone and its exposure. Use this shape.
 
 | Zone | Contains | Exposure |
 | --- | --- | --- |
@@ -99,21 +80,10 @@ List each zone and its exposure. Use this shape.
 | Application | `web`, `admin`, `space`, `api`, `live`, `worker` | Internal |
 | Data | `plane-db`, `plane-redis`, `plane-mq`, `plane-minio` | Internal only |
 
-## Pins come from the source
-
-Copy every image pin character for character. Cite the source file next to the table. Never copy a pin from another doc.
-
 ## Configuration on a dynamic page
 
-- Name each environment variable in backticks, exactly as the code reads it.
-- Give the default value. If there is no default, write `no default`.
-- Never paste a secret value. Write `<redacted>`.
-- Point to `.env.example` and `apps/api/.env.example` as the canonical list.
+Name each environment variable in backticks, exactly as the code reads it. Give the default value, or write `no default`.
 
 ## Cross-links
 
-- Link down to a [`../components/`](../components/INDEX.md) page for file-level detail.
-- Link up to [`../context/`](../context/INDEX.md) for the external boundary.
-- Link out to [`../../../sops/`](../../../sops/INDEX.md) for every recovery step.
-- Link out to [`../../../devops/monitoring/`](../../../devops/monitoring/INDEX.md) for the signal that detects a failure.
-- Link out to [`../../../devops/infra/`](../../../devops/infra/INDEX.md) for the deployment target in depth.
+Every failure mode names the SOP that recovers it. [`INDEX.md`](./INDEX.md) holds the rest of the navigation.

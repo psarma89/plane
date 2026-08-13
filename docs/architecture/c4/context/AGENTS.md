@@ -1,7 +1,5 @@
 # L1 Context Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. It holds the naming, diagram, label, and table rules for every level. This file adds only what is specific to L1.
-
 An L1 page treats **Plane as one box**. It names who uses Plane and what Plane depends on. It never opens the box.
 
 ## What belongs here
@@ -28,20 +26,6 @@ Do not create a page per integration. An integration is a row in the external sy
 C4 defines a system landscape diagram as a supplementary type. It shows several software systems inside one organization.
 
 Plane is one software system, so no landscape page is needed today. If one becomes useful, it files here, because it operates above the container level. Name it `NN-system-landscape.md` and state which systems it covers.
-
-## Required sections
-
-Follow [`TEMPLATE.md`](./TEMPLATE.md). Every page needs these sections.
-
-| Section | Content |
-| --- | --- |
-| Header block | `Last reviewed` stamp and the scope sentence |
-| Related feature specs | Table of specs that drove the current design |
-| Diagram | A Mermaid `C4Context` diagram |
-| Actors | One row per user type, with what they do |
-| External systems | One row per system, with purpose, data sent, and availability |
-| Trust boundaries | One row per zone, with its exposure |
-| Notes | Three summary bullets |
 
 ## Actors
 

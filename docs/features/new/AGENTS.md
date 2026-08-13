@@ -1,7 +1,5 @@
 # New Feature Spec Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. This file adds the rules that apply to `docs/features/new/`.
-
 A page here specifies **a capability that does not exist yet**. A reader must be able to build it without asking the author a question.
 
 ## Naming
@@ -10,26 +8,7 @@ A page here specifies **a capability that does not exist yet**. A reader must be
 - Do not add a date. A new capability is specified once.
 - Do not create a folder per feature. If a spec needs an image or a diagram source, put it in `assets/<slug>/`.
 
-## Required sections
-
-Follow [`TEMPLATE.md`](./TEMPLATE.md). Every spec needs these sections.
-
-| Section | Content |
-| --- | --- |
-| Header block | Status, owner, date, work item link, pull request link |
-| Goal | The user problem, in one or two sentences |
-| Non-goals | What this spec explicitly refuses to cover |
-| User stories | One line each, in `As a / I want / so that` form |
-| UX flow | The happy path, plus the loading, empty, error, and success states |
-| API contract | Every endpoint, with the request, the response, and every error code |
-| Data model | Every table touched, plus the migration and backfill answer |
-| Frontend plan | Routes, components, stores, and translation keys |
-| Permissions | Which role can do what |
-| Test plan | The cases that must pass, backend and frontend |
-| Rollout | Feature flag, staged steps, and the rollback |
-| Open questions | Anything unresolved, with the person who decides |
-
-## Non-goals are mandatory
+## Non-goals
 
 A spec without non-goals invites scope creep. Name at least one thing this feature will not do.
 
@@ -69,7 +48,6 @@ State the behavior for every role that can reach the endpoint. A spec that says 
 - Name the translation key for every user-facing string. Keys live in `packages/i18n/src/locales`.
 - Name the Canvas, Surface, or Layer choice for new UI. See `packages/tailwind-config/AGENTS.md`.
 - Name the MobX store that owns the new state.
-- A pull request targets `dev`.
 
 ## After the feature ships
 

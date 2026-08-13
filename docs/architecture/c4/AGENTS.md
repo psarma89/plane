@@ -1,12 +1,8 @@
 # C4 Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. This file adds the rules that apply to every folder under `docs/architecture/c4/`.
-
 The [C4 model](https://c4model.com/) gives four zoom levels. Together they cover system architecture and application architecture, so this tree holds every architecture page.
 
-## This folder is a router
-
-`docs/architecture/c4/` holds no pages of its own. It has no `TEMPLATE.md`. Every page lives in one of four level folders.
+Every page lives in one of four level folders.
 
 | Folder | Level | Scope |
 | --- | --- | --- |
@@ -40,12 +36,7 @@ The C4 term predates Docker and is broader. C4 states: "From one perspective, it
 
 A C4 container is any application or data store that must run. The list includes a server-side web application, a client-side web application, a desktop application, a mobile app, a database, a blob store, a file system, a shell script, and a console application.
 
-Plane consequences:
-
-- Most Plane containers map to a service in `docker-compose.yml`. Use that service name where they do.
-- Some Plane containers have no Compose service. The desktop app and the mobile apps are C4 containers. Do not omit them from an L1 or L2 page because Compose does not list them.
-- A data store is a container. `plane-db` and the `plane-minio` bucket both count.
-- `migrator` runs once and exits. Mark it as a one-shot container rather than a long-running one.
+[`containers/`](./containers/INDEX.md) applies this to Plane and gives the rules for building a container list.
 
 ## Supplementary diagrams
 
@@ -61,29 +52,23 @@ Beyond the four levels, C4 defines three optional supplementary diagram types. T
 
 ## Rules that apply at every level
 
-The sections below hold once. A level folder repeats nothing from here.
+The sections below hold at every level. A level folder does not repeat them.
 
 ### Naming
 
-- Files use `NN-<slug>.md`, zero-padded from `01`, inside each level folder.
-- A new page takes the next free number in its folder. Do not renumber an existing page.
-- Sections use `## N.1` and `## N.2`, and match the page number.
-- Numbers restart at `01` in each level folder. `context/01-...` and `components/01-...` can both exist.
+[`../../AGENTS.md`](../../AGENTS.md) gives the `NN-<slug>.md` rules. One addition applies here: numbering restarts at `01` in each level folder, so `context/01-...` and `components/01-...` can both exist.
 
 ### Diagram syntax
 
 - Use Mermaid C4 syntax for a structural diagram: `C4Context`, `C4Container`, `C4Component`.
 - Use `sequenceDiagram` for a runtime flow, and `flowchart` for a decision path.
-- Keep one diagram under about 15 nodes. Split a larger diagram into sections in the same page.
 
 ### Labels
 
-- Keep a node description to 3 to 6 words. Put the detail in the prose table.
-  - Good: `"React Router app, MobX stores"`
-  - Bad: `"The main React Router web application that uses MobX stores for reactive state"`
-- Keep a relationship label to 1 to 3 words. It names what flows, not why.
-  - Good: `Rel(web, api, "REST, JSON")`
-  - Bad: `Rel(web, api, "Sends REST requests to fetch and update work items")`
+A label names the thing. The prose table carries the detail.
+
+- Node description. Good: `"React Router app, MobX stores"`. Bad: `"The main React Router web application that uses MobX stores for reactive state"`.
+- Relationship label names what flows, not why. Good: `Rel(web, api, "REST, JSON")`. Bad: `Rel(web, api, "Sends REST requests to fetch and update work items")`.
 - Use an empty label (`""`) when the boundary already explains the link.
 
 ### Node names
@@ -91,7 +76,7 @@ The sections below hold once. A level folder repeats nothing from here.
 - In L1 and L2, use the real product or service name: `Caddy`, `PostgreSQL`, `Valkey`, `RabbitMQ`, `MinIO`.
 - In L2, use the Compose service name in the node ID, so a reader can match the diagram to `docker-compose.yml`.
 - In L3 and L4, code-level names are correct: `apps/web/core/store/`, `plane/app/views/`.
-- Put the version or tier in the description, not the label. Example: `"PostgreSQL 15.7"`.
+- Put the version or tier in the description, not the label. Read the pin from its source file.
 
 ### Node order and grouping
 
@@ -111,7 +96,7 @@ Every diagram needs a table below it. The table is the source of truth.
 
 ### Related feature specs
 
-Every page carries a `### Related feature specs` table after the title. Add a row when a spec drives a change to the page. Use the status values `Shipped`, `Partial`, or `Draft`.
+Every page carries a `### Related feature specs` table after the title. Add a row when a spec drives a change to the page. Use the status values from [`../../features/AGENTS.md`](../../features/AGENTS.md).
 
 ### When not to add a page
 

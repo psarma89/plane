@@ -1,7 +1,5 @@
 # Bugfix Record Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. This file adds the rules that apply to `docs/features/bugfixes/`.
-
 A page here records **a defect and its fix**. The system did not do what it claims. The record exists so the same class of defect does not return.
 
 ## Not every bug earns a page
@@ -23,22 +21,6 @@ A one-line typo fix with a test does not need a page.
 - Files use `<WORK-ITEM-ID>-<slug>.md`. Example: `WEB-8632-stale-chunk-reload.md`.
 - Without a work item ID, use `<slug>-YYYY-MM-DD.md`.
 - Name the symptom in the slug, not the fix. `stale-chunk-load-failure` beats `add-reload-handler`.
-
-## Required sections
-
-Follow [`TEMPLATE.md`](./TEMPLATE.md). Every record needs these sections.
-
-| Section | Content |
-| --- | --- |
-| Header block | Status, severity, dates, work item link, pull request link |
-| Symptom | What a user observed, in their words where possible |
-| Blast radius | Who was affected, how many, and for how long |
-| Reproduction | The exact steps that trigger the defect |
-| Root cause | The single cause, named in code |
-| Fix | What changed, and why that resolves the cause |
-| Regression test | The test that fails before the fix and passes after |
-| Rejected hypotheses | What looked like the cause and was not |
-| Follow-up | Related defects this class of bug can still cause |
 
 ## Root cause is one cause
 
@@ -62,6 +44,10 @@ Every record names a test that fails before the fix and passes after.
 This section is the highest-value part of the record. It saves the next reader the search you already did.
 
 List what you suspected and why you ruled it out. Two or three entries is normal.
+
+## Status
+
+A record uses only two of the five values in [`../AGENTS.md`](../AGENTS.md): `In progress` and `Shipped`. A defect is never `Agreed`, and a record is never `Abandoned`, because the record documents work that happened.
 
 ## Severity
 

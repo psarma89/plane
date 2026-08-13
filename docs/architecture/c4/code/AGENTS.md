@@ -1,7 +1,5 @@
 # L4 Code Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. It holds the naming, diagram, label, and table rules for every level. This file adds only what is specific to L4.
-
 An L4 page zooms into **one component** and traces its implementation through classes and calls.
 
 ## The C4 model recommends against this level
@@ -14,30 +12,19 @@ Read the canonical guidance before you write anything here.
 
 An empty `code/` folder is a correct and expected state. The code is the source of truth at this zoom. A page that restates it goes stale on the next refactor and then misleads.
 
-Default to no page. Write one only when the bar below is met.
-
-## Generate it instead
-
-Before you write a page, try the tooling. Most IDEs produce a class or call hierarchy on demand, and the result never goes stale.
-
-If an IDE view answers the question, add a line to the relevant [`../components/`](../components/INDEX.md) page naming the entry point and the IDE action. Do not create a page here.
-
 ## An L4 page zooms into a component
 
 The entry point must be a component that an [`../components/`](../components/INDEX.md) page already documents. Link to that page.
 
 If no L3 page covers the area, write the L3 page first. An L4 page with no L3 parent has no context.
 
-## The bar
+## The gate
 
-Write an L4 page only when at least two statements are true.
+Write an L4 page only when all three statements hold.
 
-1. A competent reader with the file open still cannot follow the logic.
-2. The logic is stable. It has not changed in the last several releases.
-3. Getting it wrong is expensive: data loss, a security hole, or a silent wrong answer.
-4. The reasoning lives outside the code, for example in a specification or a protocol.
-
-One statement is not enough. Two is the bar.
+1. The rule is **non-local**. It spans several symbols, or it comes from a specification or protocol outside the code.
+2. Misunderstanding it is **expensive**: data loss, a security hole, or a silent wrong answer.
+3. Code, tests, and a generated view **do not already carry it**. An IDE renders the class and call shape on demand, but it cannot render intent.
 
 If the logic is hard because the code is unclear, fix the code. Do not document around it.
 
@@ -66,24 +53,9 @@ An L4 page is the last option, not the first.
 | A screen or an endpoint | No. Use [`../components/`](../components/INDEX.md). |
 | Anything a reader can follow from the code | No. Write no page. |
 
-## Required sections
+## Justification
 
-Follow [`TEMPLATE.md`](./TEMPLATE.md). Every page needs these sections.
-
-| Section | Content |
-| --- | --- |
-| Header block | `Last reviewed` stamp, the parent component, the entry point, and the re-read trigger |
-| Why this page exists | Which statements from the bar apply, and why an IDE view is not enough |
-| Entry point | The one symbol a reader starts from |
-| Diagram | A Mermaid `classDiagram` or `sequenceDiagram` |
-| Symbols | One row per class or function in the diagram |
-| Rules | The invariants the algorithm holds |
-| Edge cases | The inputs that break a naive implementation |
-| Verification | The tests that pin each rule |
-
-## Justification is mandatory
-
-The `Why this page exists` section names the statements from the bar that apply. A page without it invites a page for every function.
+[`TEMPLATE.md`](./TEMPLATE.md) holds the section list. Its `Why this page exists` section names which parts of the gate apply, and why a generated view does not answer the question. A page without that section invites a page for every function.
 
 ## Guard against rot
 

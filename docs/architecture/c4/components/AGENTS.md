@@ -1,19 +1,14 @@
 # L3 Components Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. It holds the naming, diagram, label, and table rules for every level. This file adds only what is specific to L3.
-
 An L3 page opens **one container**. It names the modules, routes, stores, and models inside it. A reader must be able to start work without a code search.
 
 This is where application architecture lives.
 
 ## The process test
 
-C4 defines a component as "a grouping of related functionality encapsulated behind a well-defined interface". Two rules follow, and they decide L2 against L3.
+[`../AGENTS.md`](../AGENTS.md) defines a component and states that components inside one container share a process. One test follows, and it decides L2 against L3.
 
-1. "With the C4 model, components are not separately deployable units. Instead, it's the container that's the deployable unit."
-2. "All components inside a container execute in the same process space."
-
-So apply one test. **If two things run in separate processes, they are containers, and the page is L2.**
+**If two things run in separate processes, they are containers, and the page is L2.**
 
 | Pair | Same process | Level |
 | --- | --- | --- |
@@ -46,7 +41,7 @@ The last two rows matter. Where the task code lives is L3. Where the task execut
 | **Structural** | Which components exist in this container, and how do they connect? | `C4Component` |
 | **Dynamic** | How do components inside this container work together for one feature? | `sequenceDiagram` |
 
-C4 allows a dynamic diagram at any level: "you can show software systems, containers, or components interacting at runtime." A dynamic page belongs here when every element it names shares one process. Otherwise it is L2.
+A dynamic page belongs here when every element it names shares one process. Otherwise it is L2.
 
 State the kind in the header block.
 
@@ -68,44 +63,13 @@ A journey is a thing a user sets out to do: sign in, plan a cycle, publish a boa
 
 A new tab on an existing settings screen updates the settings page. It does not earn a new page.
 
-## Required sections
+## Sections
 
-Follow [`TEMPLATE.md`](./TEMPLATE.md). Every page needs these sections.
+[`TEMPLATE.md`](./TEMPLATE.md) holds the section list and the key files table.
 
-| Section | Content |
-| --- | --- |
-| Header block | `Last reviewed` stamp, the container, the kind, and the scope |
-| Related feature specs | Table of specs that drove the current behavior |
-| Diagram | A Mermaid `C4Component` for a structural page, or `sequenceDiagram` for a dynamic page |
-| Key files | Table that maps each layer to a real path |
-| Key components | The components a reader will edit, and what each renders |
-| Key state | The store, its observables, and its actions |
-| Key data models | The Django models the journey reads and writes |
-| Data flow | A Mermaid diagram plus three summary bullets |
-| Acceptance criteria | Rules taken from the code, not from intent |
-| Verification | The tests and the command |
+Its key files table is the highest-value part of a page here, because it saves the reader a code search. Fill every row that applies.
 
 Delete a section that does not apply to the container. An `apps/live` page has no MobX store. Say so rather than leaving an empty table.
-
-## Key files table
-
-The table is the highest-value part of the page. Fill every row that applies. Delete a row that does not.
-
-| Layer | Path shape |
-| --- | --- |
-| Route | `apps/web/app/routes/...` |
-| Layout | `apps/web/core/layouts/...` |
-| Component | `apps/web/core/components/...` |
-| Hook | `apps/web/core/hooks/...` |
-| Service | `apps/web/core/services/...` |
-| Store | `apps/web/core/store/...` |
-| Shared package | `packages/ui/...`, `packages/types/...` |
-| API URL | `apps/api/plane/app/urls/...` |
-| API view | `apps/api/plane/app/views/...` |
-| Serializer | `apps/api/plane/app/serializers/...` |
-| Model | `apps/api/plane/db/models/...` |
-| Background task | `apps/api/plane/bgtasks/...` |
-| Permission | `apps/api/plane/app/permissions/...` |
 
 ## Acceptance criteria
 

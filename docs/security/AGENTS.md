@@ -1,45 +1,15 @@
 # Security Catalog Conventions
 
-Read [`../AGENTS.md`](../AGENTS.md) first. This file adds the rules that apply to `docs/security/`.
-
 `docs/security/` is a flat, scannable **inventory of the restrictions Plane enforces today**. It is not a design doc set. That is [`../architecture/`](../architecture/INDEX.md). It is not a how-to set. That is [`../sops/`](../sops/INDEX.md).
 
 Every row maps one runtime restriction to the code that enforces it.
 
-## Folder layout
-
-```
-docs/security/
-├── INDEX.md           Stakeholder summary and table of contents
-├── AGENTS.md          This file
-├── TEMPLATE.md        Per-area page template
-└── NN-<area-slug>.md  One page per security area
-```
-
-## Naming
-
-- Files use `NN-<area-slug>.md`, zero-padded from `01`.
-- A new page takes the next free number. Do not renumber an existing page.
-- Sections use `## N.1` and `## N.2`, and match the page number.
-
-## Page format
-
-Every page has four sections. [`TEMPLATE.md`](./TEMPLATE.md) codifies them.
-
-| Section | Content |
-| --- | --- |
-| `## N.1 Overview` | 2 to 3 sentences. What the area restricts, and why. A non-engineer can read it. |
-| `## N.2 Controls` | One table. One control per row. Columns: `#`, `Restriction`, `Where enforced`, `Reference`. |
-| `## N.3 Known gaps` | Restrictions a reader expects to exist but do not, with the reason. |
-| `## N.4 Verification` | How to prove the controls still hold: tests, grep patterns, CI checks. |
-
-The header carries a `> **Last reviewed:** YYYY-MM-DD` line and a list of canonical references.
+Pages here use `NN-<area-slug>.md`. [`TEMPLATE.md`](./TEMPLATE.md) holds the four sections every page needs.
 
 ## Row rules
 
 - **One control per row.** A layered control gets one row per layer. A server-side check and a client-side check are two rows.
 - **`Where enforced`** holds a backticked path from the repo root, plus the symbol in backticks. Example: `` `apps/api/plane/app/permissions/project.py` (`ProjectAdminPermission`) ``.
-- **Never cite a line number.** Line numbers rot on the next edit.
 - **`Reference`** prefers a relative link to the canonical doc. Use `[Arch](../architecture/c4/components/NN-slug.md)` or `[SOP](../sops/<slug>-sop.md)`. Write `-` when no canonical doc exists.
 - **No paragraphs in a row.** If a control needs more than a sentence, the canonical doc is thin. Fix that doc. Keep the row short.
 

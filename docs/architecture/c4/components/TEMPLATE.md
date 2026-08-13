@@ -12,7 +12,7 @@ Every element on this page must share one process with the others. If one does n
 
 | Spec | Description | Status |
 | --- | --- | --- |
-| [<Feature name>](../../../features/new/<slug>.md) | One-line summary | Shipped / Partial / Draft |
+| [<Feature name>](../../../features/new/<slug>.md) | One-line summary | Shipped / In progress / Draft |
 
 ## N.1 Diagram
 
@@ -20,23 +20,25 @@ Keep the block that matches the page kind. Delete the other.
 
 ### Structural
 
+Every component below must share one process. Read each technology string from the container you are documenting.
+
 ```mermaid
 C4Component
-    title Components inside apps/web for <journey>
+    title Components inside <container> for <journey>
 
-    Container_Boundary(web, "web") {
-        Component(route, "Route", "React Router", "Loads the screen")
-        Component(view, "Detail panel", "React", "Renders and edits fields")
-        Component(store, "<Store>", "MobX", "Owns the observable state")
-        Component(svc, "<Service>", "TypeScript", "Calls the REST API")
+    Container_Boundary(c, "<container>") {
+        Component(entry, "<Entry point>", "<technology>", "<what it does>")
+        Component(view, "<View>", "<technology>", "<what it renders>")
+        Component(state, "<Store>", "<technology>", "<what state it owns>")
+        Component(svc, "<Service>", "<technology>", "<what it calls>")
     }
 
-    Container(api, "api", "Django, DRF", "REST API")
+    Container(other, "<other container>", "<technology>", "<responsibility>")
 
-    Rel(route, view, "Renders")
-    Rel(view, store, "Reads, dispatches")
-    Rel(store, svc, "Calls")
-    Rel(svc, api, "REST, JSON")
+    Rel(entry, view, "<verb>")
+    Rel(view, state, "<verb>")
+    Rel(state, svc, "<verb>")
+    Rel(svc, other, "<protocol>")
 ```
 
 ### Dynamic
@@ -45,15 +47,15 @@ Every participant must share one process. A participant in another process makes
 
 ```mermaid
 sequenceDiagram
-    participant V as Detail panel
+    participant V as <View>
     participant S as <Store>
     participant C as <Service>
 
-    V->>S: dispatch(update)
-    S->>S: optimistic write
-    S->>C: patch(payload)
-    C-->>S: 200 response
-    S-->>V: observable updates
+    V->>S: <action>
+    S->>S: <local effect>
+    S->>C: <call>
+    C-->>S: <response>
+    S-->>V: <update>
 ```
 
 ## N.2 Key files
