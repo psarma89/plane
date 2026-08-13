@@ -11,11 +11,11 @@
 ```mermaid
 flowchart TB
     subgraph c["apps/admin"]
-        routes["app/routes.ts<br/><i>12 routes</i>"]
+        routes["app/routes.ts<br/><i>13 routes</i>"]
         providers["providers/core.tsx<br/><i>theme, SWR, store, instance, user</i>"]
         gate["(dashboard)/layout.tsx<br/><i>client-side redirect gate</i>"]
         settings["6 settings areas<br/><i>general, email, workspace, auth, ai, image</i>"]
-        store["store/root.store.ts<br/><i>5 stores</i>"]
+        store["store/root.store.ts<br/><i>4 stores</i>"]
     end
 
     subgraph pkg["@plane/services"]
@@ -49,11 +49,11 @@ flowchart TB
 
 | Component | Path | Responsibility |
 | --- | --- | --- |
-| Route table | `apps/admin/app/routes.ts` | 12 routes: a home layout, a dashboard layout with 10 pages, and a catch-all |
+| Route table | `apps/admin/app/routes.ts` | 13 routes: a home layout with an index, a dashboard layout with 11 pages, and a catch-all |
 | Providers | `apps/admin/providers/core.tsx` | Theme, progress bar, toast, SWR, store, instance, user |
 | Dashboard gate | `apps/admin/app/(all)/(dashboard)/layout.tsx` | Redirects to `/` when the user is not logged in |
 | Home switch | `apps/admin/app/(all)/(home)/page.tsx` | Spinner, failure view, setup form, or sign-in form |
-| Stores | `apps/admin/store/root.store.ts` | `ThemeStore`, `InstanceStore`, `UserStore`, `WorkspaceStore` |
+| Stores | `apps/admin/store/root.store.ts` | Four stores: `ThemeStore`, `InstanceStore`, `UserStore`, `WorkspaceStore` |
 | Sidebar menu | `apps/admin/hooks/use-sidebar-menu/core.ts` | Declares the six settings areas |
 | 6 settings areas | `apps/admin/app/(all)/(dashboard)/` | One page per area: general, email, workspace, authentication, ai, image. Section 3.4 lists what each one writes. |
 
@@ -61,7 +61,7 @@ flowchart TB
 
 **`RootStore`** (`apps/admin/store/root.store.ts`)
 
-Five stores, against 30 in `apps/web`. The scope is that much smaller.
+Four stores, against 30 in `apps/web`. The scope is that much smaller.
 
 | Store | Owns |
 | --- | --- |
@@ -92,7 +92,7 @@ Every page writes instance configuration keys, which the API stores encrypted in
 | Session cookie | `session-id` | `admin-session-id`, one hour |
 | Sign-in | XHR | Native HTML form POST |
 | Services | 46 local classes | 3 classes from `@plane/services` |
-| Stores | 30 | 5 |
+| Stores | 30 | 4 |
 | Route prefix | `/` | `/god-mode`, and the proxy does not strip it |
 
 Both set `ssr: false` and ship as static files behind nginx.

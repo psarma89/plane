@@ -12,7 +12,9 @@ This level holds the L2 static view plus two supplementary C4 views that operate
 | **Dynamic** | How does one concern travel across containers, in order? | `sequenceDiagram` | Dynamic diagram |
 | **Deployment** | Where do container instances run, in one environment? | `flowchart` | Deployment diagram |
 
-A dynamic page is the right home for a concern that used to need a separate system-level folder. Examples: the request lifecycle, Celery task dispatch, document sync, file upload.
+A dynamic page is the right home for a concern that used to need a separate system-level folder. Examples: the request lifecycle, Celery task dispatch, file upload.
+
+Document sync is the one exception. It lives at L4, because its rule depends on a lock between two `live` instances. See [`../code/AGENTS.md`](../code/AGENTS.md).
 
 A dynamic diagram can also sit at L3, when it shows components inside one container interacting. File that page in [`../components/`](../components/INDEX.md). File the page by the elements the diagram names.
 
@@ -23,7 +25,7 @@ A dynamic diagram can also sit at L3, when it shows components inside one contai
 | The set of containers and their traffic | Yes, structural |
 | How a request travels from `proxy` to `plane-db` | Yes, dynamic |
 | How a Celery task reaches `worker` and reports failure | Yes, dynamic |
-| How Yjs sync flows between `apps/live` and `apps/web` | Yes, dynamic |
+| How Yjs sync flows between `apps/live` and `apps/web` | No. It is at L4. See [`../code/AGENTS.md`](../code/AGENTS.md). |
 | Where containers run on a Kubernetes target | Yes, deployment |
 | A runtime flow between two modules inside `apps/web` | No. Dynamic at L3. Use [`../components/`](../components/INDEX.md). |
 | Which MobX store owns cycle state | No. Use [`../components/`](../components/INDEX.md). |

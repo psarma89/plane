@@ -48,11 +48,13 @@ Add an anonymous actor wherever a surface accepts unauthenticated traffic.
 
 ## N.3 External systems
 
-Every row needs a `Data sent` value and an `Availability` value.
+Every row needs a `Data sent` value and a `Required` value.
 
-| System | Purpose | Data sent | Required | Availability | Enabled by |
-| --- | --- | --- | --- | --- | --- |
-| {Provider} | {Why Plane calls it} | {Data category} | yes / no | Cloud / Self-hosted / Both / Commercial | `{ENV_VAR}` |
+Add an `Availability` column only where the repository proves the value. See [`AGENTS.md`](./AGENTS.md).
+
+| System | Purpose | Data sent | Required | Enabled by |
+| --- | --- | --- | --- | --- |
+| {Provider} | {Why Plane calls it} | {Data category} | yes / no | `{ENV_VAR}` |
 
 Cite the source that proves each row, for example `apps/api/plane/settings/common.py` or `docker-compose.yml`.
 

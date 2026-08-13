@@ -106,6 +106,8 @@ Three rules that the picture cannot show:
 
 Every row is proven by Community Edition source. `Enabled by` names the variable that switches the integration on.
 
+This table carries no `Availability` column on purpose. This repository builds the Community Edition only, so it cannot prove which edition an integration reaches. Appendix C carries the edition model, which comes from the product documentation rather than from code.
+
 | System | Purpose | Data sent | Required | Enabled by |
 | --- | --- | --- | --- | --- |
 | S3 or MinIO | Attachments, avatars, exports | User files, work item attachments, generated exports | **yes** | `USE_MINIO`, `AWS_S3_ENDPOINT_URL` |
@@ -144,10 +146,10 @@ Do not add these to the diagram. The product documentation describes them, and n
 
 | Zone | Contains | Exposure |
 | --- | --- | --- |
-| Internet | Every actor, every external system | Public |
-| Edge | `proxy` | The only container with a published port |
-| Application | `web`, `admin`, `space`, `api`, `worker`, `beat-worker`, `live` | Internal network only |
-| Data | `plane-db`, `plane-redis`, `plane-mq`, `plane-minio` | Internal network only |
+| Internet | Every actor, and every external system in the table above | Public |
+| Plane | The system as one box | Mixed. One public ingress, everything else internal. |
+
+Naming the units inside the box is L2 work. [1. Container overview](../containers/01-container-overview.md) carries the four-zone table with a row per container.
 
 ## 1.5 Notes
 
@@ -184,7 +186,7 @@ Mobile minimums are iOS 14 and Android 10. Push notification is Cloud only.
 
 | Interface | Path | Authentication |
 | --- | --- | --- |
-| REST API v1 | `/api/v1/` | `X-API-Key`, or an OAuth 2.0 bearer token |
+| REST API v1 | `/api/v1/` | `X-API-Key` only. `APIKeyAuthentication` reads no bearer token, so the OAuth path the product documentation describes has no Community Edition code. |
 | Internal app API | `/api/` | Session cookie |
 | Public API | `/api/public/` | Anonymous, for published boards |
 | Instance API | `/api/instances/` | Anonymous to read, instance admin to write |

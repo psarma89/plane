@@ -16,7 +16,7 @@ flowchart TB
 
     subgraph c["apps/api"]
         asgi["plane/asgi.py<br/><i>ProtocolTypeRouter, HTTP only</i>"]
-        mw["plane/middleware/<br/><i>3 project middleware, plus 10 stock</i>"]
+        mw["plane/middleware/<br/><i>4 project middleware, plus 9 third-party</i>"]
         urls["plane/urls.py<br/><i>6 URL prefixes</i>"]
 
         subgraph surfaces["API surfaces"]
@@ -31,7 +31,7 @@ flowchart TB
             perms["plane/app/permissions/<br/><i>13 classes, allow_permission, ROLE</i>"]
             db["plane/db/<br/><i>30 model modules, migrations</i>"]
             utils["plane/utils/<br/><i>paginator, filters, exporters</i>"]
-            tasks["plane/bgtasks/<br/><i>47 shared_task definitions</i>"]
+            tasks["plane/bgtasks/<br/><i>46 shared_task definitions</i>"]
         end
     end
 
@@ -82,11 +82,13 @@ flowchart TB
 | Instance API | `plane/license/` | Instance registration, God Mode configuration, telemetry push |
 | Authentication | `plane/authentication/` | Four OAuth providers, email and magic-code credentials, session middleware |
 | Permissions | `plane/app/permissions/` | 7 workspace classes, 5 project classes, 1 page class, plus `allow_permission` and `ROLE` |
-| Models | `plane/db/` | 30 model modules, the migrations, and 18 management commands |
-| Background tasks | `plane/bgtasks/` | 47 `@shared_task` definitions across 32 modules |
+| Models | `plane/db/` | 30 model modules, the migrations, and 17 management commands |
+| Background tasks | `plane/bgtasks/` | 46 active `@shared_task` definitions across 32 modules. One more lives in `plane/license/bgtasks/`, for 47 in total. |
 | Shared library | `plane/utils/` | Paginators, issue filters, exporters, the OpenAPI hooks |
 | Throttles | `plane/throttles/` | One module. `AssetRateThrottle`, applied to one view. |
 | Health and robots | `plane/web/` | `GET /` returns `{"status": "OK"}`. `GET /robots.txt` disallows everything. |
+
+This table is the complete package list. The diagram draws the request path only, and leaves out `plane/throttles/` and `plane/web/` to stay under 20 nodes.
 
 ## 1.3 How the four surfaces differ
 

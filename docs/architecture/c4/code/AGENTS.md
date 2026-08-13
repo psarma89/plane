@@ -38,8 +38,17 @@ If the logic is hard because the code is unclear, fix the code. Do not document 
 | The reason is not obvious | Write one comment that states the why |
 | The flow crosses files in one process | Write an [`../components/`](../components/INDEX.md) page |
 | The flow crosses processes | Write a [`../containers/`](../containers/INDEX.md) dynamic page |
+| The flow crosses processes AND the rule depends on that crossing | Keep it here, and say why in `Why this page exists` |
 
 An L4 page is the last option, not the first.
+
+## A diagram here may name another process
+
+The table above sends a cross-process flow to L2. One exception holds.
+
+Keep the page here when the invariant itself depends on the crossing. Document synchronisation is the example: its correctness rests on a distributed lock between two `live` instances, so a single-process diagram would omit the rule the page exists to state.
+
+The test is what the page is for. An L2 dynamic page answers "which containers does this touch, and in what order". An L4 page answers "which rule holds, and what breaks it". Where the second question needs a second process on the diagram, draw it.
 
 ## What belongs here
 

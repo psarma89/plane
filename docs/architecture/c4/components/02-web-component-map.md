@@ -24,7 +24,7 @@ flowchart TB
     end
 
     subgraph pkg["Shared packages"]
-        propel["@plane/propel<br/><i>primitives, 1024 imports</i>"]
+        propel["@plane/propel<br/><i>primitives, most-imported package</i>"]
         ui["@plane/ui<br/><i>composites</i>"]
         editor["@plane/editor<br/><i>TipTap, Hocuspocus provider</i>"]
     end
@@ -64,7 +64,7 @@ flowchart TB
 | Composition root | `apps/web/app/provider.tsx` | Nests store, i18n, toast, and SWR providers |
 | Bootstrap wrappers | `apps/web/core/lib/wrappers/` | Theme sync, instance readiness, authentication and onboarding gate |
 | Pages | `apps/web/app/(all)/`, `apps/web/app/(home)/` | One `page.tsx` per route |
-| Feature components | `apps/web/core/components/` | 56 groups. `issues/` is the largest at 331 files. |
+| Feature components | `apps/web/core/components/` | 56 groups. `issues/` is by far the largest, and decomposes further into `issue-layouts/`, `issue-detail/`, and `issue-modal/`. |
 | Store hooks | `apps/web/core/hooks/store/` | One hook per slice. Throws when used outside `StoreProvider`. |
 | Root store | `apps/web/core/store/root.store.ts` | `CoreRootStore` with 30 slices. A module-level singleton. |
 | Services | `apps/web/core/services/` | 46 classes extending one abstract `APIService` |

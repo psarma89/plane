@@ -64,6 +64,8 @@ All three gate statements hold.
 - **Expensive to get wrong**: The failure is silent document data loss. A losing Redlock holder skips its write with a log line and no error, so a wrong assumption about ordering costs user content.
 - **Not already carried**: `apps/live` has tests for PDF rendering and Effect utilities only. Authentication, the extensions, the Redis fanout, and the store path have no test. An IDE call hierarchy stops at the library boundary and cannot show the Redis round trip.
 
+The diagram names two `live` instances and three other containers, which normally makes a page L2. It stays here because the invariant depends on that crossing: rule 2 below is a distributed lock between the two instances, and a single-process diagram cannot show it. See the carve-out in [`AGENTS.md`](./AGENTS.md).
+
 ## 1.3 Symbols
 
 Rows marked *library* live in `@hocuspocus/*` at catalog version 2.15.2, not in this repository. They carry no line reference on purpose.

@@ -26,13 +26,14 @@ This list is a backlog, not a claim that the pages exist. Delete a row when you 
 | Authentication, sessions, and API keys | Dynamic | `api`, every frontend |
 | Workspace and project authorization | Dynamic | `api`, `web` |
 | Background work with Celery and RabbitMQ | Dynamic | `api`, `worker`, `beat-worker`, `plane-mq` |
-| Real-time collaboration and document sync | Dynamic | `live`, `web`, `plane-redis` |
 | File upload and object storage | Dynamic | `api`, `plane-minio`, browser |
 | Caching and rate limiting | Dynamic | `api`, `plane-redis` |
 | Webhooks and outbound delivery | Dynamic | `api`, `worker` |
 | Notifications and email | Dynamic | `api`, `worker` |
 | Migrations at runtime | Dynamic | `migrator`, `api`, `plane-db` |
 | Licensing and edition gating | Dynamic | `api`, `admin` |
+
+Document sync is not on this list. [`../code/01-document-synchronisation.md`](../code/01-document-synchronisation.md) already traces that flow end to end, including every container hop, so an L2 page would repeat it.
 
 ## Containers with no Compose service
 

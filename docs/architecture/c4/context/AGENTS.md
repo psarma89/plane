@@ -35,7 +35,9 @@ Plane is one software system, so no landscape page is needed today. If one becom
 
 ## External systems
 
-Every row needs a **Data sent** value and an **Availability** value. A row without both is incomplete.
+Every row needs a **Data sent** value. Every row also needs a **Required** value, which states whether Plane works without the integration.
+
+Add an **Availability** value where the repository proves it, using `Cloud`, `Self-hosted`, `Both`, or `Commercial`. Omit the column when it cannot, and say so on the page. This repository builds the Community Edition only, so a page written from this source usually cannot prove which edition an integration reaches, and inventing the value is worse than omitting it.
 
 - **Data sent** names the data category, not the field list. Example: "Email address", "Work item content", "Telemetry events".
 - **Availability** uses `Cloud`, `Self-hosted`, `Both`, or `Commercial`.

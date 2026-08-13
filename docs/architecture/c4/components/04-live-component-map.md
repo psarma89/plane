@@ -67,7 +67,7 @@ flowchart TB
 | DocumentController | `src/controllers/document.controller.ts` | `POST /convert-document`, HTML to Yjs binary |
 | HealthController | `src/controllers/health.controller.ts` | Returns status, timestamp, version. No dependency check. |
 | PdfExportController | `src/controllers/pdf-export.controller.ts` | Requires a `cookie` header. Streams a PDF. |
-| Hocuspocus manager | `src/hocuspocus.ts` | Singleton. Four options only: name, `onAuthenticate`, `onStateless`, extensions, `debounce: 10000`. |
+| Hocuspocus manager | `src/hocuspocus.ts` | Singleton. Five options only: `name`, `onAuthenticate`, `onStateless`, `extensions`, `debounce: 10000`. |
 | Authentication | `src/lib/auth.ts` | `onAuthenticate`. Parses the token, forwards the cookie to `GET /api/users/me/`, rejects an id mismatch. |
 | Redis manager | `src/redis.ts` | One ioredis client. The extension duplicates it into `pub` and `sub`. |
 | Page services | `src/services/page/` | The only path back to `apps/api` for document content |
