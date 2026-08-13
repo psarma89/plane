@@ -34,3 +34,17 @@ Prereq (once): `./setup.sh` — generates `apps/api/.env` from `.env.example`.
 - Teardown: `docker compose -f docker-compose-test.yml down -v`
 
 See `apps/api/tests/RUNNING_TESTS.md` for the full walkthrough and troubleshooting; see `apps/api/tests/TESTING_GUIDE.md` for test conventions and fixtures.
+
+## Further reading
+
+Read these files before you change code in the area that they cover.
+
+- The `docs/` directory is an in-project system to organize knowledge and feature work.
+- Additional `AGENTS.md` files live in sub-directories. They give more code requirements and conventions.
+- `.github/instructions/bash.instructions.md`: pnpm, Turbo, Docker, and monorepo layout conventions.
+- `.github/instructions/typescript.instructions.md`: TypeScript 5.0 to 5.8 features, patterns, and deprecated syntax to avoid.
+
+Two of these need a direct link, because an agent that works in one directory does not load files from another.
+
+- `packages/tailwind-config/AGENTS.md` defines the Canvas, Surface, and Layer background rules for every app in `apps/`. Read it before you write any `bg-*` class.
+- The files in `.github/instructions/` use Copilot `applyTo:` frontmatter, which Claude Code does not read.
