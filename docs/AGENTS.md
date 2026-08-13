@@ -74,6 +74,8 @@ Write every page in Simplified Technical English.
 - Use one word for one meaning across the whole folder.
 - Write more than two items as a vertical list.
 
+One exception. A verbatim quotation keeps the wording of its source, even where that wording breaks a rule above. Put it in quotation marks and name the source. Never edit a quote to satisfy a style rule.
+
 ## What does not belong in docs/
 
 - Generated output, build artifacts, or dependency reports.

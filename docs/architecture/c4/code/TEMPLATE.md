@@ -2,19 +2,23 @@
 
 > **Last reviewed:** YYYY-MM-DD
 > **Level:** L4 Code
+> **Parent component:** [<L3 page>](../components/NN-slug.md)
 > **Entry point:** `<path>` (`<symbol>`)
 > **Re-read when:** A release touches the entry point.
 
 ## N.1 Why this page exists
 
-Name the statements from the bar in [`AGENTS.md`](./AGENTS.md) that apply. At least two must apply.
+C4 recommends against this level. Justify the exception.
+
+Name the statements from the bar in [`AGENTS.md`](./AGENTS.md) that apply. At least two must apply. State why an IDE-generated view does not answer the question.
 
 - **Hard to follow**: <Why a reader with the file open still cannot follow it>
 - **Stable**: <When the logic last changed>
 - **Expensive to get wrong**: <The concrete consequence>
 - **Reasoning lives outside the code**: <The specification or protocol, with a link>
+- **An IDE view is not enough**: <Why a generated class or call hierarchy does not answer the question>
 
-Delete a bullet that does not apply.
+Delete a bullet that does not apply, except the last one. That one is required.
 
 ## N.2 Entry point
 

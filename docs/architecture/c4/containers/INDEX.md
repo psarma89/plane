@@ -8,18 +8,23 @@ Read [`../AGENTS.md`](../AGENTS.md) for the shared rules, then [`AGENTS.md`](./A
 
 > No page exists yet. Add the first page with [`TEMPLATE.md`](./TEMPLATE.md), then list it here.
 
-Entry format: `- [N. Title](./NN-slug.md) - Structural | Dynamic - one-line summary`
+Entry format: `- [N. Title](./NN-slug.md) - Structural | Dynamic | Deployment - one-line summary`
 
-<!-- - [1. Container overview](./01-container-overview.md) - Structural - Every deployable unit and the traffic between them. -->
+<!-- - [1. Container overview](./01-container-overview.md) - Structural - Every container and the traffic between them. -->
 
-## Two page kinds
+## Three page kinds
 
-| Kind | Answers | Diagram |
-| --- | --- | --- |
-| **Structural** | What runs where, and what talks to what? | `C4Container` |
-| **Dynamic** | How does one concern travel across containers, in order? | `sequenceDiagram` |
+| Kind | Answers | Diagram | C4 type |
+| --- | --- | --- | --- |
+| **Structural** | What runs where, and what talks to what? | `C4Container` | Container diagram (L2) |
+| **Dynamic** | How does one concern travel across containers, in order? | `sequenceDiagram` | Dynamic diagram |
+| **Deployment** | Where do container instances run, in one environment? | `C4Deployment` | Deployment diagram |
 
 A dynamic page covers a concern that crosses containers end to end. That is the same job a separate system-architecture folder once did. The container granularity makes it L2.
+
+A dynamic diagram can also sit at L3, when it shows components inside one container. File that page in [../components/](../components/INDEX.md).
+
+A deployment page is scoped to one deployment environment. Do not mix production and local development in one diagram.
 
 ## Suggested first pages
 
@@ -27,8 +32,9 @@ This list is a backlog, not a claim that the pages exist. Delete a row when you 
 
 | Page | Kind | Containers involved |
 | --- | --- | --- |
-| Container overview | Structural | Every service |
-| Deployment topology | Structural | Every service, per target |
+| Container overview | Structural | Every container |
+| Deployment: single-node Compose | Deployment | Every service in `docker-compose.yml` |
+| Deployment: Kubernetes | Deployment | Every service, per `deployments/kubernetes/` |
 | Request lifecycle and routing | Dynamic | `proxy`, `web`, `api` |
 | Authentication, sessions, and API keys | Dynamic | `api`, every frontend |
 | Workspace and project authorization | Dynamic | `api`, `web` |
@@ -41,9 +47,20 @@ This list is a backlog, not a claim that the pages exist. Delete a row when you 
 | Migrations at runtime | Dynamic | `migrator`, `api`, `plane-db` |
 | Licensing and edition gating | Dynamic | `api`, `admin` |
 
-## Services
+## Containers with no Compose service
 
-Copied from `docker-compose.yml`. Update this table when a pin changes.
+A C4 container is not a Docker container. These Plane containers must appear on an L1 or L2 page even though `docker-compose.yml` does not list them. Source: [../../../clients/INDEX.md](../../../clients/INDEX.md).
+
+| Container | Kind | Availability |
+| --- | --- | --- |
+| Desktop app | Desktop application | Cloud and commercial self-hosted |
+| Mobile app (iOS, Android) | Mobile app | Cloud and commercial self-hosted |
+
+Read the vocabulary section in [../AGENTS.md](../AGENTS.md) before you build a container list.
+
+## Services in the Compose stack
+
+Copied from `docker-compose.yml`. Update this table when a pin changes. This table is not the full container list. See the section above.
 
 | Service | Image or build | Role |
 | --- | --- | --- |

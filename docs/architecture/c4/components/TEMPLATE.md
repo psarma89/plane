@@ -2,8 +2,11 @@
 
 > **Last reviewed:** YYYY-MM-DD
 > **Level:** L3 Components
+> **Kind:** Structural | Dynamic
 > **Container:** `apps/web`
 > **Scope:** One sentence. State what the user does and what the outcome is.
+
+Every element on this page must share one process with the others. If one does not, the page is L2. See [`AGENTS.md`](./AGENTS.md).
 
 ### Related feature specs
 
@@ -11,7 +14,11 @@
 | --- | --- | --- |
 | [<Feature name>](../../../features/new/<slug>.md) | One-line summary | Shipped / Partial / Draft |
 
-## N.1 Component diagram
+## N.1 Diagram
+
+Keep the block that matches the page kind. Delete the other.
+
+### Structural
 
 ```mermaid
 C4Component
@@ -30,6 +37,23 @@ C4Component
     Rel(view, store, "Reads, dispatches")
     Rel(store, svc, "Calls")
     Rel(svc, api, "REST, JSON")
+```
+
+### Dynamic
+
+Every participant must share one process. A participant in another process makes this an L2 page.
+
+```mermaid
+sequenceDiagram
+    participant V as Detail panel
+    participant S as <Store>
+    participant C as <Service>
+
+    V->>S: dispatch(update)
+    S->>S: optimistic write
+    S->>C: patch(payload)
+    C-->>S: 200 response
+    S-->>V: observable updates
 ```
 
 ## N.2 Key files

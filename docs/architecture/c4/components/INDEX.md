@@ -8,9 +8,26 @@ Read [`../AGENTS.md`](../AGENTS.md) for the shared rules, then [`AGENTS.md`](./A
 
 > No page exists yet. Add the first page with [`TEMPLATE.md`](./TEMPLATE.md), then list it here.
 
-Entry format: `- [N. Title](./NN-slug.md) - container - one-line summary`
+Entry format: `- [N. Title](./NN-slug.md) - container - Structural | Dynamic - one-line summary`
 
-<!-- - [1. Web: authentication and onboarding](./01-web-authentication.md) - apps/web - Sign-in, sign-up, and session handling. -->
+<!-- - [1. Web: authentication and onboarding](./01-web-authentication.md) - apps/web - Structural - Sign-in, sign-up, and session handling. -->
+
+## The process test
+
+C4 states that "all components inside a container execute in the same process space", and that a component is never the deployable unit.
+
+So one test decides whether a page belongs here. **If two things run in separate processes, they are containers, and the page is L2.**
+
+A Celery task definition sits in the `api` process, so it is L3. The same task executing in `worker` crosses a process, so it is L2.
+
+## Two page kinds
+
+| Kind | Answers | Diagram |
+| --- | --- | --- |
+| **Structural** | Which components exist in this container, and how do they connect? | `C4Component` |
+| **Dynamic** | How do components inside this container work together for one feature? | `sequenceDiagram` |
+
+A dynamic page belongs here only when every element it names shares one process. Otherwise file it in [../containers/](../containers/INDEX.md).
 
 ## Two page shapes
 

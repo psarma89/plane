@@ -17,6 +17,48 @@ The [C4 model](https://c4model.com/) gives four zoom levels. Together they cover
 
 Each level folder carries its own `AGENTS.md` with the rules for that level. Read this file, then that one.
 
+## Vocabulary
+
+C4 defines these terms. Use them with the C4 meaning, not a local meaning.
+
+| Term | C4 definition |
+| --- | --- |
+| Person | An actor, role, or persona that uses the software system. |
+| Software system | The highest level of abstraction. Made up of one or more containers. |
+| Container | "An application or a data store. A container is something that needs to be running in order for the overall software system to work." |
+| Component | "A grouping of related functionality encapsulated behind a well-defined interface." |
+| Code | Classes, interfaces, objects, and functions that implement a component. |
+
+Two rules follow from those definitions. Both decide which folder a page belongs in.
+
+1. **A container is the unit of deployment.** A component is not. "With the C4 model, components are not separately deployable units. Instead, it's the container that's the deployable unit."
+2. **Components inside one container share a process.** "All components inside a container execute in the same process space." If two things run in separate processes, they are containers, and the page is L2.
+
+### A C4 container is not a Docker container
+
+The C4 term predates Docker and is broader. C4 states: "From one perspective, it's unfortunate that containerisation has become popular, because many software developers now associate the term 'container' with Docker."
+
+A C4 container is any application or data store that must run. The list includes a server-side web application, a client-side web application, a desktop application, a mobile app, a database, a blob store, a file system, a shell script, and a console application.
+
+Plane consequences:
+
+- Most Plane containers map to a service in `docker-compose.yml`. Use that service name where they do.
+- Some Plane containers have no Compose service. The desktop app and the mobile apps are C4 containers. Do not omit them from an L1 or L2 page because Compose does not list them.
+- A data store is a container. `plane-db` and the `plane-minio` bucket both count.
+- `migrator` runs once and exits. Mark it as a one-shot container rather than a long-running one.
+
+## Supplementary diagrams
+
+Beyond the four levels, C4 defines three optional supplementary diagram types. This tree has no fifth folder. Each type files under the level of the elements it shows.
+
+| Supplementary type | Shows | Files under | Needed for Plane |
+| --- | --- | --- | --- |
+| System landscape | Several software systems inside one organization | [`context/`](./context/INDEX.md) | No. Plane is one software system. |
+| Dynamic | How elements work together at runtime, for one feature or use case | [`containers/`](./containers/INDEX.md) or [`components/`](./components/INDEX.md) | Yes |
+| Deployment | How container instances map onto infrastructure, per deployment environment | [`containers/`](./containers/INDEX.md) | Yes |
+
+**Dynamic diagrams can sit at more than one level.** C4 states: "you can show software systems, containers, or components interacting at runtime." File the page by the elements the diagram names. A flow between `api` and `worker` is L2. A flow between two modules inside `apps/web` is L3.
+
 ## Rules that apply at every level
 
 The sections below hold once. A level folder repeats nothing from here.

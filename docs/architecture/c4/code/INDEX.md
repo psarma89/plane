@@ -10,11 +10,14 @@ Read [`../AGENTS.md`](../AGENTS.md) for the shared rules, then [`AGENTS.md`](./A
 
 Entry format: `- [N. Title](./NN-slug.md) - entry point - one-line summary`
 
-## Most work needs no page here
+## The C4 model recommends against this level
 
-The C4 model treats L4 as optional. At this zoom the code is the source of truth. A page that restates the code goes stale on the next refactor and then misleads.
+- "This level of detail is not recommended for anything but the most important or complex components."
+- On keeping one as long-lived documentation: "No, particularly for long-lived documentation because most IDEs can generate this level of detail on demand."
 
-Default to no page.
+At this zoom the code is the source of truth. A page that restates it goes stale on the next refactor and then misleads.
+
+Default to no page. Try the IDE first.
 
 ## The bar
 
@@ -31,11 +34,12 @@ If the logic is hard because the code is unclear, fix the code instead.
 
 | Instead of an L4 page | Do this |
 | --- | --- |
+| A reader needs the class or call shape | Generate it in an IDE on demand |
 | The function is hard to follow | Rename the symbols and split the function |
 | The rule is not obvious | Write a test that states the rule in its name |
 | The reason is not obvious | Write one comment that states the why |
-| The flow crosses files | Write an [../components/](../components/INDEX.md) page |
-| The flow crosses containers | Write a [../containers/](../containers/INDEX.md) dynamic page |
+| The flow crosses files in one process | Write an [../components/](../components/INDEX.md) page |
+| The flow crosses processes | Write a [../containers/](../containers/INDEX.md) dynamic page |
 
 ## Deleting a page here is a correct outcome
 

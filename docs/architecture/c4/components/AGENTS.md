@@ -6,6 +6,26 @@ An L3 page opens **one container**. It names the modules, routes, stores, and mo
 
 This is where application architecture lives.
 
+## The process test
+
+C4 defines a component as "a grouping of related functionality encapsulated behind a well-defined interface". Two rules follow, and they decide L2 against L3.
+
+1. "With the C4 model, components are not separately deployable units. Instead, it's the container that's the deployable unit."
+2. "All components inside a container execute in the same process space."
+
+So apply one test. **If two things run in separate processes, they are containers, and the page is L2.**
+
+| Pair | Same process | Level |
+| --- | --- | --- |
+| A route and the store it reads, in `apps/web` | Yes | L3 |
+| A Django view and its serializer | Yes | L3 |
+| `api` and `worker` | No | L2 |
+| `web` and `live` | No | L2 |
+| A Celery task definition and the view that enqueues it | Yes, both live in the `api` process | L3 |
+| A Celery task running in `worker` and the view that enqueued it | No | L2 |
+
+The last two rows matter. Where the task code lives is L3. Where the task executes is L2.
+
 ## What belongs here
 
 | Subject | Belongs here |
@@ -14,11 +34,21 @@ This is where application architecture lives.
 | Which MobX store owns which observable, and who reads it | Yes |
 | The view, serializer, and model behind one endpoint group | Yes |
 | The module layout inside `apps/api` | Yes |
-| How a Celery task reaches `worker` | No. Crosses containers. Use [`../containers/`](../containers/INDEX.md). |
+| A runtime flow between two modules in the same process | Yes, dynamic kind |
+| How a Celery task reaches `worker` | No. Separate process. Use [`../containers/`](../containers/INDEX.md). |
 | Every external service Plane calls | No. Use [`../context/`](../context/INDEX.md). |
-| The line-by-line logic of one hard function | No. Use [`../code/`](../code/INDEX.md). |
+| The line-by-line logic of one hard function | No. Use [`../code/`](../code/INDEX.md), and usually write no page. |
 
-If a page crosses a container boundary, it is L2. Move it.
+## Two page kinds
+
+| Kind | Answers | Diagram |
+| --- | --- | --- |
+| **Structural** | Which components exist in this container, and how do they connect? | `C4Component` |
+| **Dynamic** | How do components inside this container work together for one feature? | `sequenceDiagram` |
+
+C4 allows a dynamic diagram at any level: "you can show software systems, containers, or components interacting at runtime." A dynamic page belongs here when every element it names shares one process. Otherwise it is L2.
+
+State the kind in the header block.
 
 ## One page per container, or per journey inside a container
 
@@ -44,9 +74,9 @@ Follow [`TEMPLATE.md`](./TEMPLATE.md). Every page needs these sections.
 
 | Section | Content |
 | --- | --- |
-| Header block | `Last reviewed` stamp, the container, and the scope |
+| Header block | `Last reviewed` stamp, the container, the kind, and the scope |
 | Related feature specs | Table of specs that drove the current behavior |
-| Diagram | A Mermaid `C4Component` or `flowchart` inside the container |
+| Diagram | A Mermaid `C4Component` for a structural page, or `sequenceDiagram` for a dynamic page |
 | Key files | Table that maps each layer to a real path |
 | Key components | The components a reader will edit, and what each renders |
 | Key state | The store, its observables, and its actions |

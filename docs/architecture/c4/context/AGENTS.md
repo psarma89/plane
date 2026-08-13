@@ -23,6 +23,12 @@ Plane has one system context. One page covers it. Add a second page only for a g
 
 Do not create a page per integration. An integration is a row in the external systems table.
 
+## System landscape diagrams
+
+C4 defines a system landscape diagram as a supplementary type. It shows several software systems inside one organization.
+
+Plane is one software system, so no landscape page is needed today. If one becomes useful, it files here, because it operates above the container level. Name it `NN-system-landscape.md` and state which systems it covers.
+
 ## Required sections
 
 Follow [`TEMPLATE.md`](./TEMPLATE.md). Every page needs these sections.

@@ -23,6 +23,18 @@ flowchart TD
     L4["L4 code/<br/>One hard algorithm, rarely needed"]
 ```
 
+## Supplementary diagrams
+
+C4 defines three optional supplementary types beyond the four levels. This tree adds no fifth folder. Each type files under the level of the elements it shows.
+
+| Type | Shows | Files under | Needed for Plane |
+| --- | --- | --- | --- |
+| System landscape | Several software systems inside one organization | [context/](./context/INDEX.md) | No. Plane is one software system. |
+| Dynamic | Runtime interaction for one feature or use case | [containers/](./containers/INDEX.md) or [components/](./components/INDEX.md) | Yes |
+| Deployment | Container instances mapped onto infrastructure, per environment | [containers/](./containers/INDEX.md) | Yes |
+
+A dynamic diagram can sit at more than one level. File it by the elements it names. A flow between `api` and `worker` is L2. A flow between two modules inside `apps/web` is L3.
+
 ## Which level answers my question
 
 | Question | Level |
@@ -32,7 +44,8 @@ flowchart TD
 | How does a request travel from the browser to the database? | L2 |
 | Which files build this screen or this endpoint? | L3 |
 | Which store owns this state? | L3 |
-| Why does this one function order things this way? | L4 |
+| Where do the containers actually run, per environment? | L2, deployment kind |
+| Why does this one function order things this way? | L4, and usually no page at all |
 
 ## Format
 
