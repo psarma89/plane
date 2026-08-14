@@ -55,6 +55,7 @@ from plane.db.models import (
 from plane.utils.analytics_plot import burndown_plot
 from plane.bgtasks.recent_visited_task import recent_visited_task
 from plane.utils.host import base_host
+from plane.utils.cycle_capacity import evaluate_cycle_capacity
 from plane.utils.cycle_transfer_issues import transfer_cycle_issues
 from .. import BaseAPIView, BaseViewSet
 from plane.bgtasks.webhook_task import model_activity
@@ -220,6 +221,8 @@ class CycleViewSet(BaseViewSet):
                 "external_source",
                 "external_id",
                 "progress_snapshot",
+                "capacity",
+                "capacity_mode",
                 "logo_props",
                 "is_favorite",
                 "total_issues",
@@ -252,6 +255,8 @@ class CycleViewSet(BaseViewSet):
             "external_source",
             "external_id",
             "progress_snapshot",
+            "capacity",
+            "capacity_mode",
             "logo_props",
             # meta fields
             "is_favorite",
@@ -294,6 +299,8 @@ class CycleViewSet(BaseViewSet):
                         "external_source",
                         "external_id",
                         "progress_snapshot",
+                        "capacity",
+                        "capacity_mode",
                         "logo_props",
                         "version",
                         # meta fields
@@ -375,6 +382,8 @@ class CycleViewSet(BaseViewSet):
                 "external_source",
                 "external_id",
                 "progress_snapshot",
+                "capacity",
+                "capacity_mode",
                 "logo_props",
                 "version",
                 # meta fields
@@ -441,6 +450,8 @@ class CycleViewSet(BaseViewSet):
                 "external_source",
                 "external_id",
                 "progress_snapshot",
+                "capacity",
+                "capacity_mode",
                 "sub_issues",
                 "logo_props",
                 "version",
@@ -612,10 +623,11 @@ class TransferCycleIssueEndpoint(BaseAPIView):
             user_id=request.user.id,
         )
 
-        # Handle error response
+        # Handle error response. Pass every key through, so that a capacity refusal
+        # keeps its error code and its numbers.
         if result.get("error"):
             return Response(
-                {"error": result["error"]},
+                {key: value for key, value in result.items() if key != "success"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -658,7 +670,11 @@ class CycleUserPropertiesEndpoint(BaseAPIView):
 class CycleProgressEndpoint(BaseAPIView):
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER, ROLE.GUEST])
     def get(self, request, slug, project_id, cycle_id):
-        cycle = Cycle.objects.filter(workspace__slug=slug, project_id=project_id, id=cycle_id).first()
+        cycle = (
+            Cycle.objects.select_related("project__estimate")
+            .filter(workspace__slug=slug, project_id=project_id, id=cycle_id)
+            .first()
+        )
         if not cycle:
             return Response({"error": "Cycle not found"}, status=status.HTTP_404_NOT_FOUND)
         aggregate_estimates = (
@@ -778,6 +794,8 @@ class CycleProgressEndpoint(BaseAPIView):
                 "cancelled_issues": cancelled_issues,
                 "started_issues": started_issues,
                 "unstarted_issues": unstarted_issues,
+                # The panel reads the verdict. It does not compare the numbers.
+                "capacity_status": evaluate_cycle_capacity(cycle=cycle, project=cycle.project),
             },
             status=status.HTTP_200_OK,
         )

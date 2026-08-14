@@ -76,6 +76,8 @@ class CycleSerializer(BaseSerializer):
             "external_id",
             "progress_snapshot",
             "logo_props",
+            "capacity",
+            "capacity_mode",
             # meta fields
             "is_favorite",
             "total_issues",

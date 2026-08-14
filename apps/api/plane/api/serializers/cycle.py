@@ -46,6 +46,8 @@ class CycleCreateSerializer(BaseSerializer):
             "external_source",
             "external_id",
             "timezone",
+            "capacity",
+            "capacity_mode",
         ]
         read_only_fields = [
             "id",
