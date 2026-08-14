@@ -84,6 +84,27 @@ class TestCycleCapacityFields:
         assert active_cycle.capacity_mode == "warn"
 
     @pytest.mark.django_db
+    def test_a_project_member_can_set_the_capacity_and_the_mode(
+        self, member_client, workspace, capacity_project, active_cycle
+    ):
+        """This records current behavior, and it is open question 1 in the spec.
+
+        The cycle update route already allows a member to edit a cycle, so a member can
+        set both fields. A member that block mode refuses can therefore switch the mode
+        to warn, or raise the number, and repeat the write. Answer open question 1
+        before this ships to a team that needs the block mode to hold.
+        """
+        set_capacity(active_cycle, 40, mode="block")
+        url = cycle_url(workspace.slug, capacity_project.id, active_cycle.id)
+
+        response = member_client.patch(url, {"capacity_mode": "warn", "capacity": 400}, format="json")
+
+        assert response.status_code == status.HTTP_200_OK, f"Got {response.status_code}: {response.data!r}"
+        active_cycle.refresh_from_db()
+        assert active_cycle.capacity_mode == "warn"
+        assert active_cycle.capacity == 400
+
+    @pytest.mark.django_db
     def test_guest_cannot_set_capacity(self, guest_client, workspace, capacity_project, active_cycle):
         url = cycle_url(workspace.slug, capacity_project.id, active_cycle.id)
 
@@ -247,6 +268,26 @@ class TestAddWorkItemsToACycle:
         assert response.status_code == status.HTTP_201_CREATED, f"Got {response.status_code}: {response.data!r}"
         assert response.data["capacity_status"]["verdict"] == "not_set"
 
+    @pytest.mark.django_db
+    def test_a_work_item_from_another_tenant_adds_no_points(
+        self, session_client, workspace, capacity_project, active_cycle, make_issue, foreign_tenant
+    ):
+        """`points_for_issues` repeats the workspace and project scope.
+
+        A caller who posts a foreign work item id therefore adds 0 points, and the
+        foreign 40-point item cannot push this cycle over its capacity.
+        """
+        set_capacity(active_cycle, 40, mode="block")
+        make_issue(20, in_cycle=active_cycle)
+
+        url = cycle_issues_url(workspace.slug, capacity_project.id, active_cycle.id)
+        response = session_client.post(url, {"issues": [str(foreign_tenant["issue"].id)]}, format="json")
+
+        assert response.status_code == status.HTTP_201_CREATED, f"Got {response.status_code}: {response.data!r}"
+        assert response.data["capacity_status"]["incoming_points"] == 0
+        assert response.data["capacity_status"]["used_points"] == 20
+        assert not CycleIssue.objects.filter(cycle_id=active_cycle.id, issue_id=foreign_tenant["issue"].id).exists()
+
 
 @pytest.mark.contract
 class TestTransferWorkItemsIntoACycle:
@@ -322,6 +363,11 @@ class TestPromoteADraftIntoACycle:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.data["error_code"] == "CYCLE_CAPACITY_EXCEEDED"
+        # This route checks the workspace role only, so the refusal discloses neither
+        # the name of the cycle nor its point sums.
+        assert "Sprint 14" not in response.data["error"]
+        assert "40" not in response.data["error"]
+        assert "capacity_status" not in response.data
         assert not Issue.objects.filter(name="Promoted work item").exists()
 
     @pytest.mark.django_db
@@ -367,7 +413,11 @@ class TestRaiseAnEstimateInsideACycle:
         response = session_client.patch(url, {"estimate_point": str(bigger.id)}, format="json")
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert "CYCLE_CAPACITY_EXCEEDED" in str(response.data)
+        # A serializer refusal is shaped differently from a view refusal. DRF runs
+        # `as_serializer_error` over `serializer.errors`, which wraps every value in a
+        # list, and a serializer cannot attach `capacity_status`. The view paths return
+        # plain strings. Slice 7 must read both shapes.
+        assert response.data["error_code"] == ["CYCLE_CAPACITY_EXCEEDED"]
         raised.refresh_from_db()
         assert raised.estimate_point.value == "13"
 

@@ -19,6 +19,7 @@ with the verdict.
 import math
 
 # Django imports
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import FloatField, Sum, Value
 from django.db.models.functions import Cast
 from django.utils import timezone
@@ -249,12 +250,20 @@ def estimate_point_value(estimate_point):
 
 
 def points_for_estimate_point_id(*, estimate_point_id, project_id):
-    """The numeric value of one estimate point, looked up by id inside the project."""
+    """The numeric value of one estimate point, looked up by id inside the project.
+
+    A malformed id returns 0. This gate does not own field validation. The serializer
+    below it rejects the same value with a 400, and a raise here would turn that 400
+    into a 500.
+    """
     if not estimate_point_id:
         return 0
-    estimate_point = (
-        EstimatePoint.objects.select_related("estimate").filter(pk=estimate_point_id, project_id=project_id).first()
-    )
+    try:
+        estimate_point = (
+            EstimatePoint.objects.select_related("estimate").filter(pk=estimate_point_id, project_id=project_id).first()
+        )
+    except (DjangoValidationError, ValueError, TypeError):
+        return 0
     return estimate_point_value(estimate_point)
 
 
@@ -269,9 +278,12 @@ def evaluate_estimate_change(*, issue, new_estimate_point):
     capacity costs one indexed lookup and nothing else.
     """
     cycle_issues = list(
-        CycleIssue.objects.filter(issue_id=issue.id, cycle__capacity__isnull=False).select_related(
-            "cycle__project__estimate"
-        )
+        CycleIssue.objects.filter(
+            issue_id=issue.id,
+            workspace_id=issue.workspace_id,
+            project_id=issue.project_id,
+            cycle__capacity__isnull=False,
+        ).select_related("cycle__project__estimate")
     )
     if not cycle_issues:
         return None
@@ -319,4 +331,22 @@ def capacity_error_payload(*, cycle_name, capacity_status):
         "error": capacity_error_message(cycle_name=cycle_name, capacity_status=capacity_status),
         "error_code": CAPACITY_EXCEEDED_ERROR_CODE,
         "capacity_status": capacity_status,
+    }
+
+
+def capacity_error_payload_without_numbers():
+    """The 400 body for a route that does not check project membership.
+
+    `create_draft_to_issue` in plane/app/views/workspace/draft.py carries a
+    workspace-level permission check and no project check, and it reads the project
+    from the request body. The caller can therefore be a workspace member who is not
+    in the project. A message that named the cycle and its point sums would disclose
+    both. This body names neither.
+    """
+    return {
+        "error": (
+            "The work item does not fit in the capacity of the cycle. Remove work from "
+            "the cycle, or lower an estimate, and try again."
+        ),
+        "error_code": CAPACITY_EXCEEDED_ERROR_CODE,
     }

@@ -17,9 +17,9 @@ The scope is hand-written per view. These counts show that the convention is per
 
 | Pattern                               | Count | Command                                                                 |
 | ------------------------------------- | ----- | ----------------------------------------------------------------------- |
-| `workspace__slug` filters             | 437   | `grep -rho 'workspace__slug' apps/api/plane/app/views \| wc -l`         |
+| `workspace__slug` filters             | 438   | `grep -rho 'workspace__slug' apps/api/plane/app/views \| wc -l`         |
 | Files with a `workspace__slug` filter | 51    | `grep -rl 'workspace__slug' apps/api/plane/app/views \| wc -l`          |
-| Lines with a `project_id=` filter     | 372   | `grep -rh 'project_id=' apps/api/plane/app/views \| wc -l`              |
+| Lines with a `project_id=` filter     | 374   | `grep -rh 'project_id=' apps/api/plane/app/views \| wc -l`              |
 | Files with a `project_id=` filter     | 33    | `grep -rl 'project_id=' apps/api/plane/app/views \| wc -l`              |
 | `self.kwargs.get("slug")` reads       | 54    | `grep -rho 'self.kwargs.get("slug")' apps/api/plane/app/views \| wc -l` |
 
@@ -45,8 +45,8 @@ The first three rows quantify the over-exposure risk that `fields = "__all__"` c
 | Of those uses, under `plane/app/serializers/` | 60    | `grep -rho 'fields = "__all__"' apps/api/plane/app/serializers \| wc -l` |
 | `bulk_create(` calls                          | 98    | `grep -rho 'bulk_create(' apps/api/plane \| wc -l`                       |
 | `.delay(` Celery dispatches                   | 173   | `grep -rho '\.delay(' apps/api/plane \| wc -l`                           |
-| `transaction.atomic` usages                   | 14    | `grep -rho 'transaction\.atomic' apps/api/plane \| wc -l`                |
-| `select_related` uses                         | 209   | `grep -rho 'select_related' apps/api/plane \| wc -l`                     |
+| `transaction.atomic` usages                   | 16    | `grep -rho 'transaction\.atomic' apps/api/plane \| wc -l`                |
+| `select_related` uses                         | 216   | `grep -rho 'select_related' apps/api/plane \| wc -l`                     |
 | `prefetch_related` uses                       | 91    | `grep -rho 'prefetch_related' apps/api/plane \| wc -l`                   |
 
 The `transaction.atomic` command greps the full phrase. A bare `atomic` also matches `atomic = False` migration flags, which inflates the count.

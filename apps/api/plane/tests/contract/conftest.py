@@ -26,6 +26,7 @@ from plane.db.models import (
     ProjectMember,
     State,
     User,
+    Workspace,
     WorkspaceMember,
 )
 
@@ -186,6 +187,67 @@ def guest_client(db, api_client, workspace, capacity_project):
     ProjectMember.objects.create(project=capacity_project, member=guest, role=5, is_active=True)
     api_client.force_authenticate(user=guest)
     return api_client
+
+
+@pytest.fixture
+def member_client(db, api_client, workspace, capacity_project):
+    """A client for a user who is a MEMBER at both levels, and not an admin.
+
+    Every other capacity fixture builds an admin, because `create_user` owns the
+    workspace. `allow_permission` carries a workspace-admin bypass, so a member at one
+    level only still passes as an admin.
+    """
+    uid = uuid4().hex[:8]
+    member = User.objects.create(
+        email=f"member-{uid}@plane.so",
+        username=f"member_{uid}",
+        first_name="Member",
+        last_name="User",
+    )
+    WorkspaceMember.objects.create(workspace=workspace, member=member, role=15)
+    ProjectMember.objects.create(project=capacity_project, member=member, role=15, is_active=True)
+    api_client.force_authenticate(user=member)
+    return api_client
+
+
+@pytest.fixture
+def foreign_tenant(db):
+    """A second workspace, project, and work item, owned by nobody in `workspace`."""
+    uid = uuid4().hex[:8]
+    owner = User.objects.create(
+        email=f"foreign-{uid}@plane.so",
+        username=f"foreign_{uid}",
+        first_name="Foreign",
+        last_name="User",
+    )
+    foreign_workspace = Workspace.objects.create(name="Foreign WS", owner=owner, slug=f"foreign-{uid}")
+    WorkspaceMember.objects.create(workspace=foreign_workspace, member=owner, role=20)
+    foreign_project = Project.objects.create(
+        name="Foreign Project",
+        identifier="FGN",
+        workspace=foreign_workspace,
+        created_by=owner,
+        cycle_view=True,
+    )
+    ProjectMember.objects.create(project=foreign_project, member=owner, role=20, is_active=True)
+    state = State.objects.create(
+        name="Todo", project=foreign_project, workspace=foreign_workspace, group="backlog", default=True
+    )
+    estimate = Estimate.objects.create(
+        name="Foreign points", project=foreign_project, workspace=foreign_workspace, type="points", created_by=owner
+    )
+    point = EstimatePoint.objects.create(
+        estimate=estimate, project=foreign_project, workspace=foreign_workspace, key=0, value="40", created_by=owner
+    )
+    issue = Issue.objects.create(
+        name="Foreign work item",
+        workspace=foreign_workspace,
+        project=foreign_project,
+        state=state,
+        estimate_point=point,
+        created_by=owner,
+    )
+    return {"workspace": foreign_workspace, "project": foreign_project, "issue": issue}
 
 
 def set_capacity(cycle, capacity, mode="warn"):

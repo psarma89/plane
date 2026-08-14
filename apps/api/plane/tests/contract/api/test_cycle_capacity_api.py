@@ -15,7 +15,7 @@ from uuid import uuid4
 import pytest
 from rest_framework import status
 
-from plane.db.models import CycleIssue
+from plane.db.models import CycleIssue, EstimatePoint
 from plane.db.models.api import APIToken
 from plane.tests.contract.conftest import set_capacity
 
@@ -44,6 +44,10 @@ def external_cycle_url(slug, project_id, cycle_id):
 
 def external_cycle_issues_url(slug, project_id, cycle_id):
     return f"/api/v1/workspaces/{slug}/projects/{project_id}/cycles/{cycle_id}/cycle-issues/"
+
+
+def external_issue_url(slug, project_id, issue_id):
+    return f"/api/v1/workspaces/{slug}/projects/{project_id}/issues/{issue_id}/"
 
 
 @pytest.mark.contract
@@ -91,3 +95,42 @@ class TestExternalCycleCapacity:
             f"Got {response.status_code}: {response.data!r}"
         )
         assert CycleIssue.objects.filter(cycle_id=active_cycle.id, issue_id=joining.id).exists()
+
+    @pytest.mark.django_db
+    def test_external_estimate_raise_past_capacity_in_block_mode_returns_400(
+        self, capacity_api_client, workspace, capacity_project, active_cycle, make_issue, points_estimate
+    ):
+        """The external surface writes `estimate_point` through its own serializer.
+
+        The gate lives in that serializer, so this proves the second surface carries it.
+        """
+        set_capacity(active_cycle, 40, mode="block")
+        make_issue(20, in_cycle=active_cycle)
+        raised = make_issue(13, in_cycle=active_cycle)
+        bigger = EstimatePoint.objects.get(estimate=points_estimate, value="40")
+
+        url = external_issue_url(workspace.slug, capacity_project.id, raised.id)
+        response = capacity_api_client.patch(url, {"estimate_point": str(bigger.id)}, format="json")
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        # DRF wraps every serializer error value in a list. The view paths on this
+        # surface return a plain string under the same key.
+        assert response.data["code"] == ["CYCLE_CAPACITY_EXCEEDED"]
+        raised.refresh_from_db()
+        assert raised.estimate_point.value == "13"
+
+    @pytest.mark.django_db
+    def test_external_lower_estimate_in_a_blocked_cycle_succeeds(
+        self, capacity_api_client, workspace, capacity_project, active_cycle, make_issue, points_estimate
+    ):
+        set_capacity(active_cycle, 40, mode="block")
+        make_issue(40, in_cycle=active_cycle)
+        lowered = make_issue(5, in_cycle=active_cycle)
+        smaller = EstimatePoint.objects.get(estimate=points_estimate, value="1")
+
+        url = external_issue_url(workspace.slug, capacity_project.id, lowered.id)
+        response = capacity_api_client.patch(url, {"estimate_point": str(smaller.id)}, format="json")
+
+        assert response.status_code == status.HTTP_200_OK, f"Got {response.status_code}: {response.data!r}"
+        lowered.refresh_from_db()
+        assert lowered.estimate_point.value == "1"

@@ -288,6 +288,8 @@ class CycleArchiveUnarchiveEndpoint(BaseAPIView):
                     "external_source",
                     "external_id",
                     "progress_snapshot",
+                    "capacity",
+                    "capacity_mode",
                     # meta fields
                     "total_issues",
                     "is_favorite",
@@ -334,6 +336,8 @@ class CycleArchiveUnarchiveEndpoint(BaseAPIView):
                     "external_source",
                     "external_id",
                     "progress_snapshot",
+                    "capacity",
+                    "capacity_mode",
                     "sub_issues",
                     "logo_props",
                     # meta fields

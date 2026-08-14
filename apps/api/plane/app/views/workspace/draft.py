@@ -41,7 +41,7 @@ from plane.db.models import (
 from .. import BaseViewSet
 from plane.bgtasks.issue_activities_task import issue_activity
 from plane.utils.cycle_capacity import (
-    capacity_error_payload,
+    capacity_error_payload_without_numbers,
     capacity_gate_applies,
     evaluate_cycle_capacity,
     points_for_estimate_point_id,
@@ -239,8 +239,11 @@ class WorkspaceDraftIssueViewSet(BaseViewSet):
                     ),
                 )
                 if not capacity_status["write_allowed"]:
+                    # This route checks the workspace role and not the project role, and
+                    # it reads the project from the request body. The refusal therefore
+                    # names no cycle and no numbers.
                     return Response(
-                        capacity_error_payload(cycle_name=cycle.name, capacity_status=capacity_status),
+                        capacity_error_payload_without_numbers(),
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
