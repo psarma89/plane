@@ -37,11 +37,29 @@ If either `.env` file is absent, run `./setup.sh` once from the repository root.
 
 1. Set a project name for the test stack.
 
+   If the checkout has a `.plane-env.sh`, use the name it records.
+
    ```bash
-   export COMPOSE_PROJECT_NAME=plane-api-tests
+   source .plane-env.sh
+   export COMPOSE_PROJECT_NAME="$PLANE_TEST_PROJECT_NAME"
+   ```
+
+   Otherwise derive the same name from the branch.
+
+   ```bash
+   export COMPOSE_PROJECT_NAME="plane-api-tests-$(git rev-parse --abbrev-ref HEAD \
+     | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9' '-' | sed -E 's/-+/-/g; s/^-|-$//g')"
    ```
 
    Expected result: The test stack no longer shares a project with the development stack.
+
+   The name carries the branch on purpose. A fixed name gives every checkout one
+   project, so a second worktree that starts a test run joins the first run's
+   containers and the two suites share one database.
+
+   Use `git rev-parse`, not `git branch --show-current`. The second command
+   prints nothing on a detached HEAD, which collapses the name to
+   `plane-api-tests-` and puts every detached checkout into one project.
 
 2. Run the whole suite.
 

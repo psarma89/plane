@@ -113,7 +113,12 @@ build/
 build/
 .react-router/
 temp/
-scripts/
+# Anchored on purpose. Upstream ships this as a bare `scripts/`, which ignores a
+# scripts directory at ANY depth, and that silently dropped two committed skill
+# script directories. Every scripts/ directory in this tree is one we track, so
+# the pattern earns nothing unanchored. The exception below is upstream's and is
+# now redundant. It stays so that a merge from upstream applies cleanly.
+/scripts/
 !packages/i18n/scripts/
 
 # i18n auto-generated types (regenerated on every build)

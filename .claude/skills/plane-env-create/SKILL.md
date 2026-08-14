@@ -44,11 +44,20 @@ base = 3200 + (cksum(branch_name) % 80) * 10        range 3200-3990
   base+4  api
 ```
 
-The hash makes this deterministic: the same branch name always starts at the
-same block, so a rerun keeps the ports it had and any URL you bookmarked still
-works. If a port in that block is already bound, the script steps to the next
-block and reports the move. The default block, 3200, never collides with the
+The hash makes the first run deterministic: the same branch name always starts at
+the same block. If a port in that block is already bound, the script steps to the
+next block and reports the move. The default block, 3200, never collides with the
 stock ports 3000, 3001, 3002, 3100, 5432, 6379, 8000, 9000, and 9090.
+
+A rerun keeps the ports it already has, so a bookmarked URL still works. The
+script reads the block back from `.env` and prefers it over a fresh probe. A
+probe cannot decide this alone, because the running stack publishes its own api,
+postgres, valkey, and minio ports, so the probe reads this branch's own block as
+taken and moves it.
+
+The record wins only while this project still owns the block. If the stack was
+stopped and another branch took those ports, the script reports the conflict and
+allocates a new block, instead of failing later at the bind.
 
 ## What it writes
 
