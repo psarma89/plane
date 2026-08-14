@@ -159,10 +159,28 @@ if [ -f .env ]; then
   fi
 fi
 
-if [ -n "$RECORDED_BASE" ]; then
+# Trusting the record is only safe while this project still owns the block. If the
+# stack was stopped and another branch took those ports meanwhile, insisting on
+# the recorded block fails at the bind with "port is already allocated". So take
+# the record when the block is free, or when this project has containers of its
+# own holding it. Otherwise say so and allocate a new block.
+project_holds_ports() {
+  local running
+  running=$(docker compose -f "$COMPOSE_FILE" -p "$PROJECT" ps -q 2>/dev/null || true)
+  [ -n "$running" ]
+}
+
+snapshot_listening_ports
+
+if [ -n "$RECORDED_BASE" ] && block_is_free "$RECORDED_BASE"; then
   BASE="$RECORDED_BASE"
+elif [ -n "$RECORDED_BASE" ] && project_holds_ports; then
+  BASE="$RECORDED_BASE"
+elif [ -n "$RECORDED_BASE" ]; then
+  bold "Recorded block $RECORDED_BASE is held by another project, so this branch moves"
+  RECORDED_BASE=""
+  BASE=$(allocate_base "$BRANCH")
 else
-  snapshot_listening_ports
   BASE=$(allocate_base "$BRANCH")
 fi
 
