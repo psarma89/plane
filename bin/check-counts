@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+# Assert that the numbers the census page states as fact are still true.
+#
+# Why this exists:
+#   bin/check-agents-md proves that the paths in an instruction file resolve. It
+#   says nothing about the numbers, and numbers rot faster than paths, because
+#   nothing breaks when they drift.
+#
+# Two row types:
+#   `measure` rows carry no expected value. A count of how often a pattern
+#   appears is descriptive, not normative. The repository is the source of
+#   truth and the document has to keep up, so a measure row re-measures and
+#   asserts only that the census cites whatever came back. A count that moved
+#   is a documentation edit, not a code problem.
+#
+#   `pin` rows carry a hardcoded value. They are ratchets that must never rise,
+#   such as the oxlint ceilings. A pin failure is a code problem.
+#
+# The oxlint warning rows need node_modules. Run `pnpm install` first.
+#
+# Usage:
+#   bin/check-counts          # check, exit 1 on any failure
+#   bin/check-counts --list   # show every measurement and its value
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
+
+LIST_ONLY=false
+[ "${1:-}" = "--list" ] && LIST_ONLY=true
+
+FAILURES=0
+CHECKED=0
+
+CENSUS="docs/architecture/plane-patterns-census.md"
+VIEWS="apps/api/plane/app/views"
+API="apps/api/plane"
+MODELS="apps/api/plane/db/models"
+WEB="apps/web"
+TS="--include=*.ts --include=*.tsx"
+
+cites() { grep -qE "(^|[^0-9])${2}([^0-9]|$)" "$1"; }
+
+# measure <label> <command>
+# The repository decides the number. The census must quote it.
+measure() {
+  local label="$1" actual
+  actual="$(eval "$2" 2>/dev/null | tr -d ' ')"
+
+  if [ -z "$actual" ]; then
+    FAILURES=$((FAILURES + 1))
+    printf '  FAIL  %-42s measurement returned nothing. If this is an oxlint row, run pnpm install.\n' "$label"
+    return
+  fi
+  if ! cites "$CENSUS" "$actual"; then
+    FAILURES=$((FAILURES + 1))
+    printf '  FAIL  %-42s repo has %s, %s does not say so. Update the census.\n' \
+      "$label" "$actual" "$CENSUS"
+    return
+  fi
+  CHECKED=$((CHECKED + 1))
+  [ "$LIST_ONLY" = true ] && printf '  ok    %-42s %s\n' "$label" "$actual"
+  return 0
+}
+
+# pin <label> <expected> <command>
+# The number is a ratchet. It must not move, and the census must quote it.
+pin() {
+  local label="$1" expected="$2" actual
+  actual="$(eval "$3" 2>/dev/null | tr -d ' ')"
+
+  if [ "$actual" != "$expected" ]; then
+    FAILURES=$((FAILURES + 1))
+    printf '  FAIL  %-42s pinned at %s, repo has %s. This is a ratchet.\n' \
+      "$label" "$expected" "${actual:-nothing}"
+    return
+  fi
+  if ! cites "$CENSUS" "$expected"; then
+    FAILURES=$((FAILURES + 1))
+    printf '  FAIL  %-42s %s is no longer cited in %s\n' "$label" "$expected" "$CENSUS"
+    return
+  fi
+  CHECKED=$((CHECKED + 1))
+  [ "$LIST_ONLY" = true ] && printf '  ok    %-42s %s (pinned)\n' "$label" "$expected"
+  return 0
+}
+
+echo "measured  the repository wins, the census must quote it"
+measure "views: workspace__slug filters" \
+  "grep -rho 'workspace__slug' $VIEWS | wc -l"
+measure "views: workspace__slug files" \
+  "grep -rl 'workspace__slug' $VIEWS | wc -l"
+measure "views: project_id= filter lines" \
+  "grep -rh 'project_id=' $VIEWS | wc -l"
+measure "views: project_id= files" \
+  "grep -rl 'project_id=' $VIEWS | wc -l"
+measure 'views: kwargs.get("slug") reads' \
+  "grep -rho 'self.kwargs.get(\"slug\")' $VIEWS | wc -l"
+measure "views: @allow_permission uses" \
+  "grep -rho '@allow_permission' $VIEWS | wc -l"
+measure "views: @allow_permission files" \
+  "grep -rl '@allow_permission' $VIEWS | wc -l"
+measure "views: permission_classes uses" \
+  "grep -rho 'permission_classes' $VIEWS | wc -l"
+measure "views: permission_classes files" \
+  "grep -rl 'permission_classes' $VIEWS | wc -l"
+measure 'serializers: fields="__all__" uses' \
+  "grep -rho 'fields = \"__all__\"' $API | wc -l"
+measure 'serializers: fields="__all__" files' \
+  "grep -rl 'fields = \"__all__\"' $API | wc -l"
+measure 'app serializers: fields="__all__" uses' \
+  "grep -rho 'fields = \"__all__\"' $API/app/serializers | wc -l"
+measure "bulk_create( calls" \
+  "grep -rho 'bulk_create(' $API | wc -l"
+measure ".delay( dispatches" \
+  "grep -rho '\.delay(' $API | wc -l"
+# Grep the full phrase. A bare 'atomic' also matches `atomic = False` migration
+# flags, which inflates the count.
+measure "transaction.atomic usages" \
+  "grep -rho 'transaction\.atomic' $API | wc -l"
+measure "select_related uses" \
+  "grep -rho 'select_related' $API | wc -l"
+measure "prefetch_related uses" \
+  "grep -rho 'prefetch_related' $API | wc -l"
+measure "models: ProjectBaseModel subclasses" \
+  "grep -rhoE 'class [A-Za-z]+\(ProjectBaseModel' $MODELS | wc -l"
+measure "models: WorkspaceBaseModel subclasses" \
+  "grep -rhoE 'class [A-Za-z]+\(WorkspaceBaseModel' $MODELS | wc -l"
+measure "models: BaseModel subclasses" \
+  "grep -rhoE 'class [A-Za-z]+\(BaseModel' $MODELS | wc -l"
+measure "web: observer( wrappers" \
+  "grep -rho 'observer(' $TS $WEB | wc -l"
+measure "web: @/services imports" \
+  "grep -rho '@/services' $TS $WEB | wc -l"
+measure "web: @plane/services imports" \
+  "grep -rho '@plane/services' $TS $WEB | wc -l"
+measure "web: text-secondary uses" \
+  "grep -rho 'text-secondary' $TS $WEB | wc -l"
+
+# The warning counts, not the ceilings. Only the ceiling lives in package.json,
+# so without these rows nothing can see the real count drift.
+OXCOUNT="grep -oE 'Found [0-9]+ warnings' | grep -oE '[0-9]+'"
+measure "web: oxlint warnings" \
+  "(cd apps/web && pnpm exec oxlint . 2>&1) | $OXCOUNT"
+measure "admin: oxlint warnings" \
+  "(cd apps/admin && pnpm exec oxlint . 2>&1) | $OXCOUNT"
+measure "space: oxlint warnings" \
+  "(cd apps/space && pnpm exec oxlint . 2>&1) | $OXCOUNT"
+
+echo "pinned    ratchets, they must never rise"
+pin "lint ceiling: web" 11957 \
+  "grep -o 'max-warnings=[0-9]*' apps/web/package.json | head -1 | cut -d= -f2"
+pin "lint ceiling: admin" 759 \
+  "grep -o 'max-warnings=[0-9]*' apps/admin/package.json | head -1 | cut -d= -f2"
+pin "lint ceiling: space" 676 \
+  "grep -o 'max-warnings=[0-9]*' apps/space/package.json | head -1 | cut -d= -f2"
+
+echo ""
+if [ "$CHECKED" -eq 0 ]; then
+  echo "FAIL  verified 0 claims. The checker ran but measured nothing."
+  exit 1
+fi
+
+if [ "$FAILURES" -eq 0 ]; then
+  echo "PASS  $CHECKED claims still hold"
+  exit 0
+fi
+
+echo "FAIL  $FAILURES stale claim(s), $CHECKED verified"
+[ "$LIST_ONLY" = true ] && exit 0
+exit 1

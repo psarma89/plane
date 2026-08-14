@@ -2,7 +2,7 @@
 
 Architecture pages describe **how Plane works today**. They are not proposals. A proposal belongs in [`../features/`](../features/INDEX.md).
 
-Every page lives under [`c4/`](./c4/INDEX.md). One structure covers every zoom level, because the [C4 model](https://c4model.com/) already spans both system architecture and application architecture. A separate `system/` and `application/` split is redundant, because the level already states the zoom.
+Every page lives under [`c4/`](./c4/INDEX.md), with one exception: [`plane-patterns-census.md`](./plane-patterns-census.md), which is a measured count table and not an architecture page. One structure covers every zoom level, because the [C4 model](https://c4model.com/) already spans both system architecture and application architecture. A separate `system/` and `application/` split is redundant, because the level already states the zoom.
 
 [`c4/AGENTS.md`](./c4/AGENTS.md) maps each level to its folder.
 
@@ -10,12 +10,12 @@ Every page lives under [`c4/`](./c4/INDEX.md). One structure covers every zoom l
 
 Ask the questions in order. Stop at the first `yes`.
 
-| Question | Level |
-| --- | --- |
-| Does the page name a user type or an external system outside Plane? | L1 `l1-context/` |
-| Does the page cross a container boundary, at rest or at runtime? | L2 `l2-containers/` |
+| Question                                                                   | Level               |
+| -------------------------------------------------------------------------- | ------------------- |
+| Does the page name a user type or an external system outside Plane?        | L1 `l1-context/`    |
+| Does the page cross a container boundary, at rest or at runtime?           | L2 `l2-containers/` |
 | Does the page name files, modules, stores, or models inside one container? | L3 `l3-components/` |
-| Does the page trace one algorithm through classes and calls? | L4 `l4-code/` |
+| Does the page trace one algorithm through classes and calls?               | L4 `l4-code/`       |
 
 If a subject fits two levels, write the deeper page and link up. Each level folder gives its own boundary cases.
 
@@ -23,29 +23,29 @@ If a subject fits two levels, write the deeper page and link up. Each level fold
 
 Plane is a pnpm and Turbo monorepo. Name the real paths.
 
-| Unit | Path | Stack |
-| --- | --- | --- |
-| REST API and server | `apps/api` | Django, Django REST Framework, Celery |
-| Main web app | `apps/web` | React Router 7, Vite, MobX |
-| Instance admin (God Mode) | `apps/admin` | React Router 7, Vite |
-| Public publish app | `apps/space` | React Router 7, Vite |
-| Real-time collaboration server | `apps/live` | Node, Express, Hocuspocus, Yjs |
-| Reverse proxy | `apps/proxy` | Caddy |
-| Shared packages | `packages/*` | TypeScript |
-| Deployment targets | `deployments/*` | Docker, Helm, Swarm |
+| Unit                           | Path            | Stack                                 |
+| ------------------------------ | --------------- | ------------------------------------- |
+| REST API and server            | `apps/api`      | Django, Django REST Framework, Celery |
+| Main web app                   | `apps/web`      | React Router 7, Vite, MobX            |
+| Instance admin (God Mode)      | `apps/admin`    | React Router 7, Vite                  |
+| Public publish app             | `apps/space`    | React Router 7, Vite                  |
+| Real-time collaboration server | `apps/live`     | Node, Express, Hocuspocus, Yjs        |
+| Reverse proxy                  | `apps/proxy`    | Caddy                                 |
+| Shared packages                | `packages/*`    | TypeScript                            |
+| Deployment targets             | `deployments/*` | Docker, Helm, Swarm                   |
 
 ## Cross-folder duties
 
 Update these pages in the same pull request that changes the code.
 
-| Code change | Also update |
-| --- | --- |
-| New or changed permission, role check, or API key scope | [`../security/`](../security/INDEX.md) matching catalog page |
-| New deployable unit, queue, or data store | [`c4/l2-containers/`](./c4/l2-containers/INDEX.md) and [`../devops/infra/`](../devops/infra/INDEX.md) |
-| New external system integration | [`c4/l1-context/`](./c4/l1-context/INDEX.md) |
-| New module, store, or model inside one app | [`c4/l3-components/`](./c4/l3-components/INDEX.md) |
-| New or changed client surface | [`c4/l1-context/`](./c4/l1-context/INDEX.md) Appendix A |
-| A feature spec reaches shipped state | The matching architecture page, plus the spec status |
+| Code change                                             | Also update                                                                                           |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| New or changed permission, role check, or API key scope | [`../security/`](../security/INDEX.md) matching catalog page                                          |
+| New deployable unit, queue, or data store               | [`c4/l2-containers/`](./c4/l2-containers/INDEX.md) and [`../devops/infra/`](../devops/infra/INDEX.md) |
+| New external system integration                         | [`c4/l1-context/`](./c4/l1-context/INDEX.md)                                                          |
+| New module, store, or model inside one app              | [`c4/l3-components/`](./c4/l3-components/INDEX.md)                                                    |
+| New or changed client surface                           | [`c4/l1-context/`](./c4/l1-context/INDEX.md) Appendix A                                               |
+| A feature spec reaches shipped state                    | The matching architecture page, plus the spec status                                                  |
 
 ## Relationship to feature specs
 
