@@ -66,10 +66,30 @@ Apps use bare names (`web`, `admin`, `space`, `live`). Packages use the scope.
 CI sets `TURBO_SCM_BASE`, so it checks only affected packages. `pnpm check`
 locally checks everything. That gap is why the `i18n` failure never shows in CI.
 
-**A draft PR runs nothing.** Every job is gated on
+**A draft PR runs nothing.** Three of the four web-app jobs are gated on
 `github.event.pull_request.draft == false`. The same `if` also tests
 `requested_reviewers != null`, but that clause never blocks, because an empty
-reviewer list is not null. A draft PR shows no failures because no job ran.
+reviewer list is not null. `check:types` has no gate of its own: it declares
+`needs: build`, so it dies with `Build packages`. A draft PR shows no failures
+because no job ran.
+
+**`gh pr ready <number>` re-runs them.** The workflow answers
+`ready_for_review`, so clearing the draft flag starts a fresh run.
+
+That trigger was missing until 2026-08-14. Before then `gh pr ready` started no
+run at all and the four jobs kept their `skipped` result forever. On any pull
+request whose checks still read `skipped`, close and reopen it instead, which
+fires `reopened`:
+
+```bash
+gh pr close <number>
+gh pr reopen <number>
+```
+
+**A skipped job is not a passing job.** Read the latest run per check name
+before merging. `concurrency.cancel-in-progress` also leaves a cancelled run
+beside a successful one on the same commit, which reads as a failure and is not
+one.
 
 ## Lint ceilings
 

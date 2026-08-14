@@ -6,9 +6,15 @@ on:
     branches:
       - "preview"
       - "dev"
+    # Every job below is gated on `draft == false`. Without
+    # `ready_for_review`, marking a draft ready fires no event this workflow
+    # answers, so the jobs keep the `skipped` result from the draft run and
+    # never re-evaluate. pull-request-build-lint-api.yml and
+    # i18n-sync-check.yml already list it.
     types:
       - "opened"
       - "synchronize"
+      - "ready_for_review"
       - "reopened"
 
 concurrency:
