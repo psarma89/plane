@@ -59,6 +59,34 @@ Additional rule overrides:
 - `no-unused-vars` warns with `_` prefix pattern ignored
 - Several noisy unicorn rules disabled
 
+## Backward Compatibility
+
+OxLint supports `eslint-disable` comments, so existing inline suppressions continue to work.
+
+## Suppressing Warnings
+
+```typescript
+// Single line
+// eslint-disable-next-line no-unused-vars
+const data = response;
+
+// Block
+/* eslint-disable no-unused-vars */
+// ... code
+/* eslint-enable no-unused-vars */
+```
+
+**Please use sparingly** - most warnings indicate real issues that should be fixed.
+
+## Pre-commit Hook
+
+Lint-staged runs automatically on commit via Husky:
+
+- oxfmt formats your staged files
+- OxLint fixes what it can (with `--deny-warnings`)
+
+If the commit fails due to lint errors, fix them before committing.
+
 ## Architectural boundaries
 
 The `overrides` block holds rules that enforce layering, not style.
@@ -89,34 +117,6 @@ Treat the list as the burndown backlog. To retire an entry:
 Do not add a path to the list. A new violation must not land.
 
 [features/changes/service-import-boundary-burndown-2026-08-14.md](./features/changes/service-import-boundary-burndown-2026-08-14.md) holds the batch order, the risk ranking, and the regression plan.
-
-## Backward Compatibility
-
-OxLint supports `eslint-disable` comments, so existing inline suppressions continue to work.
-
-## Suppressing Warnings
-
-```typescript
-// Single line
-// eslint-disable-next-line no-unused-vars
-const data = response;
-
-// Block
-/* eslint-disable no-unused-vars */
-// ... code
-/* eslint-enable no-unused-vars */
-```
-
-**Please use sparingly** - most warnings indicate real issues that should be fixed.
-
-## Pre-commit Hook
-
-Lint-staged runs automatically on commit via Husky:
-
-- oxfmt formats your staged files
-- OxLint fixes what it can (with `--deny-warnings`)
-
-If the commit fails due to lint errors, fix them before committing.
 
 ## Reference Files
 
