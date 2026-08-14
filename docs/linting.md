@@ -67,6 +67,8 @@ The ceilings are baselines, not targets. Measured on 2026-08-14 with `oxlint` 1.
 
 When you remove warnings from a package, lower its ceiling in the same commit. A ceiling that stays above the real count stops guarding the package.
 
+One caution when you edit this page. `oxfmt` reformats the category table above whenever it formats any other change in this file. Read the table rows in your diff before you commit, even when you did not mean to touch them.
+
 ## Backward Compatibility
 
 OxLint supports `eslint-disable` comments, so existing inline suppressions continue to work.
