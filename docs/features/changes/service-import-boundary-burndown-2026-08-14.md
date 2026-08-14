@@ -106,16 +106,60 @@ No translation key changes. No user-facing string changes.
 | Intake triage and duplicate selection      | None          | Manual |
 | Analytics charts and export download       | None          | Manual |
 
-This is the largest risk on this page. Read the two options in the Rollout section before work starts.
+This is the largest risk on this page. Manual checks are the only safety net. The decision is recorded in the Rollout section.
 
-### Manual checks
+### Manual checks for every batch
 
-Run these for every batch, against a local stack.
+Run these four steps for every batch, against a local stack.
 
-1. Sign in with email and password. Make sure that the workspace loads.
-2. Create a work item. Attach a file. Make sure that the attachment appears after a reload.
-3. Open an analytics page. Make sure that every chart renders with data.
-4. Open the browser network tab. Make sure that the batch makes no duplicate request.
+1. Open the browser console. Make sure that the batch adds no error.
+2. Open the browser network tab. Make sure that the batch adds no duplicate request.
+3. Reload each screen that the batch touched. Make sure that the data returns.
+4. Sign out. Sign in again. Make sure that the screens still load.
+
+### Manual checks per batch
+
+Run the steps for the batch, in addition to the four steps above.
+
+#### Batch 1
+
+1. Open a page. Open the AI menu. Generate text.
+2. Open profile settings. Change the password.
+3. Open notification settings. Turn an email notification off. Reload. Make sure that the value holds.
+4. Add a comment with a file attachment.
+5. Open the home screen. Make sure that the Recents widget lists items.
+6. Open profile activity. Download the activity export.
+
+#### Batch 2
+
+1. Open the command palette. Search for a work item. Select it.
+2. Create a cycle. Open the cycle analytics sidebar.
+3. Edit a work item description. Edit a comment.
+4. Create a workspace.
+5. Change the timezone in settings. Make sure that a date renders in the new timezone.
+
+#### Batch 3
+
+1. Open workspace integrations. Open the GitHub repository list. Open the Slack channel list.
+2. Export work items to CSV. Make sure that the export appears under previous exports.
+3. Open analytics. Make sure that every chart renders. Make sure that the insight table has rows.
+4. Create a project. Edit the project form. Change the project cover image.
+
+#### Batch 4
+
+1. Open Intake. Open an intake item. Make sure that the detail loads.
+2. Create an intake item with a description.
+3. Mark an intake item as a duplicate.
+4. Open a work item. Open the peek view. Set a parent work item.
+
+#### Batch 5
+
+1. Sign in with a password. Sign out. Sign in with a magic code.
+2. Reset a forgotten password. Set the new password.
+3. Upload a workspace image. Upload a profile image. Change the email address.
+4. Delete two work items in bulk. Add an existing work item to a cycle.
+5. Register a new user. Complete profile setup. Create a workspace. Invite a member.
+6. Accept an invitation from a second account.
 
 ## Rollout
 
@@ -133,16 +177,22 @@ Work from the lowest risk to the highest. The commit count sets the risk.
 
 Delete each path from `.oxlintrc.json` in the pull request that fixes it. The exemption list is the progress bar. When the list is empty, delete the whole `overrides` entry and raise the rule to `error`.
 
-### Test coverage first, or accept the risk
+### Decision: manual checks, no new test coverage
 
-Two options. Pick one before batch 1 starts.
+Decided 2026-08-14 by Priyam Sarma.
 
-| Option                                           | Cost            | Result                                                                    |
-| ------------------------------------------------ | --------------- | ------------------------------------------------------------------------- |
-| Add Playwright coverage for the five flows first | Higher up front | Every batch after it is verified automatically                            |
-| Accept manual checks for every batch             | Lower up front  | 5 batches of manual checks, and the risk stays through the whole burndown |
+The alternative was Playwright coverage for the five flows before batch 1. That option was rejected. The burndown does not wait for a test harness that `apps/web` has never had.
 
-The second option costs more in total when the burndown runs long.
+Three consequences follow from this decision. Accept all three, or reopen the decision.
+
+1. The risk stays for the whole burndown. No batch is verified automatically.
+2. Every batch needs a person at a browser. Nobody can land a batch unattended.
+3. A regression reaches `dev` when a manual step is skipped. The manual steps are the only gate.
+
+Two rules limit the cost:
+
+- Keep each batch to one pull request, so a revert is one commit.
+- If a batch grows past its listed file count, split it. A larger batch makes the manual checks unreliable.
 
 ### Rollback
 
