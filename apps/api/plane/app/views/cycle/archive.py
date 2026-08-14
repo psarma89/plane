@@ -280,6 +280,7 @@ class CycleArchiveUnarchiveEndpoint(BaseAPIView):
                     # model fields
                     "name",
                     "description",
+                    "goal",
                     "start_date",
                     "end_date",
                     "owned_by_id",
@@ -326,6 +327,7 @@ class CycleArchiveUnarchiveEndpoint(BaseAPIView):
                     # model fields
                     "name",
                     "description",
+                    "goal",
                     "start_date",
                     "end_date",
                     "owned_by_id",

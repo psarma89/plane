@@ -6,6 +6,65 @@
 > **Work item:** None. This page exists to exercise the feature development flow in [`../../sops/develop-a-feature-sop.md`](../../sops/develop-a-feature-sop.md).
 > **Pull request:** {Link, once one exists}
 
+## Implementation note
+
+Everything below this block is the spec as it was written before any code, and it
+is deliberately left alone. `docs/features/AGENTS.md` says that a spec records what
+we intended and that an implementation note records what changed, so the sections
+below keep their original claims even where this block contradicts them. Read this
+block first. Where the two disagree, this block is what shipped.
+
+Slice 1 found that the section below titled "The three serializer edits" is wrong.
+The count is not three, and the serializer is not what decides the response.
+
+The cycle views do not serialise their responses. They hand-build them with
+`queryset.values(...)`, and that field list is repeated **seven** times across two
+files. Adding the field to `CycleSerializer.Meta.fields` changed nothing that a
+client reading a cycle detail or list can see.
+
+The real edit set for slice 1 is:
+
+| Where | Count | Why |
+| --- | --- | --- |
+| The model, plus one migration | 1 | The column |
+| `plane/app/views/cycle/base.py` `.values(...)` lists | 5 | Two branches inside `list`, then `create`, `partial_update`, and `retrieve`. There is no group-by branch in that file. |
+| `plane/app/views/cycle/archive.py` `.values(...)` lists | 2 | The archived-cycle list and detail. A separate file, easily missed. |
+| `plane/app/serializers/cycle.py` `CycleSerializer` | 1 | Used by `plane/app/views/workspace/cycle.py` line 108 for the workspace-wide list, and at line 345 to snapshot the instance for the activity log |
+| `plane/api/serializers/cycle.py` | 1 | The external surface **does** use its serializer. Its `.values()` calls are `.values("count")` aggregates, not response shaping. |
+
+The two `archive.py` lists were missed on the first pass and found by a review
+sweep, not by the tests, because no test covered the archived routes. A test now
+does. A field list that is maintained by hand in seven places is the defect
+underneath this feature, and every future field on `Cycle` pays the same tax.
+
+Two more corrections came out of review.
+
+**The field is `blank=True` with a default, not `null=True`.** The first version
+carried both, which made absence two-valued. A `PATCH` of `""` returned 200 and
+stored the empty string, while an untouched row held `NULL`, so a reader had to
+handle both spellings. The field now matches `description` and an unset goal is
+always `""`.
+
+**A cross-workspace read returns 403, not the 404 this spec first claimed.**
+`allow_permission` in `plane/app/permissions/base.py` refuses before
+`get_queryset()` runs and returns an explicit 403 rather than raising. A scoped
+queryset would give 404, but the decorator never lets the request reach it.
+
+**The test suite never runs the migration.** `apps/api/pytest.ini` sets both
+`--reuse-db` and `--nomigrations`, so the schema comes from the models. A green
+suite therefore says nothing about whether the migration applies. Verify a
+migration with `sqlmigrate` and with the `plane-db-upgrade` skill, not with pytest.
+The same pair of flags is why the first run after a model change fails with
+`column ... does not exist` until `--create-db` rebuilds the cached database.
+
+So the two API surfaces are asymmetric. `plane/app/` bypasses its serializer and
+`plane/api/` does not. A field added to a shared model needs a different kind of
+edit on each side, and only the external side behaves the way a reader of the
+serializer would expect.
+
+Only running the code found this. The spec was written from the serializer field
+lists, which read as authoritative and are not.
+
 ## Goal
 
 A team cannot state what a cycle (`Cycle`) is for in a way that anyone sees. The

@@ -40,6 +40,7 @@ class CycleCreateSerializer(BaseSerializer):
         fields = [
             "name",
             "description",
+            "goal",
             "start_date",
             "end_date",
             "owned_by",

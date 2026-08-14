@@ -60,6 +60,16 @@ def get_default_display_properties():
 class Cycle(ProjectBaseModel):
     name = models.CharField(max_length=255, verbose_name="Cycle Name")
     description = models.TextField(verbose_name="Cycle Description", blank=True)
+    # A single line objective, rendered in the cycle header and in every list row.
+    # Bounded because a list row has to render it, which is what separates it from
+    # description.
+    #
+    # blank=True with a default, and NOT null=True. An earlier version of this field
+    # carried both blank=True and null=True, which made absence two-valued: DRF maps
+    # blank to allow_blank and null to allow_null, so a client could store NULL or
+    # the empty string and a reader had to handle both. This matches description
+    # above, so an unset goal is always the empty string.
+    goal = models.CharField(max_length=255, verbose_name="Cycle Goal", blank=True, default="")
     start_date = models.DateTimeField(verbose_name="Start Date", blank=True, null=True)
     end_date = models.DateTimeField(verbose_name="End Date", blank=True, null=True)
     owned_by = models.ForeignKey(
