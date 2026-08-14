@@ -27,9 +27,15 @@ export COMPOSE_PROJECT_NAME="plane-api-tests-$(git rev-parse --abbrev-ref HEAD \
 ```
 
 `git branch --show-current` prints nothing on a detached HEAD, mid-rebase, and
-mid-bisect, which collapses the name to `plane-api-tests-` and puts every
-detached checkout on the machine into one project. `git rev-parse --abbrev-ref
-HEAD` prints `HEAD` in the same states, which is what `plane-env-create` uses.
+mid-bisect, which collapses the name to `plane-api-tests-`. `git rev-parse
+--abbrev-ref HEAD` prints `HEAD` in the same states, which is what
+`plane-env-create` uses, so the two agree.
+
+Neither one gives a name that is unique per checkout while HEAD is detached. Both
+collide across every detached checkout on the machine. `plane-env-create` refuses
+to run at all in that state, for the same reason. If you need an isolated test
+run from a detached HEAD, check out a branch first, or set
+`COMPOSE_PROJECT_NAME` by hand to something you know is unique.
 
 Two reasons this variable matters, and both are load-bearing.
 

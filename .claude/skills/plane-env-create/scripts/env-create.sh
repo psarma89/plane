@@ -104,6 +104,24 @@ fi
 [ -f "$COMPOSE_FILE" ] || die "run this from a Plane checkout root ($COMPOSE_FILE not found)"
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Every identifier below is keyed on the branch name: the Compose project, the
+# admin email, the workspace slug, and the port block. On a detached HEAD, during
+# a rebase, and during a bisect, `git rev-parse --abbrev-ref HEAD` prints the
+# literal `HEAD`, so all four collapse to one value. Two detached checkouts would
+# then share one Compose project and one set of volumes, and the second one to
+# start would read the first one's data.
+#
+# Refuse instead of colliding. Checking out a branch is the fix, and it is cheap.
+if [ "$BRANCH" = "HEAD" ]; then
+  die "this checkout is on a detached HEAD, so it has no branch name to key an
+environment on. The Compose project, the admin email, the workspace slug, and the
+port block all derive from the branch, and a detached HEAD collapses every one of
+them to \"head\", which collides with every other detached checkout.
+
+Check out a branch first:  git switch -c <name>"
+fi
+
 SLUG=$(slugify "$BRANCH")
 PROJECT="plane-$SLUG"
 # A hyphen, not a plus. In form-encoded bodies a plus decodes to a space, which
