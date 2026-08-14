@@ -8,6 +8,7 @@ One page per operational task. Each page gives numbered steps, a verification, a
 - [Run Backend Tests](./run-backend-tests-sop.md) - Risk: Low - run the 516 `apps/api` pytest tests in Docker, scope a run to a marker or a single test, and read a coverage report.
 - [Run JavaScript Tests](./run-javascript-tests-sop.md) - Risk: Low - run the two Vitest suites, and read what they do not cover.
 - [Run Static Checks](./run-static-checks-sop.md) - Risk: Low - run lint, format, and type checks, and tell your failure from the two that are already red on dev.
+- [Apply Database Migration](./apply-database-migration-sop.md) - Risk: High - author, preview, apply, and reverse a Django migration, and know that the reversal floor is db 0107.
 
 Entry format: `- [Title](./<slug>-sop.md) - Risk: Low | Medium | High - one-line summary`
 
@@ -15,20 +16,19 @@ Entry format: `- [Title](./<slug>-sop.md) - Risk: Low | Medium | High - one-line
 
 This list is a backlog, not a claim that the pages exist. Delete a row when you write the SOP.
 
-| Task                                             | Risk   | Area          |
-| ------------------------------------------------ | ------ | ------------- |
-| Cut a release and tag images                     | Medium | Release       |
-| Roll back a release                              | High   | Release       |
-| Apply a database migration to a running instance | High   | Database      |
-| Back up PostgreSQL and object storage            | Medium | Database      |
-| Restore PostgreSQL from a backup                 | High   | Database      |
-| Rotate instance secrets and API keys             | Medium | Security      |
-| Add or change an environment variable            | Low    | Configuration |
-| Drain and restart Celery workers                 | Medium | Operations    |
-| Clear the Valkey cache safely                    | Medium | Operations    |
-| Diagnose a 502 from the proxy                    | Low    | Operations    |
-| Upgrade a self-hosted instance                   | High   | Operations    |
-| Add a locale and sync translation keys           | Low    | Contributor   |
+| Task                                   | Risk   | Area          |
+| -------------------------------------- | ------ | ------------- |
+| Cut a release and tag images           | Medium | Release       |
+| Roll back a release                    | High   | Release       |
+| Back up PostgreSQL and object storage  | Medium | Database      |
+| Restore PostgreSQL from a backup       | High   | Database      |
+| Rotate instance secrets and API keys   | Medium | Security      |
+| Add or change an environment variable  | Low    | Configuration |
+| Drain and restart Celery workers       | Medium | Operations    |
+| Clear the Valkey cache safely          | Medium | Operations    |
+| Diagnose a 502 from the proxy          | Low    | Operations    |
+| Upgrade a self-hosted instance         | High   | Operations    |
+| Add a locale and sync translation keys | Low    | Contributor   |
 
 ## Risk levels
 
