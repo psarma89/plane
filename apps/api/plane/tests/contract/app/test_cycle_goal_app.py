@@ -15,15 +15,19 @@ Asserting the response body, rather than the status code, is what catches that.
 Spec: docs/features/new/cycle-goal-2026-08-14.md
 """
 
+from datetime import timedelta
 from uuid import uuid4
 
 import pytest
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient
 
 from plane.db.models import Cycle, Project, ProjectMember, User, Workspace, WorkspaceMember
 
 CYCLE_DETAIL_URL = "/api/workspaces/{slug}/projects/{project_id}/cycles/{pk}/"
+CYCLE_ARCHIVE_URL = "/api/workspaces/{slug}/projects/{project_id}/cycles/{cycle_id}/archive/"
+ARCHIVED_CYCLES_URL = "/api/workspaces/{slug}/projects/{project_id}/archived-cycles/"
 
 GOAL = "Ship the export pipeline behind a flag"
 
@@ -144,6 +148,63 @@ class TestCycleGoal:
         )
         assert response.data["goal"] is None, (
             f"An unset goal must serialise as null, not as an empty string. Body: {response.data!r}"
+        )
+
+    @pytest.mark.django_db
+    def test_the_archived_cycle_list_also_returns_the_goal(
+        self, session_client, workspace, project, cycle
+    ):
+        """The archive routes build their own field list, in a different file.
+
+        `plane/app/views/cycle/archive.py` repeats the `.values(...)` list twice.
+        Without this test those two edits are proven only by analogy with
+        `base.py`, and a field list that is copied by hand is exactly the thing
+        that drifts.
+        """
+        # Set the goal through the API FIRST. A cycle whose end_date is in the past
+        # is complete, and the update route rejects an edit to it with a 400.
+        detail = CYCLE_DETAIL_URL.format(slug=workspace.slug, project_id=project.id, pk=cycle.id)
+        patch_response = session_client.patch(detail, {"goal": GOAL}, format="json")
+        assert patch_response.status_code == status.HTTP_200_OK, (
+            f"Could not set the goal, so this test cannot judge the archive list: "
+            f"{patch_response.status_code} {getattr(patch_response, 'data', None)!r}"
+        )
+
+        # Only then backdate it, so that it can be archived.
+        # `archive.py` line 592 compares `cycle.end_date >= timezone.now()` with no
+        # null guard, and `end_date` is nullable, so archiving a cycle that has no
+        # end date raises a 500. That defect predates this branch and is reported
+        # separately. Backdating here keeps this test about the goal field.
+        #
+        # Use queryset.update, not instance.save(). The fixture instance was loaded
+        # before the PATCH above, so `cycle.save()` writes every field from that
+        # stale copy and silently reverts goal to None.
+        Cycle.objects.filter(pk=cycle.pk).update(
+            start_date=timezone.now() - timedelta(days=14),
+            end_date=timezone.now() - timedelta(days=1),
+        )
+
+        archive = CYCLE_ARCHIVE_URL.format(
+            slug=workspace.slug, project_id=project.id, cycle_id=cycle.id
+        )
+        archive_response = session_client.post(archive)
+        assert archive_response.status_code in (
+            status.HTTP_200_OK,
+            status.HTTP_204_NO_CONTENT,
+        ), f"Archiving failed, so this test cannot judge the goal field: {archive_response.status_code}"
+
+        response = session_client.get(
+            ARCHIVED_CYCLES_URL.format(slug=workspace.slug, project_id=project.id)
+        )
+
+        assert response.status_code == status.HTTP_200_OK, (
+            f"Got {response.status_code}: {getattr(response, 'data', None)!r}"
+        )
+        rows = [row for row in response.data if str(row.get("id")) == str(cycle.id)]
+        assert rows, f"The archived cycle is missing from the list. Body: {response.data!r}"
+        assert rows[0].get("goal") == GOAL, (
+            "The archived cycle response omits goal, so the archive.py field list "
+            f"was not updated. Row: {rows[0]!r}"
         )
 
     @pytest.mark.django_db

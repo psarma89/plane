@@ -11,20 +11,25 @@
 Slice 1 found that the section below titled "The three serializer edits" is wrong.
 The count is not three, and the serializer is not what decides the response.
 
-`CycleViewSet` in `apps/api/plane/app/views/cycle/base.py` does not serialise its
-responses. It hand-builds them with `queryset.values(...)`, and it repeats that
-field list **five** times: in the list route, in two grouped list branches, in
-`partial_update`, and in `retrieve`. Adding the field to
-`CycleSerializer.Meta.fields` therefore changed nothing that a client can see.
+The cycle views do not serialise their responses. They hand-build them with
+`queryset.values(...)`, and that field list is repeated **seven** times across two
+files. Adding the field to `CycleSerializer.Meta.fields` changed nothing that a
+client reading a cycle detail or list can see.
 
 The real edit set for slice 1 is:
 
 | Where | Count | Why |
 | --- | --- | --- |
 | The model, plus one migration | 1 | The column |
-| `plane/app/views/cycle/base.py` `.values(...)` lists | 5 | These shape every `plane/app/` response |
-| `plane/app/serializers/cycle.py` `CycleSerializer` | 1 | Still used at line 345 to snapshot the instance for the activity log |
+| `plane/app/views/cycle/base.py` `.values(...)` lists | 5 | The list route, two grouped list branches, `partial_update`, and `retrieve` |
+| `plane/app/views/cycle/archive.py` `.values(...)` lists | 2 | The archived-cycle list and detail. A separate file, easily missed. |
+| `plane/app/serializers/cycle.py` `CycleSerializer` | 1 | Used by `plane/app/views/workspace/cycle.py` line 108 for the workspace-wide list, and at line 345 to snapshot the instance for the activity log |
 | `plane/api/serializers/cycle.py` | 1 | The external surface **does** use its serializer. Its `.values()` calls are `.values("count")` aggregates, not response shaping. |
+
+The two `archive.py` lists were missed on the first pass and found by a review
+sweep, not by the tests, because no test covered the archived routes. A test now
+does. A field list that is maintained by hand in seven places is the defect
+underneath this feature, and every future field on `Cycle` pays the same tax.
 
 So the two API surfaces are asymmetric. `plane/app/` bypasses its serializer and
 `plane/api/` does not. A field added to a shared model needs a different kind of
