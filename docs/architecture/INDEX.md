@@ -12,13 +12,21 @@ C4 already spans both system architecture and application architecture. The leve
 
 | You want to | Read |
 | --- | --- |
-| Understand Plane for the first time | [c4/context/](./c4/context/INDEX.md), then [c4/containers/](./c4/containers/INDEX.md) |
-| Trace a request from browser to database | [c4/containers/](./c4/containers/INDEX.md) |
-| Change a screen or an endpoint | [c4/components/](./c4/components/INDEX.md) |
+| Understand Plane for the first time | [1. System context](./c4/l1-context/01-system-context.md), then [1. Container overview](./c4/l2-containers/01-container-overview.md) |
+| Trace a request from browser to database | [2. Request lifecycle](./c4/l2-containers/02-request-lifecycle.md) |
+| Change an endpoint | [1. apps/api: module map](./c4/l3-components/01-api-module-map.md) |
+| Change a screen | [2. apps/web: component map](./c4/l3-components/02-web-component-map.md) |
+| Work on the collaborative editor | [4. apps/live](./c4/l3-components/04-live-component-map.md), then [1. Document synchronisation](./c4/l4-code/01-document-synchronisation.md) |
 | Deploy or operate the product | [../devops/INDEX.md](../devops/INDEX.md) |
+
+## Coverage
+
+L1 to L3 are complete. L1 has its one context page, L2 has the structural overview plus the request lifecycle, and every application container has an L3 structural page. L4 holds one page, which is the expected size.
+
+The open gaps are a deployment page for Compose and for the all-in-one image, and the journey pages listed in the L3 backlog.
 
 ## Related areas
 
-- [../clients/INDEX.md](../clients/INDEX.md) lists every interface a user or a script can reach.
+- [c4/l1-context/01-system-context.md](./c4/l1-context/01-system-context.md) lists every actor, every external system, and every interface a user or a script can reach.
 - [../security/INDEX.md](../security/INDEX.md) lists every restriction and the code that enforces it.
 - [../features/INDEX.md](../features/INDEX.md) holds the specs that drove each change.

@@ -20,4 +20,4 @@ Keep this index grouped by status once more than five specs exist. Put `Draft` a
 
 - [../changes/INDEX.md](../changes/INDEX.md) holds changes to behavior that already ships.
 - [../bugfixes/INDEX.md](../bugfixes/INDEX.md) holds defect records.
-- [../../architecture/c4/components/INDEX.md](../../architecture/c4/components/INDEX.md) describes the journeys these specs extend.
+- [../../architecture/c4/l3-components/INDEX.md](../../architecture/c4/l3-components/INDEX.md) describes the journeys these specs extend.

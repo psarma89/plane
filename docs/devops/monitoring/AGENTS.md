@@ -17,7 +17,7 @@ A signal row without all four facts is incomplete.
 
 Every alert row links to an SOP in [`../../sops/`](../../sops/INDEX.md). An alert with no SOP link is incomplete.
 
-Every signal area links to the [`../../architecture/c4/containers/`](../../architecture/c4/containers/INDEX.md) dynamic page whose failure modes it detects.
+Every signal area links to the [`../../architecture/c4/l2-containers/`](../../architecture/c4/l2-containers/INDEX.md) dynamic page whose failure modes it detects.
 
 Where nobody watches a signal, mark it `Unwatched`.
 
@@ -34,7 +34,7 @@ List every failure a reader expects to be watched but is not. Give the reason.
 
 Plane runs as a self-hosted deployment and as a hosted service. The available tooling differs.
 
-State which deployment each signal exists in, with an **Availability** column. Use exactly one of three values. This set is not the four-value set in [`../../clients/AGENTS.md`](../../clients/AGENTS.md), which covers a different subject.
+State which deployment each signal exists in, with an **Availability** column. Use exactly one of three values. This set is not the four-value set in [`../../architecture/c4/l1-context/AGENTS.md`](../../architecture/c4/l1-context/AGENTS.md), which covers a different subject.
 
 | Value | Meaning |
 | --- | --- |

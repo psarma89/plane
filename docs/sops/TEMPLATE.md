@@ -82,6 +82,6 @@ This section is required. If no rollback exists, state why and give the recovery
 
 | Page | Why it matters here |
 | --- | --- |
-| [<L2 dynamic page>](../architecture/c4/containers/NN-slug.md) | The flow this procedure touches |
+| [<L2 dynamic page>](../architecture/c4/l2-containers/NN-slug.md) | The flow this procedure touches |
 | [<Infra page>](../devops/infra/NN-slug.md) | The target this procedure runs against |
 | [<Monitoring page>](../devops/monitoring/NN-slug.md) | The alert that triggers this procedure |

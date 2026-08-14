@@ -7,7 +7,6 @@
 | Folder | Answers | Reads like |
 | --- | --- | --- |
 | [`architecture/`](./architecture/INDEX.md) | How does Plane work today? | Reference |
-| [`clients/`](./clients/INDEX.md) | What are all the ways to consume Plane? | Reference |
 | [`devops/`](./devops/INDEX.md) | How does the code ship, run, and stay watched? | Reference and procedure |
 | [`features/`](./features/INDEX.md) | What do we plan to build or change? | Specification |
 | [`security/`](./security/INDEX.md) | What does Plane restrict, and where? | Catalog |

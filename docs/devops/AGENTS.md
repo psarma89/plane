@@ -31,4 +31,4 @@ A DevOps page describes the shape. An SOP gives the steps.
 
 If a page starts to read as a numbered procedure, move the procedure to an SOP. Link to it.
 
-Every infra page links to the [`../architecture/c4/containers/`](../architecture/c4/containers/INDEX.md) diagram that shows the same units.
+Every infra page links to the [`../architecture/c4/l2-containers/`](../architecture/c4/l2-containers/INDEX.md) diagram that shows the same units.

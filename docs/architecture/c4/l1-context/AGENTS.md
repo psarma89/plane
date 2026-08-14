@@ -10,10 +10,12 @@ An L1 page treats **Plane as one box**. It names who uses Plane and what Plane d
 | Every external service Plane calls | Yes |
 | Every external system that calls Plane | Yes |
 | The data category that crosses each boundary | Yes |
-| The containers inside Plane | No. Use [`../containers/`](../containers/INDEX.md). |
+| The containers inside Plane | No. Use [`../l2-containers/`](../l2-containers/INDEX.md). |
 | A named app such as `apps/web` | No. That is inside the box. |
 
 If a sentence names a container, a file, or a class, the page is at the wrong level.
+
+One exception: an appendix may name a container. An appendix carries reference material that the page absorbed, not part of the context view. Keep the L1 view itself free of container names, and put anything that needs one below the `Related` section.
 
 ## Keep the page count at one, or close to it
 
@@ -31,11 +33,13 @@ Plane is one software system, so no landscape page is needed today. If one becom
 
 - Name the role as the product names it: workspace owner, workspace admin, project member, guest.
 - Add an anonymous actor where a surface accepts unauthenticated traffic.
-- State which surface each actor reaches. Link to [`../../../clients/INDEX.md`](../../../clients/INDEX.md).
+- State which surface each actor reaches. The L1 page lists every surface in its `Delivery surfaces` appendix.
 
 ## External systems
 
-Every row needs a **Data sent** value and an **Availability** value. A row without both is incomplete.
+Every row needs a **Data sent** value. Every row also needs a **Required** value, which states whether Plane works without the integration.
+
+Add an **Availability** value where the repository proves it, using `Cloud`, `Self-hosted`, `Both`, or `Commercial`. Omit the column when it cannot, and say so on the page. This repository builds the Community Edition only, so a page written from this source usually cannot prove which edition an integration reaches, and inventing the value is worse than omitting it.
 
 - **Data sent** names the data category, not the field list. Example: "Email address", "Work item content", "Telemetry events".
 - **Availability** uses `Cloud`, `Self-hosted`, `Both`, or `Commercial`.

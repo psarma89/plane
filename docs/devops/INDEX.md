@@ -29,6 +29,6 @@ flowchart LR
 
 ## Related
 
-- [../architecture/c4/containers/INDEX.md](../architecture/c4/containers/INDEX.md) draws the containers these targets deploy.
+- [../architecture/c4/l2-containers/INDEX.md](../architecture/c4/l2-containers/INDEX.md) draws the containers these targets deploy.
 - [../security/INDEX.md](../security/INDEX.md) lists infrastructure and secret controls.
 - [../sops/INDEX.md](../sops/INDEX.md) holds every operational procedure.

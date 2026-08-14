@@ -30,6 +30,6 @@ State the deployment for every signal. Tooling differs between installs. [`AGENT
 
 ## Related
 
-- [../../architecture/c4/containers/INDEX.md](../../architecture/c4/containers/INDEX.md) lists the failure modes these signals detect.
+- [../../architecture/c4/l2-containers/INDEX.md](../../architecture/c4/l2-containers/INDEX.md) lists the failure modes these signals detect.
 - [../../sops/INDEX.md](../../sops/INDEX.md) holds the recovery steps for every alert.
 - [../infra/INDEX.md](../infra/INDEX.md) covers the deployment target that emits each signal.

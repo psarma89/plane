@@ -10,7 +10,7 @@ Pages here use `NN-<area-slug>.md`. [`TEMPLATE.md`](./TEMPLATE.md) holds the fou
 
 - **One control per row.** A layered control gets one row per layer. A server-side check and a client-side check are two rows.
 - **`Where enforced`** holds a backticked path from the repo root, plus the symbol in backticks. Example: `` `apps/api/plane/app/permissions/project.py` (`ProjectAdminPermission`) ``.
-- **`Reference`** prefers a relative link to the canonical doc. Use `[Arch](../architecture/c4/components/NN-slug.md)` or `[SOP](../sops/<slug>-sop.md)`. Write `-` when no canonical doc exists.
+- **`Reference`** prefers a relative link to the canonical doc. Use `[Arch](../architecture/c4/l3-components/NN-slug.md)` or `[SOP](../sops/<slug>-sop.md)`. Write `-` when no canonical doc exists.
 - **No paragraphs in a row.** If a control needs more than a sentence, the canonical doc is thin. Fix that doc. Keep the row short.
 
 ## When to add a row

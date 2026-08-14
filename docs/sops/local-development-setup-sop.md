@@ -323,7 +323,7 @@ Two paths exist. Pick the first one for daily work.
 
 | Page                                                              | Why it matters here                                                 |
 | ----------------------------------------------------------------- | ------------------------------------------------------------------- |
-| [Clients and interfaces](../clients/01-clients-and-interfaces.md) | Names every surface that this SOP starts, and the port for each one |
+| [System context](../architecture/c4/l1-context/01-system-context.md) | Names every surface that this SOP starts, and every external system it can reach |
 | [Infrastructure index](../devops/infra/INDEX.md)                  | Describes the services that `docker-compose-local.yml` runs         |
-| [Containers index](../architecture/c4/containers/INDEX.md)        | Explains how the API, the workers, and the queue interact           |
+| [Containers index](../architecture/c4/l2-containers/INDEX.md)        | Explains how the API, the workers, and the queue interact           |
 | [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md)                  | The upstream five-step summary that this SOP expands                |
