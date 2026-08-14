@@ -1,6 +1,6 @@
 # Local Development Setup SOP
 
-> **Last reviewed:** 2026-08-13
+> **Last reviewed:** 2026-08-14
 > **Owner role:** Contributor
 > **Risk:** Low
 
@@ -26,18 +26,57 @@ Complete every item before step 1.
 | Git                                  | `git --version`                                 |
 | `curl`                               | `curl --version`                                |
 
-`package.json` sets `engines.node` to `>=22.18.0`. `.mise.toml` pins Node 22.18.0. This SOP also ran on Node 24.18.0.
+`package.json` sets `engines.node` to `>=22.18.0`. `.mise.toml` pins Node 22.18.0, but you do not need `mise` to satisfy that floor. This SOP also ran on Node 24.18.0.
 
 ### Install the prerequisites
 
-| Tool     | macOS                                                           | Debian or Ubuntu                                                                                    |
-| -------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Docker   | `brew install --cask docker`, then open Docker Desktop one time | Follow the Docker Engine apt guide at docs.docker.com                                               |
-| Node.js  | `brew install mise`, then `mise install` in the repository root | `curl -fsSL https://deb.nodesource.com/setup_22.x \| sudo -E bash -` then `sudo apt install nodejs` |
-| Corepack | Ships with Node.js 22                                           | Ships with Node.js 22                                                                               |
-| Git      | `xcode-select --install`                                        | `sudo apt install git`                                                                              |
+| Tool     | macOS                                                           | Debian or Ubuntu                                      |
+| -------- | --------------------------------------------------------------- | ----------------------------------------------------- |
+| Docker   | `brew install --cask docker`, then open Docker Desktop one time | Follow the Docker Engine apt guide at docs.docker.com |
+| Node.js  | nvm. See below.                                                 | nvm. See below.                                       |
+| Corepack | Ships with Node.js 22                                           | Ships with Node.js 22                                 |
+| Git      | `xcode-select --install`                                        | `sudo apt install git`                                |
 
 Docker Desktop must run before step 4. If `docker info` fails, Docker is not running.
+
+### Install Node.js with nvm
+
+nvm is the installer that nodejs.org lists first, and it works the same way on macOS and on Linux. Run these four commands one time.
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.6/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+\. "$NVM_DIR/nvm.sh"
+nvm install 22
+```
+
+Expected result: the last command prints `Now using node v22.x.y`. A measured run installed Node v22.23.2 with npm 10.9.8, which clears the `>=22.18.0` floor.
+
+Open a new terminal for every later step, and select the version again:
+
+```bash
+nvm use 22
+node --version
+corepack --version
+```
+
+Expected result: `v22.23.2` or later, then a corepack version. A measured run reported corepack 0.35.0.
+
+Name the major version. This repository ships no `.nvmrc`, so a bare `nvm use` fails with `No .nvmrc file found`.
+
+Check the version that nodejs.org lists today at https://nodejs.org/en/download. The pinned tag in the URL above moves with each nvm release. This SOP verified the commands with nvm 0.40.4.
+
+## The automated path
+
+The `plane-env-create` skill runs steps 3 to 13 of this procedure without a browser. Use it for a second checkout, a worktree, or any environment you plan to throw away.
+
+```
+/plane-env-create
+```
+
+It derives 9 ports from a hash of the branch name, so several checkouts run at the same time on one machine. It writes the six `.env` files, starts the stack, registers the instance admin, seeds the demo data, and prints the sign-in credentials. `plane-env-teardown` destroys the containers and the volumes again.
+
+Read the rest of this page before you use the skill for your first environment. The skill hides the failure modes that this procedure teaches.
 
 ## Procedure
 
@@ -62,12 +101,29 @@ Docker Desktop must run before step 4. If `docker info` fails, Docker is not run
 
    Expected result: no output.
 
-   If a line appears, stop the service that holds the port. A local PostgreSQL on port 5432 is the common case.
+   If a line appears, you have two options. Stop the service that holds the port. A local PostgreSQL on port 5432 is the common case.
 
    ```bash
    brew services list | grep postgres
    brew services stop postgresql@18
    ```
+
+   Or move Plane instead. Every published port reads from a variable with a default, so you never have to edit `docker-compose-local.yml`.
+
+   | Variable                        | Default | Service       |
+   | ------------------------------- | ------- | ------------- |
+   | `PLANE_HOST_WEB_PORT`           | 3000    | `web`         |
+   | `PLANE_HOST_ADMIN_PORT`         | 3001    | `admin`       |
+   | `PLANE_HOST_SPACE_PORT`         | 3002    | `space`       |
+   | `PLANE_HOST_API_PORT`           | 8000    | `api`         |
+   | `PLANE_HOST_DB_PORT`            | 5432    | `plane-db`    |
+   | `PLANE_HOST_REDIS_PORT`         | 6379    | `plane-redis` |
+   | `PLANE_HOST_MINIO_PORT`         | 9000    | `plane-minio` |
+   | `PLANE_HOST_MINIO_CONSOLE_PORT` | 9090    | `plane-minio` |
+
+   Set the value in `.env` after step 3, then run step 4. `apps/live` reads `PORT` from `apps/live/.env`, which defaults to 3100.
+
+   Changing a port does not change an application URL. `apps/api/.env` and the three frontend `.env` files carry literal ports, and `CORS_ALLOWED_ORIGINS` feeds `CSRF_TRUSTED_ORIGINS`. Read [`add-environment-variable-sop.md`](./add-environment-variable-sop.md) before you move a port by hand.
 
 3. Run the setup script.
 
@@ -113,16 +169,16 @@ Docker Desktop must run before step 4. If `docker info` fails, Docker is not run
 
    The eight containers hold these roles.
 
-   | Service       | Role                                            | Published port |
-   | ------------- | ----------------------------------------------- | -------------- |
-   | `plane-db`    | PostgreSQL, the primary datastore               | 5432           |
-   | `plane-redis` | Valkey, the cache and the Celery result backend | 6379           |
-   | `plane-mq`    | RabbitMQ, the Celery broker                     | none           |
-   | `plane-minio` | S3-compatible object storage for attachments    | 9000 and 9090  |
-   | `migrator`    | Applies the Django migrations, then exits       | none           |
-   | `api`         | The Django development server                   | 8000           |
-   | `worker`      | The Celery worker for background tasks          | none           |
-   | `beat-worker` | The Celery beat scheduler                       | none           |
+   | Service       | Role                                           | Published port |
+   | ------------- | ---------------------------------------------- | -------------- |
+   | `plane-db`    | PostgreSQL, the primary datastore              | 5432           |
+   | `plane-redis` | Valkey, the Django cache and the rate limiters | 6379           |
+   | `plane-mq`    | RabbitMQ, the Celery broker                    | none           |
+   | `plane-minio` | S3-compatible object storage for attachments   | 9000 and 9090  |
+   | `migrator`    | Applies the Django migrations, then exits      | none           |
+   | `api`         | The Django development server                  | 8000           |
+   | `worker`      | The Celery worker for background tasks         | none           |
+   | `beat-worker` | The Celery beat scheduler                      | none           |
 
 6. Wait for the API.
 
@@ -305,6 +361,10 @@ Two paths exist. Pick the first one for daily work.
    brew services start postgresql@18
    ```
 
+   The `plane-env-teardown` skill does the same work for an environment that `plane-env-create` built. It always destroys the volumes, and it prints the containers and the host processes it will stop before it stops them.
+
+> **Destructive:** Never add `--remove-orphans` to a `docker compose` command in a checkout that also runs the test stack. Both compose files resolve to the same project name, so that flag removes all 8 development containers. Read [`run-backend-tests-sop.md`](./run-backend-tests-sop.md).
+
 ## Troubleshooting
 
 | Failure                                                                                 | Cause                                                                                                                                                                   | Fix                                                                                                                              |
@@ -321,9 +381,13 @@ Two paths exist. Pick the first one for daily work.
 
 ## Related
 
-| Page                                                              | Why it matters here                                                 |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------- |
-| [System context](../architecture/c4/l1-context/01-system-context.md) | Names every surface that this SOP starts, and every external system it can reach |
-| [Infrastructure index](../devops/infra/INDEX.md)                  | Describes the services that `docker-compose-local.yml` runs         |
-| [Containers index](../architecture/c4/l2-containers/INDEX.md)        | Explains how the API, the workers, and the queue interact           |
-| [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md)                  | The upstream five-step summary that this SOP expands                |
+| Page                                                                                   | Why it matters here                                                              |
+| -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| [System context](../architecture/c4/l1-context/01-system-context.md)                   | Names every surface that this SOP starts, and every external system it can reach |
+| [Infrastructure index](../devops/infra/INDEX.md)                                       | Describes the services that `docker-compose-local.yml` runs                      |
+| [Containers index](../architecture/c4/l2-containers/INDEX.md)                          | Explains how the API, the workers, and the queue interact                        |
+| [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md)                                       | The upstream five-step summary that this SOP expands                             |
+| [`add-environment-variable-sop.md`](./add-environment-variable-sop.md)                 | What each of the six `.env` files owns, and how to apply a change                |
+| [`drain-and-restart-celery-workers-sop.md`](./drain-and-restart-celery-workers-sop.md) | How to restart `worker` without losing a running task                            |
+| [`clear-valkey-cache-sop.md`](./clear-valkey-cache-sop.md)                             | What shares the Valkey database that this stack starts                           |
+| [`run-backend-tests-sop.md`](./run-backend-tests-sop.md)                               | The other stack, `docker-compose-test.yml`, and why its project name matters     |
