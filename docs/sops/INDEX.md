@@ -7,7 +7,7 @@ One page per operational task. Each page gives numbered steps, a verification, a
 - [Local Development Setup](./local-development-setup-sop.md) - Risk: Low - clone the repository, start the stack, register the instance admin, seed demo data, and snapshot the database.
 - [Run Backend Tests](./run-backend-tests-sop.md) - Risk: Low - run the 516 `apps/api` pytest tests in Docker, scope a run to a marker or a single test, and read a coverage report.
 - [Run JavaScript Tests](./run-javascript-tests-sop.md) - Risk: Low - run the two Vitest suites, and read what they do not cover.
-- [Run Static Checks](./run-static-checks-sop.md) - Risk: Low - run lint, format, and type checks, and tell your failure from the three that are already red on dev.
+- [Run Static Checks](./run-static-checks-sop.md) - Risk: Low - run lint, format, and type checks, and tell your failure from the two that are already red on dev.
 
 Entry format: `- [Title](./<slug>-sop.md) - Risk: Low | Medium | High - one-line summary`
 

@@ -1,6 +1,6 @@
 # Run Static Checks SOP
 
-> **Last reviewed:** 2026-08-13
+> **Last reviewed:** 2026-08-14
 > **Owner role:** Contributor
 > **Risk:** Low
 
@@ -54,7 +54,7 @@ The `.prettierignore` files at the repository root and under `apps/` are dead. N
    docker compose -f docker-compose-local.yml exec -T api ruff format --check /code
    ```
 
-   Expected result: `Found 3 errors` and `43 files would be reformatted`. Both are the current state of `dev`.
+   Expected result: `All checks passed!` and `43 files would be reformatted, 478 files already formatted`. Both are the current state of `dev`.
 
 ## Scoping to one workspace
 
@@ -69,23 +69,24 @@ Apps use bare names (`web`, `admin`, `space`, `live`). Packages use the scope (`
 
 ## Known failures on `dev`
 
-Three checks are red before you change anything. Do not attribute them to your branch, and do not "fix" the first one.
+Two checks are red before you change anything. Do not attribute either one to your branch, and do not "fix" the first one.
 
 | Check                          | State                                                | Why                                                                                                                                                                     |
 | ------------------------------ | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pnpm check:format`            | Fails on `packages/i18n/src/types/keys.generated.ts` | The build generates that file and `.gitignore` line 118 ignores it. `oxfmt` checks it anyway. Running `pnpm fix:format` rewrites a file that the next build overwrites. |
-| `ruff check apps/api`          | 3 errors, all 3 fixable                              | CI runs `ruff check --fix`, which repairs them inside the CI workspace and exits 0. The repair is never committed, so the branch keeps the violations.                  |
 | `ruff format --check apps/api` | 43 of 521 files would be reformatted                 | No workflow runs `ruff format`. Nothing enforces Python formatting.                                                                                                     |
+
+`ruff check apps/api` was the third red check until 2026-08-14. It reported 3 fixable errors, and CI ran `ruff check --fix`, which repaired them inside the runner and exited 0. Commit `0bc4335` fixed the 3 violations, dropped `--fix` from the workflow, and selected 15 rule families in `apps/api/pyproject.toml`. The check now reports `All checks passed!` and it blocks a new violation.
 
 ## What CI runs, and what it does not
 
-| Check                                                         | Workflow                               | Runs on a normal PR                  |
-| ------------------------------------------------------------- | -------------------------------------- | ------------------------------------ |
-| `check:format`, `check:lint`, `check:types`, `Build packages` | `pull-request-build-lint-web-apps.yml` | Yes                                  |
-| `ruff check --fix`                                            | `pull-request-build-lint-api.yml`      | Yes, but it self-repairs and exits 0 |
-| `ruff format`                                                 | None                                   | **No**                               |
-| Any test suite                                                | None                                   | **No**                               |
-| CodeQL, copyright, react-doctor, i18n sync                    | Their own workflows                    | Yes                                  |
+| Check                                                         | Workflow                               | Runs on a normal PR              |
+| ------------------------------------------------------------- | -------------------------------------- | -------------------------------- |
+| `check:format`, `check:lint`, `check:types`, `Build packages` | `pull-request-build-lint-web-apps.yml` | Yes                              |
+| `ruff check --output-format=github`                           | `pull-request-build-lint-api.yml`      | Yes, and it fails on a violation |
+| `ruff format`                                                 | None                                   | **No**                           |
+| Any test suite                                                | None                                   | **No**                           |
+| CodeQL, copyright, react-doctor, i18n sync                    | Their own workflows                    | Yes                              |
 
 Every job in `pull-request-build-lint-web-apps.yml` carries this gate:
 
@@ -134,7 +135,7 @@ Fix the warning. Do not raise a ceiling. Lower a ceiling when you remove warning
 | Lint is clean                     | `pnpm check:lint`                  | Exit 0                                        |
 | Types are clean                   | `pnpm check:types`                 | Exit 0                                        |
 | Format has only the known failure | `pnpm check:format`                | Fails on `keys.generated.ts` and nothing else |
-| Python lint did not get worse     | `... exec -T api ruff check /code` | `Found 3 errors`                              |
+| Python lint is clean              | `... exec -T api ruff check /code` | `All checks passed!`                          |
 
 ## Rollback
 

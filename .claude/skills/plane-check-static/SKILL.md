@@ -1,6 +1,6 @@
 ---
 name: plane-check-static
-description: Run the lint, format, and type checks before pushing, and tell a real failure from one of the three that are already red on dev. Use when you finished a change and want the verdict CI will give, when check:format fails and you need to know whether it is your fault, or when someone asks what CI actually enforces.
+description: Run the lint, format, and type checks before pushing, and tell a real failure from one of the two that are already red on dev. Use when you finished a change and want the verdict CI will give, when check:format fails and you need to know whether it is your fault, or when someone asks what CI actually enforces.
 user_invocable: true
 ---
 
@@ -26,15 +26,18 @@ docker compose -f docker-compose-local.yml exec -T api ruff check /code
 docker compose -f docker-compose-local.yml exec -T api ruff format --check /code
 ```
 
-## Three checks are already red on dev
+## Two checks are already red on dev
 
 Check these before you blame your branch.
 
 | Check                 | Current state                                        | Why                                                                                                                                    |
 | --------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `check:format`        | Fails on `packages/i18n/src/types/keys.generated.ts` | The build generates it and `.gitignore:118` ignores it. `oxfmt` checks it anyway. Do not "fix" it: the next build overwrites your fix. |
-| `ruff check`          | `Found 3 errors`, all fixable                        | CI runs `ruff check --fix`, which repairs them in the CI workspace and exits 0. Nothing commits the repair.                            |
 | `ruff format --check` | 43 of 521 files                                      | No workflow runs `ruff format`. Python formatting is unenforced.                                                                       |
+
+`ruff check` reports `All checks passed!` since commit `0bc4335` on 2026-08-14.
+That commit fixed the 3 violations, dropped `--fix` from the workflow, and
+selected 15 rule families in `apps/api/pyproject.toml`.
 
 So `pnpm check` exits 1 on a clean checkout. That is expected. Compare the
 failing task name against this table before reporting a problem.
@@ -53,12 +56,12 @@ Apps use bare names (`web`, `admin`, `space`, `live`). Packages use the scope.
 
 ## What CI actually enforces
 
-| Check                                              | Runs in CI                           |
-| -------------------------------------------------- | ------------------------------------ |
-| `check:format`, `check:lint`, `check:types`, build | Yes                                  |
-| `ruff check --fix`                                 | Yes, but it self-repairs and exits 0 |
-| `ruff format`                                      | No                                   |
-| Any test suite, Python or JavaScript               | No                                   |
+| Check                                              | Runs in CI                       |
+| -------------------------------------------------- | -------------------------------- |
+| `check:format`, `check:lint`, `check:types`, build | Yes                              |
+| `ruff check --output-format=github`                | Yes, and it fails on a violation |
+| `ruff format`                                      | No                               |
+| Any test suite, Python or JavaScript               | No                               |
 
 CI sets `TURBO_SCM_BASE`, so it checks only affected packages. `pnpm check`
 locally checks everything. That gap is why the `i18n` failure never shows in CI.
