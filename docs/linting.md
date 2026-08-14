@@ -88,6 +88,8 @@ Treat the list as the burndown backlog. To retire an entry:
 
 Do not add a path to the list. A new violation must not land.
 
+[features/changes/service-import-boundary-burndown-2026-08-14.md](./features/changes/service-import-boundary-burndown-2026-08-14.md) holds the batch order, the risk ranking, and the regression plan.
+
 ## Backward Compatibility
 
 OxLint supports `eslint-disable` comments, so existing inline suppressions continue to work.

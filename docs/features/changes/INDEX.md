@@ -4,11 +4,9 @@ One page per change to behavior that already ships. Each page contrasts the curr
 
 ## Changes
 
-> No change spec exists yet. Add the first one with [`TEMPLATE.md`](./TEMPLATE.md), then list it here.
+- [Service imports: move 63 files behind the store layer](./service-import-boundary-burndown-2026-08-14.md) - Draft - Retire the `no-restricted-imports` exemption list in five batches.
 
 Entry format: `- [Title](./<WORK-ITEM-ID>-<slug>-YYYY-MM-DD.md) - Status - one-line summary`
-
-<!-- - [Cycle date validation](./WEB-1234-cycle-dates-2026-08-12.md) - Draft - Reject an end date before the start date. -->
 
 Order this index newest first. A reader looks for the most recent change to a feature.
 
