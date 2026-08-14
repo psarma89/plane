@@ -12,6 +12,7 @@ One page per operational task. Each page gives numbered steps, a verification, a
 - [Add Environment Variable](./add-environment-variable-sop.md) - Risk: Low - add or change a variable across the six .env files, and apply it to the right process.
 - [Drain and Restart Celery Workers](./drain-and-restart-celery-workers-sop.md) - Risk: Medium - drain the worker without losing in-flight tasks, and know why docker compose restart destroys them.
 - [Clear Valkey Cache](./clear-valkey-cache-sop.md) - Risk: Medium - drop stale cached responses without resetting the rate limiters that share the same database.
+- [Develop a Feature](./develop-a-feature-sop.md) - Risk: Medium - take a request from grilling to a merged stack of reviewed pull requests, one slice per worktree.
 
 Entry format: `- [Title](./<slug>-sop.md) - Risk: Low | Medium | High - one-line summary`
 
