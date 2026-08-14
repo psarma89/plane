@@ -35,7 +35,7 @@
         background: var(--canvas); color: var(--primary);
         font: 14px/1.5 ui-sans-serif, system-ui, sans-serif;
       }
-      .wrap { max-width: 1040px; margin: 0 auto; }
+      .wrap { max-width: 1080px; margin: 0 auto; }
       .banner {
         background: var(--surface); border: 1px solid var(--edge);
         border-left: 4px solid var(--accent);
@@ -67,7 +67,7 @@
       }
       .input.is-empty { color: var(--placeholder); }
       .input.textarea { min-height: 44px; }
-      .dates, .pair { display: flex; gap: 8px; }
+      .dates { display: flex; gap: 8px; }
       .new { position: relative; }
       .new::after {
         content: "NEW"; position: absolute; top: -7px; right: 8px;
@@ -75,6 +75,20 @@
         letter-spacing: 0.06em; padding: 1px 5px; border-radius: 3px;
       }
       .hint { color: var(--tertiary); font-size: 11px; margin-top: 3px; }
+      .toggle-label {
+        font-size: 11px; color: var(--tertiary); margin: 8px 0 3px;
+        text-transform: uppercase; letter-spacing: 0.04em;
+      }
+      /* Two radios, not a checkbox. A checkbox cannot name its off value. */
+      .toggle { display: flex; gap: 4px; background: var(--layer);
+        border: 1px solid var(--edge); border-radius: 5px; padding: 2px; }
+      .toggle > span {
+        flex: 1; text-align: center; font-size: 12px; padding: 4px 0;
+        border-radius: 4px; color: var(--secondary);
+      }
+      .toggle > span.on { background: var(--surface); color: var(--primary); font-weight: 500;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 8%); }
+      .toggle.is-disabled { opacity: 0.45; }
       /* The meter is content inside a surface, so its track takes a layer. */
       .meter { margin-top: 4px; }
       .meter-top {
@@ -83,14 +97,6 @@
       }
       .track { height: 6px; border-radius: 3px; background: var(--layer); overflow: hidden; }
       .track > span { display: block; height: 100%; border-radius: 3px; }
-      .mark { position: relative; height: 12px; margin-top: 2px; }
-      .mark > i {
-        position: absolute; top: 0; width: 1px; height: 5px; background: var(--tertiary);
-      }
-      .mark > i > em {
-        position: absolute; top: 5px; left: -9px;
-        font-size: 9px; font-style: normal; color: var(--tertiary);
-      }
       /* The alert replaces the layer with a semantic tint. It is not a new level. */
       .alert {
         display: flex; gap: 8px; align-items: flex-start;
@@ -100,7 +106,7 @@
       .alert.block { background: var(--block-bg); border: 1px solid var(--block-edge); color: var(--block-txt); }
       .alert b { font-weight: 600; }
       .toast {
-        max-width: 420px; background: var(--surface); border: 1px solid var(--block-edge);
+        max-width: 430px; background: var(--surface); border: 1px solid var(--block-edge);
         border-left: 4px solid var(--block-fill); border-radius: 6px;
         padding: 11px 14px; box-shadow: 0 6px 20px rgb(0 0 0 / 10%);
       }
@@ -121,17 +127,17 @@
         <h1>Mockup: Cycle capacity threshold</h1>
         <p>Sketch of intent. Not a screenshot, and not a component.</p>
         <p>Spec: <code>docs/features/new/cycle-capacity-threshold.md</code> &middot; 2026-08-14</p>
+        <p>One number and one toggle. No percent appears anywhere.</p>
       </div>
 
-      <h2>1. The capacity input on the cycle form</h2>
-      <p><code>apps/web/core/components/cycles/form.tsx</code> &middot; one optional number, under the date pair</p>
+      <h2>1. The two controls on the cycle form</h2>
+      <p><code>apps/web/core/components/cycles/form.tsx</code> &middot; after the date pair, which closes on line 183</p>
       <div class="states">
         <figure class="state">
           <figcaption>Empty, which is the default</figcaption>
           <div class="modal">
             <h3>Create cycle</h3>
             <div class="field"><div class="input is-empty">Title</div></div>
-            <div class="field"><div class="input is-empty textarea">Description</div></div>
             <div class="field dates">
               <div class="input is-empty">Start date</div>
               <div class="input is-empty">End date</div>
@@ -139,130 +145,138 @@
             <div class="field new">
               <div class="input is-empty">Capacity in points</div>
               <p class="hint">Optional. Leave it empty for no limit.</p>
+              <p class="toggle-label">At the limit</p>
+              <!-- Rendered but disabled. A mode with no number does nothing. -->
+              <div class="toggle is-disabled"><span class="on">Warn</span><span>Block</span></div>
             </div>
           </div>
         </figure>
 
         <figure class="state">
-          <figcaption>Set</figcaption>
+          <figcaption>Set to warn</figcaption>
           <div class="modal">
             <h3>Update cycle</h3>
             <div class="field"><div class="input">Sprint 14</div></div>
-            <div class="field"><div class="input is-empty textarea">Description</div></div>
             <div class="field dates">
               <div class="input">Aug 1, 2026</div>
               <div class="input">Aug 14, 2026</div>
             </div>
             <div class="field new">
               <div class="input">40</div>
-              <p class="hint">Warn at 36 points. Block at 40 points.</p>
+              <p class="toggle-label">At the limit</p>
+              <div class="toggle"><span class="on">Warn</span><span>Block</span></div>
+              <p class="hint">Show a warning. Anyone can still add work.</p>
             </div>
           </div>
         </figure>
 
         <figure class="state">
-          <figcaption>Project has no points estimate</figcaption>
+          <figcaption>Set to block</figcaption>
           <div class="modal">
-            <h3>Create cycle</h3>
-            <div class="field"><div class="input is-empty">Title</div></div>
-            <div class="field"><div class="input is-empty textarea">Description</div></div>
+            <h3>Update cycle</h3>
+            <div class="field"><div class="input">Sprint 14</div></div>
             <div class="field dates">
-              <div class="input is-empty">Start date</div>
-              <div class="input is-empty">End date</div>
+              <div class="input">Aug 1, 2026</div>
+              <div class="input">Aug 14, 2026</div>
             </div>
-            <!-- The control is absent, not disabled. A points sum of 0 cannot gate anything. -->
-          </div>
-          <div class="note" style="margin-top:8px">
-            <p>The capacity control is <strong>absent</strong>, not disabled. The point sum is 0 for a
-            categories-type estimate, so a capacity would never fire.</p>
+            <div class="field new">
+              <div class="input">40</div>
+              <p class="toggle-label">At the limit</p>
+              <div class="toggle"><span>Warn</span><span class="on">Block</span></div>
+              <p class="hint">Refuse new work. Removing work and lowering an estimate still succeed.</p>
+            </div>
           </div>
         </figure>
       </div>
 
-      <h2>2. The capacity state on the active cycle panel</h2>
+      <h2>2. The verdict on the active cycle panel</h2>
       <p><code>apps/web/core/components/cycles/analytics-sidebar/issue-progress.tsx</code> &middot; every number arrives from <code>GET&nbsp;.../progress/</code></p>
       <div class="states">
         <figure class="state">
-          <figcaption>Under the warn point</figcaption>
+          <figcaption>ok &mdash; under the capacity</figcaption>
           <div class="panel">
             <h3>Sprint 14</h3>
             <div class="meter">
               <div class="meter-top"><span>Capacity</span><span>28 / 40 points</span></div>
               <div class="track"><span style="width:70%; background: var(--ok-fill)"></span></div>
-              <div class="mark"><i style="left:90%"><em>90%</em></i></div>
             </div>
             <!-- No alert. Silence is the state. -->
           </div>
         </figure>
 
         <figure class="state">
-          <figcaption>At or over the warn point</figcaption>
+          <figcaption>warn &mdash; at the capacity, warn mode</figcaption>
           <div class="panel">
             <h3>Sprint 14</h3>
             <div class="meter">
-              <div class="meter-top"><span>Capacity</span><span>38 / 40 points</span></div>
-              <div class="track"><span style="width:95%; background: var(--warn-fill)"></span></div>
-              <div class="mark"><i style="left:90%"><em>90%</em></i></div>
+              <div class="meter-top"><span>Capacity</span><span>43 / 40 points</span></div>
+              <!-- The bar caps at 100%. The real number lives in the label. -->
+              <div class="track"><span style="width:100%; background: var(--warn-fill)"></span></div>
             </div>
             <div class="alert warn">
               <span>&#9888;</span>
-              <span><b>95% of capacity.</b> This cycle holds 38 of 40 points. Two more points reach the limit.</span>
+              <span><b>Cycle is at capacity.</b> This cycle holds 43 of 40 points. Anyone can still add work.</span>
             </div>
           </div>
         </figure>
 
         <figure class="state">
-          <figcaption>At the block point</figcaption>
+          <figcaption>block &mdash; at the capacity, block mode</figcaption>
           <div class="panel">
             <h3>Sprint 14</h3>
             <div class="meter">
               <div class="meter-top"><span>Capacity</span><span>40 / 40 points</span></div>
               <div class="track"><span style="width:100%; background: var(--block-fill)"></span></div>
-              <div class="mark"><i style="left:90%"><em>90%</em></i></div>
             </div>
             <div class="alert block">
               <span>&#9888;</span>
-              <span><b>Capacity is full.</b> This cycle holds 40 of 40 points. Raise the capacity, or
-              move work out, before you add more.</span>
+              <span><b>Cycle is at capacity.</b> This cycle holds 40 of 40 points. Remove work, or
+              lower an estimate, before you add more.</span>
             </div>
           </div>
         </figure>
       </div>
 
-      <h2>3. The rejected mutation</h2>
-      <p>The API returns 400. The existing toast helper shows the message the backend wrote.</p>
+      <h2>3. The refused write, in block mode only</h2>
+      <p>The API returns 400. The toast shows the message the backend wrote. In warn mode this never appears.</p>
       <div class="toast">
         <strong>Cannot add this work item</strong>
         <p>
-          The work item is worth 5 points. Sprint 14 holds 38 of 40 points, so the total
-          reaches 43 points, which is over the 40-point limit.
+          The work is worth 5 points. Sprint 14 holds 38 of 40 points, so the total reaches
+          43 points, which is over the 40-point capacity.
         </p>
       </div>
 
       <div class="note">
-        <p><strong>Five decisions that this drawing forces.</strong></p>
-        <p>1. An empty capacity draws nothing. No meter, no alert, no reserved space. Most
-        cycles will never carry a capacity, so the panel must not grow for them.</p>
-        <p>2. The <code>ok</code> verdict shows the meter and no alert. An always-visible green
+        <p><strong>Seven decisions that this drawing forces.</strong></p>
+        <p>1. An empty capacity draws nothing in the panel. No meter, no alert, and no reserved
+        space. Most cycles will never carry a capacity, so the panel must not grow for them.</p>
+        <p>2. The toggle renders on the form even with no capacity, and it is disabled. Hiding it
+        hides the feature from the person most likely to want it.</p>
+        <p>3. The <code>ok</code> verdict shows the meter and no alert. An always-visible green
         banner trains the user to ignore the amber one.</p>
-        <p>3. The warn alert and the block alert sit in the same slot. Only one renders. The
-        color and the verb change, and the layout does not move.</p>
-        <p>4. The block message names three numbers: the points that arrive, the points that
-        are there, and the limit. A message that only says "over capacity" sends the user
-        hunting for the arithmetic.</p>
-        <p>5. The 90% mark stays on the track in every state, so the user can see where the
-        warn point sits before it fires.</p>
+        <p>4. The two alerts share one slot. The color changes and the second sentence changes.
+        The title does not, because the fact is the same in both modes.</p>
+        <p>5. The bar caps at 100% and the label carries the real number. A warn-mode cycle can
+        reach 43 of 40, and a bar that overflows its track reads as a rendering defect.</p>
+        <p>6. The refusal message names three numbers: the incoming points, the current points,
+        and the capacity. A message that only says "over capacity" sends the user hunting for
+        the arithmetic.</p>
+        <p>7. The block alert names the two ways out, because block mode is the only state where
+        the user cannot simply continue.</p>
       </div>
 
       <div class="note">
         <p><strong>Background levels, from the <code>plane-backgrounds</code> skill.</strong></p>
         <p>The modal sits on its own z-index plane, so it takes <code>bg-surface-1</code>. The
-        cycle panel is a top-level container, so it also takes <code>bg-surface-1</code>. They
-        are siblings, not a nest.</p>
-        <p>Each input is a form control, so it takes <code>bg-layer-1</code>, one level above
-        its surface. That is the one allowed exception.</p>
-        <p>The meter track takes <code>bg-layer-1</code>, because it is content inside a
-        surface. The two alerts replace the layer with a semantic tint:
+        cycle panel is a top-level container, so it also takes <code>bg-surface-1</code>. They are
+        siblings, not a nest.</p>
+        <p>Each input and the toggle track are form controls, so they take
+        <code>bg-layer-1</code>, one level above their surface. That is the one allowed
+        exception. The selected half of the toggle returns to <code>bg-surface-1</code> to read
+        as raised.</p>
+        <p>The meter track takes <code>bg-layer-1</code>, because it is content inside a surface.
+        The two alerts replace the layer with a semantic tint:
         <code>bg-warning-subtle</code> with <code>border-warning-subtle</code> and
         <code>text-warning-primary</code>, then <code>bg-danger-subtle</code> with
         <code>border-danger-subtle</code> and <code>text-danger-primary</code>. A tint is a
