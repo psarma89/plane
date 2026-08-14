@@ -4,9 +4,9 @@ One page per capability that does not exist yet. Each page holds enough detail t
 
 ## Specs
 
-> No spec exists yet. Add the first one with [`TEMPLATE.md`](./TEMPLATE.md), then list it here.
+- [Cycle capacity threshold](./cycle-capacity-threshold.md) - Draft - Give a cycle an optional point capacity. Warn near the limit, and reject a write above it.
 
-Entry format: `- [Title](./<WORK-ITEM-ID>-<slug>.md) - Status - one-line summary`
+Entry format: `- [Title](./{WORK-ITEM-ID}-{slug}.md) - Status - one-line summary`
 
 <!-- - [Bulk work item import](./WEB-1234-bulk-work-item-import.md) - Draft - Import work items from a CSV file. -->
 

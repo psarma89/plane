@@ -31,11 +31,14 @@ Pick the base class from the question "who is allowed to see this row", never fr
 
 ## Words this repository uses in one sense only
 
-| Word    | It means                                            | It never means                   |
-| ------- | --------------------------------------------------- | -------------------------------- |
-| State   | A work item's workflow column, the `State` model    | React state, MobX state          |
-| Store   | A MobX store under `apps/web/core/store/`           | A data store or a database       |
-| Service | An API client class under `apps/web/core/services/` | A backend service or a container |
+| Word     | It means                                            | It never means                                          |
+| -------- | --------------------------------------------------- | ------------------------------------------------------- |
+| State    | A work item's workflow column, the `State` model    | React state, MobX state                                 |
+| Store    | A MobX store under `apps/web/core/store/`           | A data store or a database                              |
+| Service  | An API client class under `apps/web/core/services/` | A backend service or a container                        |
+| Capacity | The optional point limit on one cycle               | A module assignment rule, or a person's available hours |
+
+`Capacity` needs the row because the billing comparison table in `apps/web/core/components/workspace/billing/comparison/plans.tsx` already uses the word for a paid module assignment rule. The two are unrelated.
 
 When you need React state or component state, write "component state". When you need the database, write "the database". A plan that reuses `State` or `Store` in the generic sense is unreadable in review.
 
