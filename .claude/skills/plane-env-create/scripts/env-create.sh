@@ -31,11 +31,19 @@ base_for_branch() {
 # One lsof for the whole machine, not one per candidate port. Probing 80 blocks
 # of 9 ports each forks 720 processes, and every fork widens the window between
 # the last probe and the bind in `docker compose up`.
+command -v lsof >/dev/null 2>&1 || die "lsof is required to allocate a port block, and it is not on PATH"
+
 LISTENING_PORTS=""
 snapshot_listening_ports() {
+  # The trailing `|| true` is load-bearing. lsof exits 1 when it matches nothing,
+  # and `pipefail` makes the assignment inherit that status. This function is
+  # called as a bare statement, so without the guard `set -e` kills the script
+  # here and prints nothing at all: `die` never runs, and the user sees an empty
+  # exit 1. It reproduces on any host with no TCP listener, such as a fresh CI
+  # container.
   LISTENING_PORTS=$(lsof -nP -iTCP -sTCP:LISTEN 2>/dev/null \
     | awk 'NR > 1 { n = split($9, parts, ":"); print parts[n] }' \
-    | sort -u)
+    | sort -u || true)
 }
 
 port_is_listening() {
@@ -128,10 +136,13 @@ PROJECT="plane-$SLUG"
 # breaks the email in curl calls and in any tool that does not encode it.
 EMAIL="dev-$SLUG@plane.local"
 
-# Workspace.slug is a SlugField(max_length=48) in plane/db/models/workspace.py, so
-# a long branch name overflows the column. Untruncated, create() raises DataError
-# after the stack is already built and the failure looks unrelated to the branch.
+# Both workspace columns are bounded, and a branch name can exceed either one.
+# plane/db/models/workspace.py declares slug as SlugField(max_length=48) on line
+# 136 and name as CharField(max_length=80) on line 122. Untruncated, create()
+# raises DataError after the stack is built and the admin is created, and the seed
+# runs outside a transaction, so every rerun repeats the same failure.
 WS_SLUG=$(printf '%s' "$SLUG" | cut -c1-48 | sed -E 's/-$//')
+WS_NAME=$(printf '%s' "$BRANCH" | cut -c1-80)
 
 # ---------------------------------------------------------------- graphify
 
@@ -178,21 +189,42 @@ if [ -f .env ]; then
 fi
 
 # Trusting the record is only safe while this project still owns the block. If the
-# stack was stopped and another branch took those ports meanwhile, insisting on
-# the recorded block fails at the bind with "port is already allocated". So take
-# the record when the block is free, or when this project has containers of its
-# own holding it. Otherwise say so and allocate a new block.
-project_holds_ports() {
-  local running
-  running=$(docker compose -f "$COMPOSE_FILE" -p "$PROJECT" ps -q 2>/dev/null || true)
-  [ -n "$running" ]
+# stack was stopped and another branch took those ports meanwhile, insisting on the
+# recorded block fails at the bind with "port is already allocated".
+#
+# The question to ask is "does this project publish this host port". The question
+# "does this project have any running container" is a different one and it gives
+# the wrong answer: a project whose api container crashed still has containers, so
+# that test would reuse a block another branch has already taken, and the branch
+# that reports the conflict could never fire.
+PROJECT_PUBLISHERS=""
+snapshot_project_publishers() {
+  PROJECT_PUBLISHERS=$(docker compose -f "$COMPOSE_FILE" -p "$PROJECT" ps \
+    --format '{{.Publishers}}' 2>/dev/null || true)
+}
+
+# A publisher entry prints as `{0.0.0.0 8000 3284 tcp}`, where the third field is
+# the published host port. An unpublished port prints as 0.
+project_publishes_port() {
+  printf '%s' "$PROJECT_PUBLISHERS" | grep -qE "[[:space:]]$1[[:space:]]tcp\}"
+}
+
+# A block is usable when every port in it is idle, or published by this project.
+block_is_free_or_ours() {
+  local base=$1 i port
+  for i in 0 1 2 3 4 5 6 7 8; do
+    port=$(( base + i ))
+    if port_is_listening "$port" && ! project_publishes_port "$port"; then
+      return 1
+    fi
+  done
+  return 0
 }
 
 snapshot_listening_ports
+snapshot_project_publishers
 
-if [ -n "$RECORDED_BASE" ] && block_is_free "$RECORDED_BASE"; then
-  BASE="$RECORDED_BASE"
-elif [ -n "$RECORDED_BASE" ] && project_holds_ports; then
+if [ -n "$RECORDED_BASE" ] && block_is_free_or_ours "$RECORDED_BASE"; then
   BASE="$RECORDED_BASE"
 elif [ -n "$RECORDED_BASE" ]; then
   bold "Recorded block $RECORDED_BASE is held by another project, so this branch moves"
@@ -365,7 +397,7 @@ dc_exec() {
     -e PLANE_ADMIN_EMAIL="$EMAIL" \
     -e PLANE_ADMIN_PASSWORD="$PASSWORD" \
     -e PLANE_WS_SLUG="$WS_SLUG" \
-    -e PLANE_WS_NAME="$BRANCH" \
+    -e PLANE_WS_NAME="$WS_NAME" \
     api "$@"
 }
 

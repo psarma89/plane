@@ -30,13 +30,18 @@ For unattended use:
 | --- | --- | --- |
 | 1 | Containers, volumes, network | `docker compose -f docker-compose-local.yml -p {project} down -v` |
 | 2 | The backend test project | `docker compose -f docker-compose-test.yml -p {test-project} down -v` |
-| 3 | Frontend dev servers | `kill` on the PID that holds the web, admin, space, or live port |
+| 3 | Frontend dev servers of this checkout | `kill` on a PID whose working directory is this checkout |
 | 4 | Generated files | `.env`, `apps/api/.env`, `apps/{web,admin,space,live}/.env`, `.plane-env.sh` |
 
 The backend test suite runs in its own Compose project, named per branch, so step
 1 does not reach it. Step 2 exists because nothing else removes it, and because
-step 4 deletes `.plane-env.sh`, which is the only file that records the name.
-The script reads the name before it deletes the file.
+step 4 deletes `.plane-env.sh`, which is the only file that records the name. The
+script reads the name before it deletes the file.
+
+Step 2 reads that name only from `.plane-env.sh`. It never derives it. A branch
+called `api/tests/foo` derives `plane-api-tests-foo`, which is the same name a
+`foo` worktree uses for its own development project. If a step 2 teardown fails,
+the script stops before step 4, so the record of the name survives.
 
 Volumes always go. There is no flag that keeps them.
 
@@ -66,14 +71,43 @@ The script reads `COMPOSE_PROJECT_NAME` from `.env` and acts on that project
 only. Another worktree's stack is a different project, with different volumes,
 and this skill does not touch it.
 
-If `.env` is absent, the script falls back to the directory name, normalized the
-way Docker Compose normalizes it: lower-cased, with every character outside
-`[a-z0-9_-]` removed.
+If `.env` is absent, the script guesses in this order, and it verifies every guess
+before it destroys anything.
 
-A raw `basename` is not enough. A checkout at `~/Development/Plane` yields
-`Plane`, while the running project is `plane`. `down -v` then matches nothing and
-exits 0, so the script reports success while every container and volume survives,
-and the `.env` that named them is already gone.
+| Order | Candidate | Why |
+| --- | --- | --- |
+| 1 | `COMPOSE_PROJECT_NAME` in `.env` | Authoritative |
+| 2 | `plane-{slugified branch}` | The name `plane-env-create` builds |
+| 3 | The directory name, normalized | What Compose itself defaults to |
+
+A candidate counts only when it still has a container, or a `{project}_pgdata`
+volume. If none of the three qualifies, the script refuses and tells you to run
+`docker compose ls`.
+
+The refusal matters more than the guessing. `down -v` against a project that does
+not exist exits 0 and prints nothing, so without the check the script deleted the
+`.env` files and reported success while every container and all four volumes
+survived with their name gone.
+
+Candidate 3 alone is never enough. `plane-env-create` names the worktree directory
+after the slug and names the project `plane-{slug}`, so the normalized directory
+name is always short by the `plane-` prefix and never matches a project that this
+tooling built.
+
+## It only signals dev servers that belong to this checkout
+
+The script reads the frontend ports from `.env`, and `.env.example` ships 3000,
+3001, 3002, and 3100. In a checkout bootstrapped by plain `./setup.sh`, those are
+the ports of the main checkout's dev servers.
+
+So a port match is not sufficient. The script signals a process only when the
+working directory of that process is this checkout. It reads the working directory
+with `lsof -a -p {pid} -d cwd`. It still refuses to signal any process whose
+command name contains `docker`.
+
+The port list is also re-read after the confirmation prompt, not before. The
+prompt blocks for as long as you take, and a process can exit and have its PID
+reused in that window.
 
 ## Related
 
