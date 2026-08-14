@@ -8,7 +8,16 @@ Plane is a pnpm and Turbo monorepo. `apps/` holds the deployables. `packages/` h
 - Internal dependencies use `workspace:*`. External dependencies use `catalog:`. Neither one takes a version range.
 - Per-app MobX stores live in `apps/web/core/store/`, `apps/admin/store/`, and `apps/space/store/`. `packages/shared-state` holds only the shared filter stores. `apps/web` takes one store from that package: `WorkItemFilterStore`.
 - Build every shared component in `@plane/ui` with a Storybook story. Do not add one straight to an app.
-- The files in `.github/instructions/` use Copilot `applyTo:` frontmatter. Claude Code does not read that frontmatter, so nothing in there loads on its own. Read `bash.instructions.md` for pnpm, Turbo, and Docker conventions. Read `typescript.instructions.md` for the TypeScript 5.0 to 5.8 patterns and the deprecated syntax to avoid.
+- Components and hooks never import a service. Only `core/store/` imports one. A component reads state through a hook in `core/hooks/store/`. `no-restricted-imports` in `.oxlintrc.json` enforces this, and the pre-commit hook blocks the commit.
+
+## Instruction files
+
+The two files below hold the shell and TypeScript conventions. They carry Copilot `applyTo:` frontmatter, which only Copilot reads. The imports load them for every other agent.
+
+@.github/instructions/bash.instructions.md
+@.github/instructions/typescript.instructions.md
+
+If your tool does not resolve `@` imports, open both paths directly. `bash.instructions.md` holds the pnpm, Turbo, and Docker conventions. `typescript.instructions.md` holds the TypeScript 5.0 to 5.8 patterns and the deprecated syntax to avoid.
 
 ## Backgrounds
 
