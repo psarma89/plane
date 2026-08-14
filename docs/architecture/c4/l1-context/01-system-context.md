@@ -204,7 +204,16 @@ Rate limits read from `apps/api/plane/settings/common.py` and `apps/api/plane/au
 
 Pagination is cursor-based. The cursor is `value:offset:is_prev`. `per_page` defaults to 100, and the server caps it at 100.
 
-The MCP server exposes more than 100 tools across 20 modules, over four transports: HTTP with OAuth, HTTP with a personal access token, local stdio, and legacy SSE.
+The MCP server exposes 177 tools across 33 Python modules, over four transports: HTTP with OAuth at `/http`, HTTP with a personal access token at `/http/api-key`, local stdio, and legacy SSE at the root prefix.
+
+That server lives in a separate repository, so the numbers above carry a pin. Measured at `makeplane/plane-mcp-server` commit `96cf4d5`, dated 2026-07-22. Re-derive both numbers from the repository root:
+
+```bash
+grep -rho '@mcp.tool(' plane_mcp/tools/ | wc -l   # 177 tools
+grep -rl  '@mcp.tool(' plane_mcp/tools/ | wc -l   # 33 modules
+```
+
+A module here means a Python file that defines at least one tool. A directory listing gives a different number, because `customers/` and `releases/` are packages that hold 5 tool modules each. Read the four transports from the mounts in `plane_mcp/__main__.py`.
 
 ## Appendix C. Editions and deployment
 

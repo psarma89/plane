@@ -91,7 +91,7 @@ Every page writes instance configuration keys, which the API stores encrypted in
 | Identity call | `GET /api/users/me/` | `GET /api/instances/admins/me/` |
 | Session cookie | `session-id` | `admin-session-id`, one hour |
 | Sign-in | XHR | Native HTML form POST |
-| Services | 46 local classes | 3 classes from `@plane/services` |
+| Services | 46 local classes | 4 classes from `@plane/services`: `AuthService`, `InstanceService`, `InstanceWorkspaceService`, `UserService` |
 | Stores | 30 | 4 |
 | Route prefix | `/` | `/god-mode`, and the proxy does not strip it |
 

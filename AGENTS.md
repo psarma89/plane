@@ -6,7 +6,7 @@ Plane is a pnpm and Turbo monorepo. `apps/` holds the deployables. `packages/` h
 
 - Dev servers bind fixed ports. `web` takes 3000 and `admin` takes 3001. Storybook takes 6006 through `pnpm --filter=@plane/ui storybook`.
 - Internal dependencies use `workspace:*`. External dependencies use `catalog:`. Neither one takes a version range.
-- MobX stores live in `packages/shared-state`, not next to the components that read them.
+- Per-app MobX stores live in `apps/web/core/store/`, `apps/admin/store/`, and `apps/space/store/`. `packages/shared-state` holds only the shared filter stores. `apps/web` takes one store from that package: `WorkItemFilterStore`.
 - Build every shared component in `@plane/ui` with a Storybook story. Do not add one straight to an app.
 - The files in `.github/instructions/` use Copilot `applyTo:` frontmatter. Claude Code does not read that frontmatter, so nothing in there loads on its own. Read `bash.instructions.md` for pnpm, Turbo, and Docker conventions. Read `typescript.instructions.md` for the TypeScript 5.0 to 5.8 patterns and the deprecated syntax to avoid.
 
