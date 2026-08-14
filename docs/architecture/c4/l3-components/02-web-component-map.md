@@ -75,14 +75,16 @@ flowchart TB
 
 The store is a module-level singleton created in `apps/web/core/lib/store-context.tsx`. There is no per-request store, which follows from SPA mode.
 
-Every per-app store lives in `apps/web/core/store/`, `apps/admin/store/`, or `apps/space/store/`. No per-app store lives in `packages/shared-state`. That package exports two shared filter stores from `packages/shared-state/src/store/index.ts`: `rich-filters` and `work-item-filters`. `apps/web` takes exactly one of them, `WorkItemFilterStore`, across 20 import statements in 19 files. Only `root.store.ts` constructs it. The other 19 import statements are type-only.
+Every per-app store lives in `apps/web/core/store/`, `apps/admin/store/`, or `apps/space/store/`. No per-app store lives in `packages/shared-state`. That package exports two shared filter stores from `packages/shared-state/src/store/index.ts`: `rich-filters` and `work-item-filters`. `apps/web` takes exactly one of them, `WorkItemFilterStore`, in 2 files across 3 import statements. Only `root.store.ts` imports the class. It constructs the store twice, once in the constructor and once in `resetOnSignOut()`. The other 2 statements import the interface `IWorkItemFilterStore` as a type, in `root.store.ts` and in `core/hooks/store/work-item-filters/use-work-item-filters.ts`.
+
+Do not confuse that figure with the size of the package boundary. `apps/web` imports something from `@plane/shared-state` in 19 source files across 20 statements. Most of those statements take a rich-filter type, not a store.
 
 | Concern | Detail |
 | --- | --- |
 | Slices | 30 fields, from `workspaceRoot` to `timelineStore` |
 | Cross-slice access | Each child store receives `this` in its constructor. Stores with no cross-slice need take no argument. |
 | Sign-out | `resetOnSignOut()` resets the theme and the locale, then re-instantiates almost every substore in place |
-| Issue state | `IssueRootStore` is three-tier: denormalized lookup maps, then a paired filter and data store for each of 8 scopes |
+| Issue state | `IssueRootStore` is three-tier: denormalized lookup maps, then a paired filter and data store for each of 12 scopes. The scopes are workspace, workspace draft, profile, team, project, cycle, module, team view, team project work items, project view, archived, and project epics. |
 
 Injection goes through one thin hook per slice. Each calls `useContext(StoreContext)` and returns a single slice.
 
