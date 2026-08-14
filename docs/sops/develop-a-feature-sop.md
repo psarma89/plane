@@ -115,16 +115,16 @@ Each one cost a full debugging session. None of them belongs to a single skill.
 
 Prove the work landed. Do not rely on the absence of an error.
 
-| Check                               | Command                                | Expected                                          |
-| ----------------------------------- | -------------------------------------- | ------------------------------------------------- |
-| The spec records what shipped       | read the page in `docs/features/`      | `Status` is `Shipped`, with the pull request link |
-| Every slice merged                  | `gh pr list --state merged --base dev` | one entry per slice, plus the spec                |
-| No stack survives                   | `docker compose ls`                    | the branch project is absent                      |
-| No worktree survives                | `git worktree list`                    | only the main checkout and other live branches    |
-| No branch survives                  | `git branch -a \| grep <slug>`         | no output                                         |
-| The instruction files still resolve | `./bin/check-agents-md`                | `PASS`                                            |
-| Every census count still holds      | `./bin/check-counts`                   | `PASS`                                            |
-| `dev` is current                    | `git log --oneline -1`                 | the squash commit of the last slice               |
+| Check                               | Command                                       | Expected                                          |
+| ----------------------------------- | --------------------------------------------- | ------------------------------------------------- |
+| The spec records what shipped       | read the page in `docs/features/`             | `Status` is `Shipped`, with the pull request link |
+| Every slice merged                  | `gh pr list --state merged --base dev`        | one entry per slice, plus the spec                |
+| No stack survives                   | `docker compose ls`                           | the branch project is absent                      |
+| No worktree survives                | `git worktree list`                           | only the main checkout and other live branches    |
+| No branch survives                  | `git ls-remote --heads origin \| grep <slug>` | no output. Ask the remote, not the local cache    |
+| The instruction files still resolve | `./bin/check-agents-md`                       | `PASS`                                            |
+| Every census count still holds      | `./bin/check-counts`                          | `PASS`                                            |
+| `dev` is current                    | `git log --oneline -1`                        | the squash commit of the last slice               |
 
 ## Rollback
 
@@ -147,20 +147,20 @@ Roll back per slice, not per stack. Each slice is one squash commit on `dev`.
 
 ## Troubleshooting
 
-| Failure                                              | Cause                                                                           | Fix                                                                                   |
-| ---------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `env-create.sh` refuses with "detached HEAD"         | Every identifier derives from the branch name, and `HEAD` is not a branch       | `git switch -c <name>`, then rerun                                                    |
-| Sign-in fails with a CORS error                      | `CORS_ALLOWED_ORIGINS` does not list the web port                               | Rerun `env-create.sh`. Do not hand-edit the port                                      |
-| `pnpm dev` binds 3000 instead of the allocated port  | `.plane-env.sh` was not sourced                                                 | `source .plane-env.sh`, then start again                                              |
-| `EEXIST` in `packages/propel/dist`                   | `pnpm dev` ran the propel build and dev tasks together                          | Run `pnpm build`, then `pnpm dev`                                                     |
-| A test command removed the development stack         | `COMPOSE_PROJECT_NAME` was unset, so both compose files resolved to one project | Export `$PLANE_TEST_PROJECT_NAME` first. Never pass `--remove-orphans`                |
-| Two worktrees' test suites hit one database          | The test project name carried no branch suffix                                  | Export `$PLANE_TEST_PROJECT_NAME`, not a fixed name                                   |
-| A stacked pull request shows an earlier slice's diff | The base is `dev` rather than the slice below                                   | Set the base to the parent, and record it with `git config branch.<name>.stackparent` |
-| `env-teardown.sh` refuses to name a project          | `.env` is gone and no candidate matches a real project                          | Run `docker compose ls`, then pass `COMPOSE_PROJECT_NAME` by hand                     |
-| A Codex pass returned nothing                        | The transport failed silently, which looks the same as a clean pass             | Prove it ran. Otherwise substitute a `reviewer` subagent and record the substitution  |
-| A pull request shows two checks rather than eleven   | The base is a feature branch, and every workflow filters on `[preview, dev]`    | `gh pr edit <pr> --base dev`, then push again. `/land-slice` does this before merging |
-| `gh pr merge --delete-branch` leaves the branch      | A worktree holds it, git refuses, and the warning does not change the exit code | `git worktree remove <path>` first, then `git branch -D <branch>`                     |
-| A rebased child replays the parent's commits         | The parent merged as a squash commit, so its patch ids changed                  | `git rebase --onto origin/dev <old-parent-tip>`, not `git rebase origin/dev`          |
+| Failure                                              | Cause                                                                                                                 | Fix                                                                                                   |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `env-create.sh` refuses with "detached HEAD"         | Every identifier derives from the branch name, and `HEAD` is not a branch                                             | `git switch -c <name>`, then rerun                                                                    |
+| Sign-in fails with a CORS error                      | `CORS_ALLOWED_ORIGINS` does not list the web port                                                                     | Rerun `env-create.sh`. Do not hand-edit the port                                                      |
+| `pnpm dev` binds 3000 instead of the allocated port  | `.plane-env.sh` was not sourced                                                                                       | `source .plane-env.sh`, then start again                                                              |
+| `EEXIST` in `packages/propel/dist`                   | `pnpm dev` ran the propel build and dev tasks together                                                                | Run `pnpm build`, then `pnpm dev`                                                                     |
+| A test command removed the development stack         | `COMPOSE_PROJECT_NAME` was unset, so both compose files resolved to one project                                       | Export `$PLANE_TEST_PROJECT_NAME` first. Never pass `--remove-orphans`                                |
+| Two worktrees' test suites hit one database          | The test project name carried no branch suffix                                                                        | Export `$PLANE_TEST_PROJECT_NAME`, not a fixed name                                                   |
+| A stacked pull request shows an earlier slice's diff | The base is `dev` rather than the slice below                                                                         | Set the base to the parent, and record it with `git config branch.<name>.stackparent`                 |
+| `env-teardown.sh` refuses to name a project          | `.env` is gone and no candidate matches a real project                                                                | Run `docker compose ls`, then pass `COMPOSE_PROJECT_NAME` by hand                                     |
+| A Codex pass returned nothing                        | The transport failed silently, which looks the same as a clean pass                                                   | Prove it ran. Otherwise substitute a `reviewer` subagent and record the substitution                  |
+| A pull request shows two checks rather than eleven   | The base is a feature branch, and every workflow filters on `[preview, dev]`                                          | `gh pr edit <pr> --base dev`, then push again. `/land-slice` does this before merging                 |
+| `gh pr merge --delete-branch` leaves both branches   | A worktree holds the local branch. The local delete fails, so the remote delete never runs, and the exit code stays 0 | `git worktree remove <path>`, then `git branch -D <branch>`, then `git push origin --delete <branch>` |
+| A rebased child replays the parent's commits         | The parent merged as a squash commit, so its patch ids changed                                                        | `git rebase --onto origin/dev <old-parent-tip>`, not `git rebase origin/dev`                          |
 
 ## Related
 
