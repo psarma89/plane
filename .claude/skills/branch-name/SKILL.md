@@ -28,23 +28,36 @@ Create branch names that follow the convention `<type>/<work-item-id>-<short-des
    - `docs` — documentation only
    - `perf` — performance improvement
 
-2. **Determine the work item ID**:
-   - If the user gives one, use it
-   - If they reference a Plane work item (e.g., a URL or title), extract the ID
-   - If none exists, ask the user — don't invent one
+2. **Determine the work item ID**, when one exists.
+   - If the user gives one, use it.
+   - If they reference a Plane work item by URL or title, extract the ID.
+   - If none exists, omit that segment and use `<type>/<short-description>`. Never
+     invent an ID. Harness and tooling work in this repo usually carries no work
+     item, so a missing ID is normal and must not block the branch.
 
 3. **Write the short description**:
    - 2–5 words in kebab-case
    - Describe the outcome, not the implementation (`add-app-tile-visibility`, not `update-tile-component`)
    - Skip filler words (`the`, `a`, `for`)
 
-4. **Assemble and create the branch**:
+4. **Assemble and create the branch**, and record its parent.
 
-```
+   ```bash
+   PARENT=$(git branch --show-current)
    git checkout -b <type>/<work-item-id-lowercased>-<short-description>
-```
+   git config "branch.$(git branch --show-current).stackparent" "$PARENT"
+   ```
 
-5. **Return the branch name** to the user.
+   Record the parent even when it is `dev`. `create-pull-request` reads it to
+   decide the pull request base, and a missing record makes it fall back to the
+   trunk. On a stacked slice that fallback puts every earlier slice's diff inside
+   this one, and nothing reports the mistake.
+
+   Branch before you write the first test, not after. A slice branches off the
+   slice it depends on, so slice 1 branches off the spec branch and slice N
+   branches off slice N-1.
+
+5. **Return the branch name** and its recorded parent.
 
 ## Examples
 

@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Tail the local stack's logs, filtered to tracebacks and error responses,
+# capped so the output never floods an agent's context.
+#
+# Why this exists:
+#   `docker compose logs api` returns hundreds of lines of request noise. A
+#   reader spends its context on 200 OKs. This script returns only tracebacks
+#   and 4xx/5xx responses, capped at 25 lines.
+#
+#   Every branch runs its own Compose project. plane-env-create writes the
+#   project name into the checkout's .env, and this script reads it from
+#   there. A hardcoded project name reads another branch's logs, or none.
+#
+# Usage:
+#   bin/logs              # api + worker
+#   bin/logs api          # one service
+#   bin/logs --raw        # unfiltered tail, for when the filter hides the answer
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
+
+COMPOSE=(docker compose -f docker-compose-local.yml)
+
+# Resolve the per-branch Compose project name from the checkout's .env.
+# If the file or the variable is absent, omit -p. Compose then derives the
+# default project name from the directory, which matches a stack that was
+# started by hand from the same checkout.
+PROJECT=""
+if [ -f .env ]; then
+  PROJECT="$(grep -E '^COMPOSE_PROJECT_NAME=' .env | head -n 1 | cut -d= -f2-)"
+fi
+if [ -n "$PROJECT" ]; then
+  COMPOSE+=(-p "$PROJECT")
+else
+  echo "note: no COMPOSE_PROJECT_NAME in .env. Using the Compose default project." >&2
+  echo "note: if this checkout has no stack, run the plane-env-create skill." >&2
+fi
+
+TAIL=200
+CAP=25
+
+if [ "${1:-}" = "--raw" ]; then
+  shift
+  "${COMPOSE[@]}" logs --tail="$TAIL" "${@:-api}" 2>&1 | tail -n 60
+  exit 0
+fi
+
+SERVICES=("$@")
+if [ ${#SERVICES[@]} -eq 0 ]; then
+  SERVICES=(api worker)
+fi
+
+RAW="$("${COMPOSE[@]}" logs --tail="$TAIL" "${SERVICES[@]}" 2>&1)"
+
+if [ -z "$RAW" ]; then
+  echo "no log output. Is the stack running? Try: ${COMPOSE[*]} ps"
+  exit 0
+fi
+
+# Keep traceback blocks, exception lines, and non-2xx/3xx responses.
+# Drop the health-check and instance-poll noise.
+FILTERED="$(printf '%s\n' "$RAW" | grep -E -A4 \
+  'Traceback|Exception|Error|ERROR|CRITICAL|" (4[0-9][0-9]|5[0-9][0-9]) ' \
+  | grep -vE 'GET /api/instances/.* 200|health' || true)"
+
+if [ -z "$FILTERED" ]; then
+  echo "no errors in the last $TAIL lines of: ${SERVICES[*]}"
+  echo "(use bin/logs --raw to see everything)"
+  exit 0
+fi
+
+printf '%s\n' "$FILTERED" | tail -n "$CAP"
+
+TOTAL="$(printf '%s\n' "$FILTERED" | wc -l | tr -d ' ')"
+if [ "$TOTAL" -gt "$CAP" ]; then
+  echo ""
+  echo "($TOTAL matching lines, showing last $CAP. Use bin/logs --raw for the full tail.)"
+fi
