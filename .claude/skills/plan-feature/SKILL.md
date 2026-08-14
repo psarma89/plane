@@ -92,6 +92,14 @@ The spec PR is the deliverable of this skill. It is the only artifact the review
 - [ ] The spec PR is open, through the `create-pull-request` skill
 - [ ] Every domain word in the spec appears in `CONTEXT.md`, or the spec adds it there
 
+## Next
+
+1. Review approves the spec. Set `Status` to `Agreed`.
+2. Run `/land-slice {spec-pr}`. It merges the spec and pulls `dev`.
+3. Run `/develop-slice 1`.
+
+Land the spec before slice 1 starts. A slice that stacks on an unmerged spec branch runs two of the eleven checks, and it has to be rebased again every time the spec changes in review.
+
 ## Why
 
 A session fails in the plan, not in the typing. Ten minutes of planning that produces only chat produces nothing a reviewer can read, disagree with, or approve. As a pull request, the spec is reviewable while the code is still in progress, and it becomes the base every slice is measured against.

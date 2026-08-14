@@ -110,6 +110,13 @@ at merge.
 - [ ] Fixes landed as new commits, with nothing amended
 - [ ] Tier 2 ran once against the full stack before the merge
 
+## Next
+
+Fix or defer every finding, then return to the step that called this skill.
+
+- Called from `/develop-slice` step 5: continue to step 6 and open the pull request.
+- Called on an open pull request: mark it ready. When review approves it, run `/land-slice {pr}`.
+
 ## Why two tiers
 
 Running everything on every slice costs about four times a routed tier and finds

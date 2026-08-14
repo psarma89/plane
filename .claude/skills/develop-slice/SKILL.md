@@ -86,7 +86,11 @@ Resolve or explicitly defer every finding. Then invoke the `review-council` skil
 
 One commit per slice. The message names the slice and its proof.
 
-Use the `create-pull-request` skill. It stacks the PR on the branch below it: slice 1 on the spec PR's branch, slice N on slice N-1. Do not call `gh pr create` directly. A PR based on the trunk shows every earlier slice's diff inside this one.
+Use the `create-pull-request` skill. Do not call `gh pr create` directly.
+
+Base the PR on `dev` when the slice below it has already merged. That is the default, and `/land-slice` on each slice is what keeps it true.
+
+Stack the PR on the branch below only when the slice below it cannot merge first. Then the base is that branch, and `git diff <base>...HEAD --stat` must show this slice alone. A stacked PR runs two of the eleven checks, because every workflow filters on `branches: [preview, dev]`. `/land-slice` covers the trade and how to unwind it.
 
 ## Done when
 
@@ -97,6 +101,14 @@ Use the `create-pull-request` skill. It stacks the PR on the branch below it: sl
 - [ ] The files changed match the slice's file list, or the spec records why not
 - [ ] One commit, with a message that names the slice
 - [ ] The PR is open through `create-pull-request` and diffs against the slice below it only
+
+## Next
+
+1. Review approves the pull request.
+2. Run `/land-slice {pr}`. It merges, removes the stack, the worktree, and both branches, then pulls `dev`.
+3. Run `/develop-slice {next}`, or stop when the spec has no slice left.
+
+Do not start the next slice while this one is unmerged, unless the two are independent.
 
 ## Why
 

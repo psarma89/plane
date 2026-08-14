@@ -16,10 +16,18 @@ Override the base only for a stacked slice, where the base is the branch below i
 
 ## Stacking, when the branch is a slice
 
-A stacked pull request is based on the slice below it, not on the trunk. Without
-that, `gh pr create` bases on `dev` and the reviewer sees every earlier slice's
-diff inside this one. On the third slice of a stack that is the difference between
-a 40-line review and a 400-line review.
+Prefer no stack. Land each slice with `/land-slice` before the next one starts,
+and every pull request bases on `dev` and runs the full check set.
+
+Stack only when a slice cannot wait for the one below it. Then the base is that
+branch, not the trunk. Without that, `gh pr create` bases on `dev` and the reviewer
+sees every earlier slice's diff inside this one. On the third slice of a stack that
+is the difference between a 40-line review and a 400-line review.
+
+A stack costs verification. Every workflow filters on `branches: [preview, dev]`,
+so a pull request based on a feature branch starts two of the eleven jobs and
+reports nothing as failed. Count the checks before trusting a green stacked pull
+request, and read `/land-slice` before building a stack more than two deep.
 
 Record the parent when the branch is created, so it does not have to be guessed
 later.
@@ -110,6 +118,12 @@ are unsigned and a repository with required signatures rejects them.
 - [ ] The body passed `/simple-english`
 - [ ] A stacked pull request names the one below it in its first line
 - [ ] Any deferred finding is recorded in References, with its reason
+
+## Next
+
+Run `/review-council {pr}` if it has not run yet, then mark the pull request ready.
+
+When review approves it, run `/land-slice {pr}`.
 
 ## Common mistakes
 
