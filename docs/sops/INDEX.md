@@ -35,5 +35,5 @@ This list is a backlog, not a claim that the pages exist. Delete a row when you 
 ## Related
 
 - [../devops/INDEX.md](../devops/INDEX.md) describes the shape of the systems these SOPs operate.
-- [../architecture/c4/containers/INDEX.md](../architecture/c4/containers/INDEX.md) lists the failure modes these SOPs recover.
+- [../architecture/c4/l2-containers/INDEX.md](../architecture/c4/l2-containers/INDEX.md) lists the failure modes these SOPs recover.
 - [../devops/monitoring/INDEX.md](../devops/monitoring/INDEX.md) links each alert to its SOP.

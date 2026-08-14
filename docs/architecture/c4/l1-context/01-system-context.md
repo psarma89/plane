@@ -149,7 +149,7 @@ Do not add these to the diagram. The product documentation describes them, and n
 | Internet | Every actor, and every external system in the table above | Public |
 | Plane | The system as one box | Mixed. One public ingress, everything else internal. |
 
-Naming the units inside the box is L2 work. [1. Container overview](../containers/01-container-overview.md) carries the four-zone table with a row per container.
+Naming the units inside the box is L2 work. [1. Container overview](../l2-containers/01-container-overview.md) carries the four-zone table with a row per container.
 
 ## 1.5 Notes
 
@@ -161,7 +161,7 @@ Naming the units inside the box is L2 work. [1. Container overview](../container
 
 | Page | Why it matters here |
 | --- | --- |
-| [2. Container overview](../containers/01-container-overview.md) | The units inside the Plane box |
+| [2. Container overview](../l2-containers/01-container-overview.md) | The units inside the Plane box |
 | [../../../devops/infra/INDEX.md](../../../devops/infra/INDEX.md) | How those units deploy, per target |
 | [../../../security/INDEX.md](../../../security/INDEX.md) | The control on each boundary |
 

@@ -109,4 +109,4 @@ Both set `ssr: false` and ship as static files behind nginx.
 | --- | --- |
 | [1. apps/api: module map](./01-api-module-map.md) | `plane/license/`, the surface this app calls |
 | [2. apps/web: component map](./02-web-component-map.md) | The larger sibling this app is compared against |
-| [1. System context](../context/01-system-context.md) | The integrations these settings pages switch on |
+| [1. System context](../l1-context/01-system-context.md) | The integrations these settings pages switch on |

@@ -27,7 +27,7 @@ A Celery task definition sits in the `api` process, so it is L3. The same task e
 
 ## Page kinds and shapes
 
-[`AGENTS.md`](./AGENTS.md) defines the two kinds (structural and dynamic), the two shapes (per container and per journey), and the process test that decides whether a page belongs here or in [`../containers/`](../containers/INDEX.md).
+[`AGENTS.md`](./AGENTS.md) defines the two kinds (structural and dynamic), the two shapes (per container and per journey), and the process test that decides whether a page belongs here or in [`../l2-containers/`](../l2-containers/INDEX.md).
 
 ## Journey backlog
 
@@ -46,7 +46,7 @@ Every container page exists. These are journey pages, which come second. This li
 
 ## Container reference
 
-Dev ports are the host ports when the app runs outside Docker with `pnpm dev`. Every container listens on its own internal port inside Docker, which [`../containers/01-container-overview.md`](../containers/01-container-overview.md) lists.
+Dev ports are the host ports when the app runs outside Docker with `pnpm dev`. Every container listens on its own internal port inside Docker, which [`../l2-containers/01-container-overview.md`](../l2-containers/01-container-overview.md) lists.
 
 | Container | Path | Stack | Dev port |
 | --- | --- | --- | --- |
@@ -59,7 +59,7 @@ Dev ports are the host ports when the app runs outside Docker with `pnpm dev`. E
 
 ## Related
 
-- [../containers/INDEX.md](../containers/INDEX.md) covers flows that cross containers.
-- [../code/INDEX.md](../code/INDEX.md) covers one hard algorithm in call detail.
+- [../l2-containers/INDEX.md](../l2-containers/INDEX.md) covers flows that cross containers.
+- [../l4-code/INDEX.md](../l4-code/INDEX.md) covers one hard algorithm in call detail.
 - [../../../features/INDEX.md](../../../features/INDEX.md) holds the specs that drove each journey.
 - `packages/tailwind-config/AGENTS.md` defines the background class rules for every app.

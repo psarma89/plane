@@ -33,11 +33,11 @@ This list is a backlog, not a claim that the pages exist. Delete a row when you 
 | Migrations at runtime | Dynamic | `migrator`, `api`, `plane-db` |
 | Licensing and edition gating | Dynamic | `api`, `admin` |
 
-Document sync is not on this list. [`../code/01-document-synchronisation.md`](../code/01-document-synchronisation.md) already traces that flow end to end, including every container hop, so an L2 page would repeat it.
+Document sync is not on this list. [`../l4-code/01-document-synchronisation.md`](../l4-code/01-document-synchronisation.md) already traces that flow end to end, including every container hop, so an L2 page would repeat it.
 
 ## Containers with no Compose service
 
-A C4 container is not a Docker container. These Plane containers must appear on an L1 or L2 page even though `docker-compose.yml` does not list them. Source: [../context/01-system-context.md](../context/01-system-context.md), Appendix A.
+A C4 container is not a Docker container. These Plane containers must appear on an L1 or L2 page even though `docker-compose.yml` does not list them. Source: [../l1-context/01-system-context.md](../l1-context/01-system-context.md), Appendix A.
 
 | Container | Kind | Lives in this repo |
 | --- | --- | --- |
@@ -62,7 +62,7 @@ That inventory is not the full container list. Add the surfaces in the section a
 
 ## Related
 
-- [../context/INDEX.md](../context/INDEX.md) treats Plane as one box.
-- [../components/INDEX.md](../components/INDEX.md) opens one container.
+- [../l1-context/INDEX.md](../l1-context/INDEX.md) treats Plane as one box.
+- [../l3-components/INDEX.md](../l3-components/INDEX.md) opens one container.
 - [../../../devops/infra/INDEX.md](../../../devops/infra/INDEX.md) covers each deployment target in depth.
 - [../../../sops/INDEX.md](../../../sops/INDEX.md) holds the recovery steps for each failure mode.

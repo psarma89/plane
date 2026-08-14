@@ -10,11 +10,11 @@ Read the canonical guidance before you write anything here.
 - On whether to keep such a diagram as long-lived documentation: "No, particularly for long-lived documentation because most IDEs can generate this level of detail on demand."
 - "Ideally this diagram would be automatically generated using tooling (e.g. an IDE or UML modelling tool)."
 
-An empty `code/` folder is a correct and expected state. The code is the source of truth at this zoom. A page that restates it goes stale on the next refactor and then misleads.
+An empty `l4-code/` folder is a correct and expected state. The code is the source of truth at this zoom. A page that restates it goes stale on the next refactor and then misleads.
 
 ## An L4 page zooms into a component
 
-The entry point must be a component that an [`../components/`](../components/INDEX.md) page already documents. Link to that page.
+The entry point must be a component that an [`../l3-components/`](../l3-components/INDEX.md) page already documents. Link to that page.
 
 If no L3 page covers the area, write the L3 page first. An L4 page with no L3 parent has no context.
 
@@ -36,8 +36,8 @@ If the logic is hard because the code is unclear, fix the code. Do not document 
 | The function is hard to follow | Rename the symbols and split the function |
 | The rule is not obvious | Write a test that states the rule in its name |
 | The reason is not obvious | Write one comment that states the why |
-| The flow crosses files in one process | Write an [`../components/`](../components/INDEX.md) page |
-| The flow crosses processes | Write a [`../containers/`](../containers/INDEX.md) dynamic page |
+| The flow crosses files in one process | Write an [`../l3-components/`](../l3-components/INDEX.md) page |
+| The flow crosses processes | Write a [`../l2-containers/`](../l2-containers/INDEX.md) dynamic page |
 | The flow crosses processes AND the rule depends on that crossing | Keep it here, and say why in `Why this page exists` |
 
 An L4 page is the last option, not the first.
@@ -58,8 +58,8 @@ The test is what the page is for. An L2 dynamic page answers "which containers d
 | A permission resolution that walks several role tables | Yes |
 | An external protocol Plane must match exactly | Yes |
 | A cache key derivation with correctness consequences | Yes |
-| The classes in one module | No. Use [`../components/`](../components/INDEX.md). |
-| A screen or an endpoint | No. Use [`../components/`](../components/INDEX.md). |
+| The classes in one module | No. Use [`../l3-components/`](../l3-components/INDEX.md). |
+| A screen or an endpoint | No. Use [`../l3-components/`](../l3-components/INDEX.md). |
 | Anything a reader can follow from the code | No. Write no page. |
 
 ## Justification

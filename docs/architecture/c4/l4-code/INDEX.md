@@ -18,5 +18,5 @@ Real-time document sync is the only algorithm in Plane that spans the repository
 
 ## Related
 
-- [`../components/INDEX.md`](../components/INDEX.md) covers the module that holds the algorithm.
-- [`../containers/INDEX.md`](../containers/INDEX.md) covers flows that cross containers.
+- [`../l3-components/INDEX.md`](../l3-components/INDEX.md) covers the module that holds the algorithm.
+- [`../l2-containers/INDEX.md`](../l2-containers/INDEX.md) covers flows that cross containers.

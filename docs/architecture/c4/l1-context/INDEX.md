@@ -26,5 +26,5 @@ One page covers the whole context. Add a second page only for a genuinely separa
 
 ## Related
 
-- [../containers/INDEX.md](../containers/INDEX.md) opens the box and names the deployable units.
+- [../l2-containers/INDEX.md](../l2-containers/INDEX.md) opens the box and names the deployable units.
 - [../../../security/INDEX.md](../../../security/INDEX.md) lists the controls on each boundary.

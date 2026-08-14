@@ -168,7 +168,7 @@ Both are recorded because a reader would otherwise assume the opposite.
 
 | Page | Why it matters here |
 | --- | --- |
-| [1. System context](../context/01-system-context.md) | The external boundary around these containers |
+| [1. System context](../l1-context/01-system-context.md) | The external boundary around these containers |
 | [2. Request lifecycle](./02-request-lifecycle.md) | How one request travels across them |
 | [../../../devops/infra/INDEX.md](../../../devops/infra/INDEX.md) | The image pin and the volume for each service |
 | [../../../sops/local-development-setup-sop.md](../../../sops/local-development-setup-sop.md) | How to start this stack locally |

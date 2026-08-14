@@ -95,8 +95,8 @@ Repo rules to respect when a note touches them:
 
 | Page | Why it matters here |
 | --- | --- |
-| [{L2 page}](../containers/NN-slug.md) | The flow that crosses into this container |
-| [{L4 page}](../code/NN-slug.md) | Call detail for one hard function here |
+| [{L2 page}](../l2-containers/NN-slug.md) | The flow that crosses into this container |
+| [{L4 page}](../l4-code/NN-slug.md) | Call detail for one hard function here |
 | [{Security page}](../../../security/NN-slug.md) | The restriction enforced here |
 
 ### Related feature specs

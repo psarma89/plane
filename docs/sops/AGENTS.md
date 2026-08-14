@@ -15,7 +15,7 @@ An SOP is a **procedure**. A reader follows it step by step and reaches a known 
 | --- | --- |
 | "Run these nine steps to restore a backup." | `sops/` |
 | "The backup job writes to object storage every night." | [`../devops/infra/`](../devops/infra/INDEX.md) |
-| "Celery retries a failed task three times." | [`../architecture/c4/containers/`](../architecture/c4/containers/INDEX.md) |
+| "Celery retries a failed task three times." | [`../architecture/c4/l2-containers/`](../architecture/c4/l2-containers/INDEX.md) |
 
 If a page has no numbered steps, it is not an SOP. Move it.
 

@@ -10,7 +10,7 @@ An L1 page treats **Plane as one box**. It names who uses Plane and what Plane d
 | Every external service Plane calls | Yes |
 | Every external system that calls Plane | Yes |
 | The data category that crosses each boundary | Yes |
-| The containers inside Plane | No. Use [`../containers/`](../containers/INDEX.md). |
+| The containers inside Plane | No. Use [`../l2-containers/`](../l2-containers/INDEX.md). |
 | A named app such as `apps/web` | No. That is inside the box. |
 
 If a sentence names a container, a file, or a class, the page is at the wrong level.

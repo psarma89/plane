@@ -25,7 +25,7 @@ Every row maps to a real path. This list is a backlog, not a claim that a page e
 
 ## Services in the root Compose stack
 
-This table is the canonical Compose inventory for the whole `docs/` tree. Read it from `docker-compose.yml`, and update it when a pin changes. It is not the full C4 container list, because some containers ship no Compose service. See [`../../architecture/c4/containers/INDEX.md`](../../architecture/c4/containers/INDEX.md).
+This table is the canonical Compose inventory for the whole `docs/` tree. Read it from `docker-compose.yml`, and update it when a pin changes. It is not the full C4 container list, because some containers ship no Compose service. See [`../../architecture/c4/l2-containers/INDEX.md`](../../architecture/c4/l2-containers/INDEX.md).
 
 | Service | Image or build | Role |
 | --- | --- | --- |
@@ -45,7 +45,7 @@ This table is the canonical Compose inventory for the whole `docs/` tree. Read i
 
 ## Related
 
-- [../../architecture/c4/containers/INDEX.md](../../architecture/c4/containers/INDEX.md) draws these containers and their traffic.
+- [../../architecture/c4/l2-containers/INDEX.md](../../architecture/c4/l2-containers/INDEX.md) draws these containers and their traffic.
 - [../cicd/INDEX.md](../cicd/INDEX.md) covers the pipelines that build the images.
 - [../../sops/INDEX.md](../../sops/INDEX.md) holds install, upgrade, and backup procedures.
 - [../../../CONTRIBUTING.md](../../../CONTRIBUTING.md) covers local setup with `setup.sh`.

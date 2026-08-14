@@ -70,7 +70,7 @@ Three bullets at most. Write what the picture cannot show.
 
 | Page | Why it matters here |
 | --- | --- |
-| [{L2 page}](../containers/NN-slug.md) | The units inside the Plane box |
+| [{L2 page}](../l2-containers/NN-slug.md) | The units inside the Plane box |
 | [{Security page}](../../../security/NN-slug.md) | The control on each boundary |
 
 ### Related feature specs

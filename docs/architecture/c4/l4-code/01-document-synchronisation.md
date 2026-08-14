@@ -2,7 +2,7 @@
 
 > **Last reviewed:** 2026-08-13
 > **Level:** L4 Code
-> **Parent component:** [4. apps/live: component map](../components/04-live-component-map.md)
+> **Parent component:** [4. apps/live: component map](../l3-components/04-live-component-map.md)
 > **Entry point:** `apps/live/src/controllers/collaboration.controller.ts` (`handleConnection`)
 > **Re-read when:** A release touches `apps/live/src/extensions/`, `apps/live/src/hocuspocus.ts`, or the `@hocuspocus/*` catalog pin.
 
@@ -116,6 +116,6 @@ Every rule in this table is unpinned. That is the single largest risk on this pa
 
 | Page | Why it matters here |
 | --- | --- |
-| [4. apps/live: component map](../components/04-live-component-map.md) | The container that holds this algorithm |
-| [2. apps/web: component map](../components/02-web-component-map.md) | Where the provider and the IndexedDB cache live |
-| [1. Container overview](../containers/01-container-overview.md) | Why `live` writes through `api` |
+| [4. apps/live: component map](../l3-components/04-live-component-map.md) | The container that holds this algorithm |
+| [2. apps/web: component map](../l3-components/02-web-component-map.md) | Where the provider and the IndexedDB cache live |
+| [1. Container overview](../l2-containers/01-container-overview.md) | Why `live` writes through `api` |

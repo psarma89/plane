@@ -2,7 +2,7 @@
 
 > **Last reviewed:** YYYY-MM-DD
 > **Level:** L4 Code
-> **Parent component:** [{L3 page}](../components/NN-slug.md)
+> **Parent component:** [{L3 page}](../l3-components/NN-slug.md)
 > **Entry point:** `{path}` (`{symbol}`)
 > **Re-read when:** A release touches the entry point.
 
@@ -78,4 +78,4 @@ The inputs that break a naive implementation. This section carries the value of 
 
 | Page | Why it matters here |
 | --- | --- |
-| [{L3 page}](../components/NN-slug.md) | The module that holds this algorithm |
+| [{L3 page}](../l3-components/NN-slug.md) | The module that holds this algorithm |

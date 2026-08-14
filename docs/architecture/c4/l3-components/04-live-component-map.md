@@ -111,6 +111,6 @@ Test coverage reaches PDF rendering and Effect utilities only. Authentication, t
 
 | Page | Why it matters here |
 | --- | --- |
-| [1. Document synchronisation](../code/01-document-synchronisation.md) | The call-level trace of the sync algorithm |
+| [1. Document synchronisation](../l4-code/01-document-synchronisation.md) | The call-level trace of the sync algorithm |
 | [2. apps/web: component map](./02-web-component-map.md) | Where `HocuspocusProvider` is created |
-| [1. Container overview](../containers/01-container-overview.md) | Why `live` writes through `api` and not to `plane-db` |
+| [1. Container overview](../l2-containers/01-container-overview.md) | Why `live` writes through `api` and not to `plane-db` |

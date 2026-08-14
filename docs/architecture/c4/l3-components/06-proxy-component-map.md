@@ -96,6 +96,6 @@ This container holds no MobX store and no application state. It is configuration
 
 | Page | Why it matters here |
 | --- | --- |
-| [1. Container overview](../containers/01-container-overview.md) | Every upstream this table names |
-| [2. Request lifecycle](../containers/02-request-lifecycle.md) | What happens after Caddy hands the request to `api` |
+| [1. Container overview](../l2-containers/01-container-overview.md) | Every upstream this table names |
+| [2. Request lifecycle](../l2-containers/02-request-lifecycle.md) | What happens after Caddy hands the request to `api` |
 | [../../../devops/infra/INDEX.md](../../../devops/infra/INDEX.md) | TLS and certificate operations |

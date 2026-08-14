@@ -10,10 +10,10 @@ Read [`AGENTS.md`](./AGENTS.md) before you add or edit any page.
 docs/
 ├── architecture/     How Plane works today
 │   └── c4/             The four C4 zoom levels
-│       ├── context/      L1  Actors and external systems
-│       ├── containers/   L2  Deployable units and flows across them
-│       ├── components/   L3  Modules and stores inside one container
-│       └── code/         L4  One hard algorithm (rare)
+│       ├── l1-context/     Actors and external systems
+│       ├── l2-containers/  Deployable units and flows across them
+│       ├── l3-components/  Modules and stores inside one container
+│       └── l4-code/        One hard algorithm (rare)
 ├── devops/           How the code ships, runs, and stays watched
 │   ├── cicd/           Pipelines and required checks
 │   ├── monitoring/     Signals, alerts, and dashboards

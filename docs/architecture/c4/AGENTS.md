@@ -6,10 +6,10 @@ Every page lives in one of four level folders.
 
 | Folder | Level | Scope |
 | --- | --- | --- |
-| [`context/`](./context/INDEX.md) | L1 | Actors, Plane as one box, every external system |
-| [`containers/`](./containers/INDEX.md) | L2 | Deployable units, the traffic between them, and runtime flows that cross them |
-| [`components/`](./components/INDEX.md) | L3 | Modules, routes, stores, and models inside one container |
-| [`code/`](./code/INDEX.md) | L4 | Classes and calls for one hard algorithm. Rare. |
+| [`l1-context/`](./l1-context/INDEX.md) | L1 | Actors, Plane as one box, every external system |
+| [`l2-containers/`](./l2-containers/INDEX.md) | L2 | Deployable units, the traffic between them, and runtime flows that cross them |
+| [`l3-components/`](./l3-components/INDEX.md) | L3 | Modules, routes, stores, and models inside one container |
+| [`l4-code/`](./l4-code/INDEX.md) | L4 | Classes and calls for one hard algorithm. Rare. |
 
 Each level folder carries its own `AGENTS.md` with the rules for that level. Read this file, then that one.
 
@@ -36,7 +36,7 @@ The C4 term predates Docker and is broader. C4 states: "From one perspective, it
 
 A C4 container is any application or data store that must run. The list includes a server-side web application, a client-side web application, a desktop application, a mobile app, a database, a blob store, a file system, a shell script, and a console application.
 
-[`containers/`](./containers/INDEX.md) applies this to Plane and gives the rules for building a container list.
+[`l2-containers/`](./l2-containers/INDEX.md) applies this to Plane and gives the rules for building a container list.
 
 ## Supplementary diagrams
 
@@ -44,9 +44,9 @@ Beyond the four levels, C4 defines three optional supplementary diagram types. T
 
 | Supplementary type | Shows | Files under | Needed for Plane |
 | --- | --- | --- | --- |
-| System landscape | Several software systems inside one organization | [`context/`](./context/INDEX.md) | No. Plane is one software system. |
-| Dynamic | How elements work together at runtime, for one feature or use case | [`containers/`](./containers/INDEX.md) or [`components/`](./components/INDEX.md) | Yes |
-| Deployment | How container instances map onto infrastructure, per deployment environment | [`containers/`](./containers/INDEX.md) | Yes |
+| System landscape | Several software systems inside one organization | [`l1-context/`](./l1-context/INDEX.md) | No. Plane is one software system. |
+| Dynamic | How elements work together at runtime, for one feature or use case | [`l2-containers/`](./l2-containers/INDEX.md) or [`l3-components/`](./l3-components/INDEX.md) | Yes |
+| Deployment | How container instances map onto infrastructure, per deployment environment | [`l2-containers/`](./l2-containers/INDEX.md) | Yes |
 
 **Dynamic diagrams can sit at more than one level.** C4 states: "you can show software systems, containers, or components interacting at runtime." File the page by the elements the diagram names. A flow between `api` and `worker` is L2. A flow between two modules inside `apps/web` is L3.
 
@@ -56,7 +56,7 @@ The sections below hold at every level. A level folder does not repeat them.
 
 ### Naming
 
-[`../../AGENTS.md`](../../AGENTS.md) gives the `NN-<slug>.md` rules. One addition applies here: numbering restarts at `01` in each level folder, so `context/01-...` and `components/01-...` can both exist.
+[`../../AGENTS.md`](../../AGENTS.md) gives the `NN-<slug>.md` rules. One addition applies here: numbering restarts at `01` in each level folder, so `l1-context/01-...` and `l3-components/01-...` can both exist.
 
 ### Diagram syntax
 
@@ -169,7 +169,7 @@ Delete a section that carries nothing. An empty table is worse than a missing on
 A diagram that fails to parse ships as raw text. Check a page before you commit it.
 
 ```bash
-npx -y @mermaid-js/mermaid-cli@11 -i docs/architecture/c4/<level>/<page>.md -o /tmp/render-check.md
+npx -y @mermaid-js/mermaid-cli@11 -i docs/architecture/c4/l2-containers/01-container-overview.md -o /tmp/render-check.md
 ```
 
 The command reads every Mermaid block in the page. It exits `0` when all of them parse. It exits `1` and names the failing block otherwise.

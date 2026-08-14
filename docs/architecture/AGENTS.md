@@ -12,10 +12,10 @@ Ask the questions in order. Stop at the first `yes`.
 
 | Question | Level |
 | --- | --- |
-| Does the page name a user type or an external system outside Plane? | L1 `context/` |
-| Does the page cross a container boundary, at rest or at runtime? | L2 `containers/` |
-| Does the page name files, modules, stores, or models inside one container? | L3 `components/` |
-| Does the page trace one algorithm through classes and calls? | L4 `code/` |
+| Does the page name a user type or an external system outside Plane? | L1 `l1-context/` |
+| Does the page cross a container boundary, at rest or at runtime? | L2 `l2-containers/` |
+| Does the page name files, modules, stores, or models inside one container? | L3 `l3-components/` |
+| Does the page trace one algorithm through classes and calls? | L4 `l4-code/` |
 
 If a subject fits two levels, write the deeper page and link up. Each level folder gives its own boundary cases.
 
@@ -41,10 +41,10 @@ Update these pages in the same pull request that changes the code.
 | Code change | Also update |
 | --- | --- |
 | New or changed permission, role check, or API key scope | [`../security/`](../security/INDEX.md) matching catalog page |
-| New deployable unit, queue, or data store | [`c4/containers/`](./c4/containers/INDEX.md) and [`../devops/infra/`](../devops/infra/INDEX.md) |
-| New external system integration | [`c4/context/`](./c4/context/INDEX.md) |
-| New module, store, or model inside one app | [`c4/components/`](./c4/components/INDEX.md) |
-| New or changed client surface | [`c4/context/`](./c4/context/INDEX.md) Appendix A |
+| New deployable unit, queue, or data store | [`c4/l2-containers/`](./c4/l2-containers/INDEX.md) and [`../devops/infra/`](../devops/infra/INDEX.md) |
+| New external system integration | [`c4/l1-context/`](./c4/l1-context/INDEX.md) |
+| New module, store, or model inside one app | [`c4/l3-components/`](./c4/l3-components/INDEX.md) |
+| New or changed client surface | [`c4/l1-context/`](./c4/l1-context/INDEX.md) Appendix A |
 | A feature spec reaches shipped state | The matching architecture page, plus the spec status |
 
 ## Relationship to feature specs

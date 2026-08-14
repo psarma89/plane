@@ -127,6 +127,6 @@ Two abstract bases set the scope:
 
 | Page | Why it matters here |
 | --- | --- |
-| [2. Request lifecycle](../containers/02-request-lifecycle.md) | The middleware order and the per-prefix auth model |
-| [1. Container overview](../containers/01-container-overview.md) | Where `worker` executes the tasks defined here |
+| [2. Request lifecycle](../l2-containers/02-request-lifecycle.md) | The middleware order and the per-prefix auth model |
+| [1. Container overview](../l2-containers/01-container-overview.md) | Where `worker` executes the tasks defined here |
 | [../../../security/INDEX.md](../../../security/INDEX.md) | The role model these permission classes enforce |

@@ -30,9 +30,9 @@ The last two rows matter. Where the task code lives is L3. Where the task execut
 | The view, serializer, and model behind one endpoint group | Yes |
 | The module layout inside `apps/api` | Yes |
 | A runtime flow between two modules in the same process | Yes, dynamic kind |
-| How a Celery task reaches `worker` | No. Separate process. Use [`../containers/`](../containers/INDEX.md). |
-| Every external service Plane calls | No. Use [`../context/`](../context/INDEX.md). |
-| The line-by-line logic of one hard function | No. Use [`../code/`](../code/INDEX.md), and usually write no page. |
+| How a Celery task reaches `worker` | No. Separate process. Use [`../l2-containers/`](../l2-containers/INDEX.md). |
+| Every external service Plane calls | No. Use [`../l1-context/`](../l1-context/INDEX.md). |
+| The line-by-line logic of one hard function | No. Use [`../l4-code/`](../l4-code/INDEX.md), and usually write no page. |
 
 ## Two page kinds
 

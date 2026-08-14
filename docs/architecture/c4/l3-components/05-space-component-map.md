@@ -116,5 +116,5 @@ The file exists and `Dockerfile.space` never copies it. It is residue from the b
 | Page | Why it matters here |
 | --- | --- |
 | [1. apps/api: module map](./01-api-module-map.md) | `plane/space/`, the surface this app calls |
-| [1. System context](../context/01-system-context.md) | The anonymous visitor actor |
-| [1. Container overview](../containers/01-container-overview.md) | Why this container runs Node and the others run nginx |
+| [1. System context](../l1-context/01-system-context.md) | The anonymous visitor actor |
+| [1. Container overview](../l2-containers/01-container-overview.md) | Why this container runs Node and the others run nginx |

@@ -106,4 +106,4 @@ Injection goes through one thin hook per slice. Each calls `useContext(StoreCont
 | --- | --- |
 | [1. apps/api: module map](./01-api-module-map.md) | The surface these 46 services call |
 | [4. apps/live: component map](./04-live-component-map.md) | Where the editor WebSocket terminates |
-| [1. Container overview](../containers/01-container-overview.md) | Why the Web SPA is a container separate from `web` |
+| [1. Container overview](../l2-containers/01-container-overview.md) | Why the Web SPA is a container separate from `web` |

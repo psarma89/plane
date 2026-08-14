@@ -135,8 +135,8 @@ Name an environment variable here only when it changes the shape of the diagram.
 
 | Page | Why it matters here |
 | --- | --- |
-| [{L1 page}](../context/NN-slug.md) | The external boundary around these containers |
-| [{L3 page}](../components/NN-slug.md) | File-level detail inside one container |
+| [{L1 page}](../l1-context/NN-slug.md) | The external boundary around these containers |
+| [{L3 page}](../l3-components/NN-slug.md) | File-level detail inside one container |
 | [{Infra page}](../../../devops/infra/NN-slug.md) | How these containers deploy |
 
 ### Related feature specs

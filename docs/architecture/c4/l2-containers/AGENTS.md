@@ -14,9 +14,9 @@ This level holds the L2 static view plus two supplementary C4 views that operate
 
 A dynamic page is the right home for a concern that used to need a separate system-level folder. Examples: the request lifecycle, Celery task dispatch, file upload.
 
-Document sync is the one exception. It lives at L4, because its rule depends on a lock between two `live` instances. See [`../code/AGENTS.md`](../code/AGENTS.md).
+Document sync is the one exception. It lives at L4, because its rule depends on a lock between two `live` instances. See [`../l4-code/AGENTS.md`](../l4-code/AGENTS.md).
 
-A dynamic diagram can also sit at L3, when it shows components inside one container interacting. File that page in [`../components/`](../components/INDEX.md). File the page by the elements the diagram names.
+A dynamic diagram can also sit at L3, when it shows components inside one container interacting. File that page in [`../l3-components/`](../l3-components/INDEX.md). File the page by the elements the diagram names.
 
 ## What belongs here
 
@@ -25,11 +25,11 @@ A dynamic diagram can also sit at L3, when it shows components inside one contai
 | The set of containers and their traffic | Yes, structural |
 | How a request travels from `proxy` to `plane-db` | Yes, dynamic |
 | How a Celery task reaches `worker` and reports failure | Yes, dynamic |
-| How Yjs sync flows between `apps/live` and `apps/web` | No. It is at L4. See [`../code/AGENTS.md`](../code/AGENTS.md). |
+| How Yjs sync flows between `apps/live` and `apps/web` | No. It is at L4. See [`../l4-code/AGENTS.md`](../l4-code/AGENTS.md). |
 | Where containers run on a Kubernetes target | Yes, deployment |
-| A runtime flow between two modules inside `apps/web` | No. Dynamic at L3. Use [`../components/`](../components/INDEX.md). |
-| Which MobX store owns cycle state | No. Use [`../components/`](../components/INDEX.md). |
-| Every external service Plane calls | No. Use [`../context/`](../context/INDEX.md). |
+| A runtime flow between two modules inside `apps/web` | No. Dynamic at L3. Use [`../l3-components/`](../l3-components/INDEX.md). |
+| Which MobX store owns cycle state | No. Use [`../l3-components/`](../l3-components/INDEX.md). |
+| Every external service Plane calls | No. Use [`../l1-context/`](../l1-context/INDEX.md). |
 
 If a page names a file inside one container, it is L3. Move it.
 
@@ -38,7 +38,7 @@ If a page names a file inside one container, it is L3. Move it.
 `docker-compose.yml` is not the container list. It holds 13 services, and the C4 term is broader. [`../AGENTS.md`](../AGENTS.md) defines it.
 
 - Where a container maps to a Compose service, use that service name exactly. Write `plane-db`, not `postgres`.
-- Where a container has no Compose service, list it anyway. The desktop app and the mobile apps are C4 containers, and they live outside this repository. Cite [`../context/01-system-context.md`](../context/01-system-context.md), Appendix A.
+- Where a container has no Compose service, list it anyway. The desktop app and the mobile apps are C4 containers, and they live outside this repository. Cite [`../l1-context/01-system-context.md`](../l1-context/01-system-context.md), Appendix A.
 - A data store is a container. `plane-db` and the `plane-minio` bucket both count.
 - `migrator` runs once and exits. Label it a one-shot container.
 - Never label a component as a container. If it shares a process with other code, it is L3.

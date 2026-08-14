@@ -114,5 +114,5 @@ A 14th, `plane.middleware.db_routing.ReadReplicaRoutingMiddleware`, is appended 
 | Page | Why it matters here |
 | --- | --- |
 | [1. Container overview](./01-container-overview.md) | The containers this flow crosses |
-| [1. System context](../context/01-system-context.md) | The rate limits on each prefix |
-| [../components/INDEX.md](../components/INDEX.md) | What happens inside `api` once the view runs |
+| [1. System context](../l1-context/01-system-context.md) | The rate limits on each prefix |
+| [../l3-components/INDEX.md](../l3-components/INDEX.md) | What happens inside `api` once the view runs |
