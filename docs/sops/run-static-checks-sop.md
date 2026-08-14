@@ -100,30 +100,32 @@ Only the first clause has any effect. An empty reviewer list is not `null`, so a
 
 The fourth job, `check:types`, carries no gate of its own. It declares `needs: build`, so it is skipped whenever `Build packages` is skipped.
 
-### A draft PR stays skipped after you mark it ready
+### Marking a draft ready re-runs the checks
 
-`pull-request-build-lint-web-apps.yml` answers three pull request types:
+```bash
+gh pr ready <number>
+```
+
+Expected result: a new run starts within a few seconds, and the four jobs report a real conclusion instead of `skipped`.
+
+This works because `pull-request-build-lint-web-apps.yml` answers `ready_for_review`:
 
 ```yaml
 types:
   - "opened"
   - "synchronize"
+  - "ready_for_review"
   - "reopened"
 ```
 
-`ready_for_review` is absent. `gh pr ready` clears the draft flag, but it fires no event that this workflow answers. All four jobs keep the `skipped` result from the run that happened while the PR was a draft, and nothing re-evaluates the gate.
+That line was missing until 2026-08-14. Without it, `gh pr ready` cleared the draft flag but fired no event the workflow answered, so all four jobs kept the `skipped` result from the draft run and nothing re-evaluated the gate. `pull-request-build-lint-api.yml` and `i18n-sync-check.yml` already listed it, so only the web-app checks behaved this way.
 
-`pull-request-build-lint-api.yml` does list `ready_for_review`, so the Python lint job behaves the way a reader expects. The two workflows disagree.
-
-To recover, fire an event that the workflow does answer. Close the pull request and reopen it.
+If you meet a pull request whose checks still read `skipped`, close it and reopen it. That fires `reopened`, which every version of the workflow answers.
 
 ```bash
-gh pr ready <number>
 gh pr close <number>
 gh pr reopen <number>
 ```
-
-Expected result: a new run starts, and the four jobs report a real conclusion instead of `skipped`.
 
 A push fires `synchronize` and works too, but it needs a commit. The close-and-reopen pair needs none.
 
@@ -188,8 +190,8 @@ git checkout -- .
 | `too many arguments for 'dev'. Expected 0 arguments but got 2` | You wrote `pnpm --filter=<name> storybook -- -p 6007`. The `--` makes pnpm forward `-p` and `6007` as positional arguments | Drop the `--`: `pnpm --filter=<name> storybook -p 6007`  |
 | A path in `.prettierignore` is still checked                   | Nothing reads those files                                                                                                  | Use `ignorePatterns` in `.oxlintrc.json`                 |
 | `pnpm turbo run check:sync` says the task does not exist       | `check:sync` is a script in `packages/i18n`, not a Turbo task                                                              | Run the `pnpm dlx tsx` form above                        |
-| A PR shows no check results at all                             | The PR is a draft, so the `if` gate is false                                                                               | Mark it ready, then close it and reopen it               |
-| The checks still read `skipped` after you marked the PR ready  | The workflow does not answer `ready_for_review`, so no run started                                                          | Close the PR and reopen it, which fires `reopened`       |
+| A PR shows no check results at all                             | The PR is a draft, so the `if` gate is false                                                                               | `gh pr ready <number>`                                   |
+| The checks still read `skipped` after you marked the PR ready  | The run predates the `ready_for_review` trigger, added 2026-08-14                                                           | Close the PR and reopen it, which fires `reopened`       |
 | `gh stack merge` refuses a PR                                  | `gh stack submit` creates a draft by default                                                                               | `gh pr ready`, then close and reopen to run the checks   |
 | A red X sits beside a green check on one commit                | `concurrency.cancel-in-progress` cancelled the older run                                                                    | Read the latest run for each check name. Cancelled is not failed. |
 

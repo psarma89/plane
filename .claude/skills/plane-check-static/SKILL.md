@@ -73,19 +73,18 @@ reviewer list is not null. `check:types` has no gate of its own: it declares
 `needs: build`, so it dies with `Build packages`. A draft PR shows no failures
 because no job ran.
 
-**Marking it ready does not fix that.** `pull-request-build-lint-web-apps.yml`
-answers only `opened`, `synchronize`, and `reopened`. `ready_for_review` is
-absent, so `gh pr ready` clears the flag and starts no run. The four jobs keep
-their `skipped` result forever.
+**`gh pr ready <number>` re-runs them.** The workflow answers
+`ready_for_review`, so clearing the draft flag starts a fresh run.
+
+That trigger was missing until 2026-08-14. Before then `gh pr ready` started no
+run at all and the four jobs kept their `skipped` result forever. On any pull
+request whose checks still read `skipped`, close and reopen it instead, which
+fires `reopened`:
 
 ```bash
-gh pr ready <number>
-gh pr close <number>   # fires nothing
-gh pr reopen <number>  # fires `reopened`, and the jobs finally run
+gh pr close <number>
+gh pr reopen <number>
 ```
-
-`pull-request-build-lint-api.yml` does list `ready_for_review`. The two
-workflows disagree.
 
 **A skipped job is not a passing job.** Read the latest run per check name
 before merging. `concurrency.cancel-in-progress` also leaves a cancelled run
