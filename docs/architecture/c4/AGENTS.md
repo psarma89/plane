@@ -109,13 +109,9 @@ Leave every `subgraph` unstyled. The Mermaid default adapts to both GitHub theme
 - Write an optional or edition-gated relationship as `A -.->|"protocol"| B`.
 - Quote every edge label. An unquoted label breaks on a comma or a colon.
 
-### Never write a placeholder in angle brackets
+### Placeholders
 
-Write a placeholder in braces: `{container-id}`, not `<container-id>`.
-
-Both Mermaid and GitHub Markdown read `<container-id>` as an HTML tag and drop it. The diagram still parses, so the failure is silent: the page ships with empty boxes and blank table cells.
-
-This rule covers a template, a diagram label, a table cell, and prose. Backticks do not make an angle bracket safe inside a Mermaid label.
+[`../../AGENTS.md`](../../AGENTS.md) gives the placeholder rules for the whole tree. Two of them decide a diagram: write the placeholder in braces, and quote the label that holds it, as in `a["{container-id}"]`.
 
 ### Labels
 

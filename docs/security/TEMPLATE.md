@@ -1,9 +1,9 @@
-# N. <Area Title>
+# N. {Area Title}
 
 > **Last reviewed:** YYYY-MM-DD
 > **Canonical references:**
-> - [Architecture: <page>](../architecture/c4/l2-containers/NN-slug.md)
-> - [SOP: <slug>](../sops/<slug>-sop.md)
+> - [Architecture: {page}](../architecture/c4/l2-containers/NN-slug.md)
+> - [SOP: {slug}](../sops/{slug}-sop.md)
 
 ## N.1 Overview
 
@@ -23,15 +23,15 @@ One control per row. A layered control gets one row per layer. Never cite a line
 
 This section is required. An empty list is acceptable. Be honest.
 
-- <A restriction a reader expects to exist but does not, and the reason>
-- <A control that is server-side only, where the client check is best-effort>
-- <A control with no automated test that proves it stays in place>
+- {A restriction a reader expects to exist but does not, and the reason}
+- {A control that is server-side only, where the client check is best-effort}
+- {A control with no automated test that proves it stays in place}
 
 ## N.4 Verification
 
 How to prove these controls still hold.
 
 - **Tests**: `apps/api/tests/...`
-- **Grep**: `grep -rn "<symbol>" apps/api/plane/`
-- **CI check**: <The job that fails when the control is removed, or `none`>
-- **Manual check**: <The request that must be refused, and the expected status code>
+- **Grep**: `grep -rn "{symbol}" apps/api/plane/`
+- **CI check**: {The job that fails when the control is removed, or `none`}
+- **Manual check**: {The request that must be refused, and the expected status code}
