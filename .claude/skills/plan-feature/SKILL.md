@@ -45,7 +45,15 @@ Two rules decide whether the spec is usable.
 - Write each test-plan item as a test name or a command that exits 0. Prose is not a proof.
 - Use the vocabulary in `CONTEXT.md`. Give the product name first and the code name once in parentheses, as in "a work item (`Issue`)".
 
-### 5. Cut the work into slices
+### 5. Sketch the screen, when it earns one
+
+Some features are hard to judge as prose. Read [`MOCKUP.md`](./MOCKUP.md), apply its gate, and build one static HTML mockup beside the spec when the gate says yes.
+
+Most features fail the gate. A data model change, an API field, a copy edit, and one obvious input on an existing form all skip it. Record the decision in the spec either way, because a skip that is never written down cannot be told apart from a step that was missed.
+
+Do this before the slices. The states that a mockup forces you to draw are the states that the test plan has to cover.
+
+### 6. Cut the work into slices
 
 Add a `## Slices` section to the spec. Order the DAG along this spine:
 
@@ -66,7 +74,7 @@ Every slice names four things.
 
 Dependent slices run in sequence, each stacked on the one below. Independent slices can run in parallel worktrees, one `plane-env-create` environment each.
 
-### 6. Ship the spec as the first pull request
+### 7. Ship the spec as the first pull request
 
 Use the `create-pull-request` skill. It creates the branch, writes the PR body, and records the stack base. Do not call `gh pr create` directly.
 
@@ -78,6 +86,7 @@ The spec PR is the deliverable of this skill. It is the only artifact the review
 - [ ] The spec sits in the sub-folder that the decision table in `docs/features/AGENTS.md` selects
 - [ ] Every template section is filled, and the status is `Draft`
 - [ ] Every test-plan item is a test name or a command, with no prose items
+- [ ] The spec records the mockup path, or records why the feature does not need one
 - [ ] Every slice names its files, its dependency, its proof, and its seam
 - [ ] The sub-folder `INDEX.md` lists the new page
 - [ ] The spec PR is open, through the `create-pull-request` skill
