@@ -59,12 +59,35 @@ stock ports 3000, 3001, 3002, 3100, 5432, 6379, 8000, 9000, and 9090.
 | `apps/web/.env`, `apps/admin/.env`, `apps/space/.env` | The five `VITE_*_BASE_URL` values                                 |
 | `apps/live/.env`                                      | `PORT`, `API_BASE_URL`, `WEB_BASE_URL`, `REDIS_PORT`, `REDIS_URL` |
 | `.plane-env.sh`                                       | `export` lines for the same ports                                 |
+| `graphify-out/`                                       | A copy of the knowledge graph from the main checkout              |
 
 Every URL is written as a literal. These files load through dotenv, which does
 not expand `${VAR}`.
 
 `CORS_ALLOWED_ORIGINS` also feeds `CSRF_TRUSTED_ORIGINS`. If it does not match
 the port that the browser uses, the stack starts and then every sign-in fails.
+
+## The graphify graph
+
+`graphify-out/` is gitignored, so `git worktree add` never brings it. Both
+PreToolUse hooks in `.claude/settings.json` guard on
+`[ -f graphify-out/graph.json ]`, and `.claude/settings.json` is tracked. A
+fresh worktree therefore looks configured while the hooks do nothing, and
+`graphify query` fails with `graph file not found`.
+
+This skill copies the graph from the main checkout when the worktree has none.
+The copy takes about 5 seconds and 42 MB.
+
+Copy, do not symlink. `graphify update .`, `label`, and `export` all write into
+this directory and take no lock, so two worktrees sharing one directory
+interleave their writes into a graph that describes a mixture of branches. Reads
+are safe either way, but the writes are not.
+
+The copy carries the extraction cache, which is keyed on file content plus the
+path relative to the scan root. The cache still hits in the new worktree, so the
+first `graphify update .` pays only for the files that this branch changed.
+
+Run `graphify update .` once the branch has commits, to match the graph to it.
 
 ## Sign in
 
