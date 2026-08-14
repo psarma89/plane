@@ -27,6 +27,11 @@ from plane.db.models import (
     User,
     EstimatePoint,
 )
+from plane.utils.cycle_capacity import (
+    CAPACITY_EXCEEDED_ERROR_CODE,
+    capacity_error_message,
+    evaluate_estimate_change,
+)
 from plane.utils.content_validator import (
     validate_html_content,
     validate_binary_data,
@@ -145,6 +150,19 @@ class IssueSerializer(BaseSerializer):
             ).exists()
         ):
             raise serializers.ValidationError("Estimate point is not valid please pass a valid estimate_point_id")
+
+        # Refuse a raise that pushes an active cycle past its capacity. A create carries
+        # no cycle yet, so this runs on an update only.
+        if self.instance is not None and "estimate_point" in data:
+            refusal = evaluate_estimate_change(issue=self.instance, new_estimate_point=data.get("estimate_point"))
+            if refusal is not None:
+                cycle, capacity_status = refusal
+                raise serializers.ValidationError(
+                    {
+                        "message": capacity_error_message(cycle_name=cycle.name, capacity_status=capacity_status),
+                        "code": CAPACITY_EXCEEDED_ERROR_CODE,
+                    }
+                )
 
         return data
 

@@ -7,6 +7,7 @@ import json
 
 # Django imports
 from django.core import serializers
+from django.db import transaction
 from django.utils import timezone
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import (
@@ -45,6 +46,11 @@ from plane.db.models import (
     IssueLink,
     ProjectMember,
     UserFavorite,
+)
+from plane.utils.cycle_capacity import (
+    CAPACITY_EXCEEDED_ERROR_CODE,
+    capacity_error_message,
+    evaluate_cycle_addition,
 )
 from plane.utils.cycle_transfer_issues import transfer_cycle_issues
 from plane.utils.order_queryset import CYCLE_ORDER_BY_ALLOWLIST, ISSUE_ORDER_BY_ALLOWLIST, sanitize_order_by
@@ -977,13 +983,29 @@ class CycleIssueListCreateAPIEndpoint(BaseAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        cycle = Cycle.objects.get(workspace__slug=slug, project_id=project_id, pk=cycle_id)
+        cycle = Cycle.objects.select_related("project__estimate").get(
+            workspace__slug=slug, project_id=project_id, pk=cycle_id
+        )
 
         if cycle.end_date is not None and cycle.end_date < timezone.now():
             return Response(
                 {
                     "code": "CYCLE_COMPLETED",
                     "message": "The Cycle has already been completed so no new issues can be added",
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Measure the cycle against its capacity before the first write. This surface
+        # carries the same gate as the session surface, so that a script with an API
+        # key cannot walk past a capacity that the web client refuses.
+        capacity_status = evaluate_cycle_addition(cycle=cycle, project=cycle.project, issue_ids=issues)
+        if not capacity_status["write_allowed"]:
+            return Response(
+                {
+                    "code": CAPACITY_EXCEEDED_ERROR_CODE,
+                    "message": capacity_error_message(cycle_name=cycle.name, capacity_status=capacity_status),
+                    "capacity_status": capacity_status,
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -1005,21 +1027,6 @@ class CycleIssueListCreateAPIEndpoint(BaseAPIView):
             ).values_list("id", flat=True)
         ]
 
-        # New issues to create
-        created_records = CycleIssue.objects.bulk_create(
-            [
-                CycleIssue(
-                    project_id=project_id,
-                    workspace_id=cycle.workspace_id,
-                    cycle_id=cycle_id,
-                    issue_id=issue,
-                )
-                for issue in new_issues
-            ],
-            ignore_conflicts=True,
-            batch_size=10,
-        )
-
         # Updated Issues
         updated_records = []
         update_cycle_issue_activity = []
@@ -1039,8 +1046,24 @@ class CycleIssueListCreateAPIEndpoint(BaseAPIView):
                 }
             )
 
-        # Update the cycle issues
-        CycleIssue.objects.bulk_update(updated_records, ["cycle_id"], batch_size=100)
+        # This request writes twice. Both writes land together, or neither does.
+        with transaction.atomic():
+            # New issues to create
+            created_records = CycleIssue.objects.bulk_create(
+                [
+                    CycleIssue(
+                        project_id=project_id,
+                        workspace_id=cycle.workspace_id,
+                        cycle_id=cycle_id,
+                        issue_id=issue,
+                    )
+                    for issue in new_issues
+                ],
+                ignore_conflicts=True,
+                batch_size=10,
+            )
+            # Update the cycle issues
+            CycleIssue.objects.bulk_update(updated_records, ["cycle_id"], batch_size=100)
 
         # Capture Issue Activity
         issue_activity.delay(
@@ -1256,11 +1279,12 @@ class TransferCycleIssueAPIEndpoint(BaseAPIView):
             user_id=self.request.user.id,
         )
 
-        # Handle the result
+        # Handle the result. Pass every key through, so that a capacity refusal keeps
+        # its error code and its numbers.
         if result.get("success"):
             return Response({"message": "Success"}, status=status.HTTP_200_OK)
         else:
             return Response(
-                {"error": result.get("error")},
+                {key: value for key, value in result.items() if key != "success"},
                 status=status.HTTP_400_BAD_REQUEST,
             )

@@ -57,6 +57,11 @@ def get_default_display_properties():
     }
 
 
+class CycleCapacityMode(models.TextChoices):
+    WARN = "warn", "Warn"
+    BLOCK = "block", "Block"
+
+
 class Cycle(ProjectBaseModel):
     name = models.CharField(max_length=255, verbose_name="Cycle Name")
     description = models.TextField(verbose_name="Cycle Description", blank=True)
@@ -78,6 +83,14 @@ class Cycle(ProjectBaseModel):
     TIMEZONE_CHOICES = tuple(zip(pytz.common_timezones, pytz.common_timezones))
     timezone = models.CharField(max_length=255, default="UTC", choices=TIMEZONE_CHOICES)
     version = models.IntegerField(default=1)
+    # capacity threshold. NULL means no limit, and 0 is a real limit that refuses
+    # every add. The two values must not collapse into one meaning.
+    capacity = models.PositiveIntegerField(null=True, blank=True)
+    capacity_mode = models.CharField(
+        max_length=10,
+        choices=CycleCapacityMode.choices,
+        default=CycleCapacityMode.WARN,
+    )
 
     class Meta:
         verbose_name = "Cycle"

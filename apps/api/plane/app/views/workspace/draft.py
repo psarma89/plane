@@ -29,6 +29,7 @@ from plane.app.serializers import (
     DraftIssueDetailSerializer,
 )
 from plane.db.models import (
+    Cycle,
     Issue,
     DraftIssue,
     CycleIssue,
@@ -39,6 +40,12 @@ from plane.db.models import (
 )
 from .. import BaseViewSet
 from plane.bgtasks.issue_activities_task import issue_activity
+from plane.utils.cycle_capacity import (
+    capacity_error_payload_without_numbers,
+    capacity_gate_applies,
+    evaluate_cycle_capacity,
+    points_for_estimate_point_id,
+)
 from plane.utils.issue_filters import issue_filters
 from plane.utils.host import base_host
 
@@ -211,6 +218,34 @@ class WorkspaceDraftIssueViewSet(BaseViewSet):
                 {"error": "Project is required to create an issue."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        # Measure the destination cycle before the work item is created. This path
+        # writes the work item first and the cycle row second, so a refusal after the
+        # first write would leave the work item behind.
+        cycle_id = request.data.get("cycle_id", None)
+        if cycle_id:
+            cycle = (
+                Cycle.objects.select_related("project__estimate")
+                .filter(pk=cycle_id, project_id=draft_issue.project_id, workspace__slug=slug)
+                .first()
+            )
+            if cycle is not None and capacity_gate_applies(cycle, cycle.project):
+                capacity_status = evaluate_cycle_capacity(
+                    cycle=cycle,
+                    project=cycle.project,
+                    incoming_points=points_for_estimate_point_id(
+                        estimate_point_id=request.data.get("estimate_point", None),
+                        project_id=cycle.project_id,
+                    ),
+                )
+                if not capacity_status["write_allowed"]:
+                    # This route checks the workspace role and not the project role, and
+                    # it reads the project from the request body. The refusal therefore
+                    # names no cycle and no numbers.
+                    return Response(
+                        capacity_error_payload_without_numbers(),
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
 
         serializer = IssueCreateSerializer(
             data=request.data,

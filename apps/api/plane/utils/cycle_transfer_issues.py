@@ -28,6 +28,11 @@ from plane.db.models import (
     Project,
 )
 from plane.utils.analytics_plot import burndown_plot
+from plane.utils.cycle_capacity import (
+    capacity_error_payload,
+    capacity_gate_applies,
+    evaluate_cycle_addition,
+)
 from plane.bgtasks.issue_activities_task import issue_activity
 from plane.utils.host import base_host
 
@@ -55,7 +60,11 @@ def transfer_cycle_issues(
         dict: Response data with success or error message
     """
     # Get the new cycle
-    new_cycle = Cycle.objects.filter(workspace__slug=slug, project_id=project_id, pk=new_cycle_id).first()
+    new_cycle = (
+        Cycle.objects.select_related("project__estimate")
+        .filter(workspace__slug=slug, project_id=project_id, pk=new_cycle_id)
+        .first()
+    )
 
     # Check if new cycle is already completed
     if new_cycle.end_date is not None and new_cycle.end_date < timezone.now():
@@ -63,6 +72,32 @@ def transfer_cycle_issues(
             "success": False,
             "error": "The cycle where the issues are transferred is already completed",
         }
+
+    # Measure the destination cycle before the first write. This function saves a
+    # progress snapshot on the source cycle before it moves any row, so a refusal
+    # after that point would leave a snapshot for a transfer that never happened.
+    if capacity_gate_applies(new_cycle, new_cycle.project):
+        transferring_ids = list(
+            Issue.issue_objects.filter(
+                issue_cycle__cycle_id=cycle_id,
+                issue_cycle__deleted_at__isnull=True,
+                workspace__slug=slug,
+                project_id=project_id,
+                state__group__in=["backlog", "unstarted", "started"],
+            ).values_list("id", flat=True)
+        )
+        # `evaluate_cycle_addition` drops a work item that already sits in the
+        # destination, so a transfer of a cycle into itself counts nothing twice.
+        capacity_status = evaluate_cycle_addition(
+            cycle=new_cycle,
+            project=new_cycle.project,
+            issue_ids=transferring_ids,
+        )
+        if not capacity_status["write_allowed"]:
+            return {
+                "success": False,
+                **capacity_error_payload(cycle_name=new_cycle.name, capacity_status=capacity_status),
+            }
 
     # Get the old cycle with issue counts
     old_cycle = (

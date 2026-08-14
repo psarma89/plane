@@ -8,6 +8,7 @@ import json
 
 # Django imports
 from django.core import serializers
+from django.db import transaction
 from django.db.models import F, Func, OuterRef, Q, Subquery
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -23,6 +24,11 @@ from .. import BaseViewSet
 from plane.app.serializers import CycleIssueSerializer
 from plane.bgtasks.issue_activities_task import issue_activity
 from plane.db.models import Cycle, CycleIssue, Issue, FileAsset, IssueLink
+from plane.utils.cycle_capacity import (
+    capacity_error_payload,
+    evaluate_cycle_addition,
+    status_after_write,
+)
 from plane.utils.grouper import (
     issue_group_values,
     issue_on_results,
@@ -227,11 +233,22 @@ class CycleIssueViewSet(BaseViewSet):
         if not issues:
             return Response({"error": "Issues are required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        cycle = Cycle.objects.get(workspace__slug=slug, project_id=project_id, pk=cycle_id)
+        cycle = Cycle.objects.select_related("project__estimate").get(
+            workspace__slug=slug, project_id=project_id, pk=cycle_id
+        )
 
         if cycle.end_date is not None and cycle.end_date < timezone.now():
             return Response(
                 {"error": "The Cycle has already been completed so no new issues can be added"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Measure the cycle against its capacity before the first write. A cycle with
+        # no capacity returns here with no query, which is rule zero in the spec.
+        capacity_status = evaluate_cycle_addition(cycle=cycle, project=cycle.project, issue_ids=issues)
+        if not capacity_status["write_allowed"]:
+            return Response(
+                capacity_error_payload(cycle_name=cycle.name, capacity_status=capacity_status),
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -260,22 +277,6 @@ class CycleIssueViewSet(BaseViewSet):
             ).values_list("id", flat=True)
         ]
 
-        # New issues to create
-        created_records = CycleIssue.objects.bulk_create(
-            [
-                CycleIssue(
-                    project_id=project_id,
-                    workspace_id=cycle.workspace_id,
-                    created_by_id=request.user.id,
-                    updated_by_id=request.user.id,
-                    cycle_id=cycle_id,
-                    issue_id=issue,
-                )
-                for issue in new_issues
-            ],
-            batch_size=10,
-        )
-
         # Updated Issues
         updated_records = []
         update_cycle_issue_activity = []
@@ -295,8 +296,26 @@ class CycleIssueViewSet(BaseViewSet):
                 }
             )
 
-        # Update the cycle issues
-        CycleIssue.objects.bulk_update(updated_records, ["cycle_id"], batch_size=100)
+        # This request writes twice. Both writes land together, or neither does.
+        with transaction.atomic():
+            # New issues to create
+            created_records = CycleIssue.objects.bulk_create(
+                [
+                    CycleIssue(
+                        project_id=project_id,
+                        workspace_id=cycle.workspace_id,
+                        created_by_id=request.user.id,
+                        updated_by_id=request.user.id,
+                        cycle_id=cycle_id,
+                        issue_id=issue,
+                    )
+                    for issue in new_issues
+                ],
+                batch_size=10,
+            )
+            # Update the cycle issues
+            CycleIssue.objects.bulk_update(updated_records, ["cycle_id"], batch_size=100)
+
         # Capture Issue Activity
         issue_activity.delay(
             type="cycle.activity.created",
@@ -314,7 +333,10 @@ class CycleIssueViewSet(BaseViewSet):
             notification=True,
             origin=base_host(request=request, is_app=True),
         )
-        return Response({"message": "success"}, status=status.HTTP_201_CREATED)
+        return Response(
+            {"message": "success", "capacity_status": status_after_write(capacity_status)},
+            status=status.HTTP_201_CREATED,
+        )
 
     @allow_permission([ROLE.ADMIN, ROLE.MEMBER])
     def destroy(self, request, slug, project_id, cycle_id, issue_id):
