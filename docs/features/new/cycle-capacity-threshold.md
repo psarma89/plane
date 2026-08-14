@@ -31,6 +31,24 @@ warns at the limit, or it refuses the write, and the toggle decides which.
 
 ## The rule
 
+### Rule zero: no capacity, no measurement
+
+If `cycle.capacity` is `NULL`, nothing in this feature runs. The backend does not
+sum the points, does not compare anything, and does not decide between warn and
+block. It returns the verdict `not_set` and stops.
+
+This is a short circuit and not a branch at the end. Each of the five call sites
+reads `cycle.capacity` first. When it is `NULL`, the call site skips the evaluator
+entirely, so the aggregate query never runs. The same rule applies when the project
+has no points-type estimate.
+
+The reason is cost, not tidiness. Every cycle in the product carries `NULL` on the
+day this ships, and path 1 is a hot write path. A gate that runs an aggregate before
+it discovers it has nothing to compare against taxes every team that never wanted
+this feature.
+
+### The comparison, when a capacity exists
+
 Two columns, one comparison. The capacity is a trip wire in points. There is no
 percent math anywhere in this feature.
 
@@ -45,11 +63,12 @@ A write is refused when    projected_points > capacity   AND   mode is block
 
 One comparison, used twice. The capacity itself is not over the capacity.
 
-| `used_points` | `capacity` | Result                  |
-| ------------- | ---------- | ----------------------- |
-| 28            | 40         | Green. Nothing happens. |
-| 40            | 40         | Green. Nothing happens. |
-| 41            | 40         | The alert shows.        |
+| `used_points` | `capacity` | Result                   |
+| ------------- | ---------- | ------------------------ |
+| 28            | 40         | Green. Nothing happens.  |
+| 40            | 40         | Green. Nothing happens.  |
+| 41            | 40         | The alert shows.         |
+| any           | `NULL`     | Rule zero. Nothing runs. |
 
 ### What each mode does
 
@@ -187,6 +206,31 @@ carries `capacity_blocks: false`, which does not say what happens instead. The
 `TextChoices` puts the two behaviors in the payload by name, and it matches the
 precedent the estimate model already set.
 
+### A fractional estimate point is legal today
+
+`capacity` holds a whole number, and the point sum it compares against does not.
+
+`EstimatePoint.value` is a `CharField`. The web client validates it with
+`!isNaN(Number(estimateInputValue))` at
+`apps/web/core/components/estimates/points/create.tsx:98`, and the serializer only
+caps the length at 20 characters, at
+`apps/api/plane/app/serializers/estimate.py:24`. A project can therefore define an
+estimate point worth `2.5`. The cycle sum casts to a float at
+`apps/api/plane/app/views/cycle/base.py:672`.
+
+Two consequences follow, and this release accepts both:
+
+1. A project on half-point estimates cannot set a capacity of 12.5. It rounds its
+   intent to 12 or to 13.
+2. Float addition drifts. Thirty items worth 0.1 point sum to `3.0000000000000004`,
+   which passes a capacity of 3 and trips the wire by one ten-trillionth of a point.
+
+Consequence 2 is a real defect, and it is rare. It needs a project that uses
+fractional estimates and a cycle that lands exactly on its capacity. Open question 1a
+holds the two fixes: a `DecimalField` column, or a round of the sum inside the
+evaluator. Neither belongs in this release without a decision, because each one
+changes the boundary that the three worked examples define.
+
 ### The migration number will collide
 
 The migration head on `dev` is `0122_alter_draftissue_assignees_alter_issue_assignees_and_more.py`.
@@ -298,9 +342,27 @@ slice 4 pull request.
 One new module: `apps/api/plane/utils/cycle_capacity.py`.
 
 ```python
+NOT_SET = {"verdict": "not_set", "write_allowed": True, "capacity": None}
+
+
 def evaluate_cycle_capacity(*, cycle, project, incoming_points=0) -> dict:
     """Measure a cycle against its capacity. Return the verdict and the numbers."""
+    # Rule zero. Return before the aggregate, and not after it.
+    if cycle.capacity is None:
+        return NOT_SET
+    if project.estimate_id is None or project.estimate.type != EstimateType.POINTS:
+        return NOT_SET
+    used_points = ...  # the aggregate runs only past this line
 ```
+
+Both guards come first, and the aggregate query sits after them. A guard placed
+after the sum still returns the right answer, and it still costs the query. The unit
+test `test_no_query_runs_when_capacity_is_null` asserts the difference with
+`django_assert_num_queries(0)`.
+
+`write_allowed` is `True` in the `not_set` result. A caller that reads only that
+field therefore lets every write through when no capacity exists. That is the
+correct default if a call site ever forgets its own guard.
 
 It returns one dictionary:
 
@@ -617,7 +679,12 @@ pure-function unit test is `apps/api/plane/tests/unit/utils/`.
 Unit, in `apps/api/plane/tests/unit/utils/test_cycle_capacity.py`:
 
 - `test_verdict_is_not_set_when_capacity_is_null` proves that `NULL` disables the gate.
+- `test_no_query_runs_when_capacity_is_null` proves rule zero. Wrap the call in
+  `django_assert_num_queries(0)`. A guard that sits after the aggregate passes the
+  test above and fails this one.
+- `test_write_allowed_is_true_when_capacity_is_null` proves the safe default.
 - `test_verdict_is_not_set_when_project_estimate_is_categories` proves the estimate rule.
+- `test_no_query_runs_when_project_estimate_is_categories` proves the second guard.
 - `test_verdict_is_ok_at_28_of_40` proves the plain case the requester gave.
 - `test_verdict_is_ok_at_40_of_40` proves that the capacity itself is not over the
   capacity. This is the boundary the whole feature turns on.
@@ -739,6 +806,7 @@ needs a worktree only. Slice 7 needs a stack to verify by hand.
 | #   | Question                                                                          | Decides     | Resolved                                                                                                                                       |
 | --- | --------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | Can a project member set the capacity and the mode, or admin only?                | Product     | Open. The spec lets a member set both, because the cycle update route already allows it. That lets a member raise the number that blocks them. |
+| 1a  | Does `capacity` need to hold a fraction, and does the float sum need rounding?    | Engineering | Open. See [A fractional estimate point is legal today](#a-fractional-estimate-point-is-legal-today). The spec keeps `PositiveIntegerField`.    |
 | 2   | Does a write that lands on exactly the capacity succeed in block mode?            | Product     | 2026-08-14. Yes. 28 of 40 is green, 40 of 40 is green, and 41 of 40 trips the wire. Both comparisons use `>`.                                  |
 | 3   | Does the active check use `project.timezone` or `Cycle.timezone`?                 | Engineering | Open. The spec follows the existing definition, which uses `project.timezone`.                                                                 |
 | 4   | Where does the capacity number live?                                              | Product     | 2026-08-14. On the cycle only. It is optional, and a person can change it later.                                                               |
@@ -762,7 +830,8 @@ overturn any of it.
    alert, and the next add fails in block mode.
 5. A person who switches the mode from `warn` to `block` on a cycle that already sits
    over its capacity succeeds. The switch is not a work item write.
-6. `capacity` holds a whole number. No project needs a capacity of 12.5 points.
+6. `capacity` holds a whole number. A project on fractional estimate points rounds
+   its intent. Open question 1a can overturn this.
 7. The default mode is `warn`. A new capacity therefore never refuses a write until
    somebody chooses that.
 
@@ -772,15 +841,16 @@ mid-cycle, cannot be blocked by the work that the cycle already holds.
 
 ## Risks
 
-| Risk                                                           | Impact                                                                                       | Mitigation                                                                                                                  |
-| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| The gate lands on one API surface only                         | A script with an `X-API-Key` walks past the capacity, and the product looks broken           | Slice 3 carries a test on the external surface, in a separate file                                                          |
-| A path in the table is missed                                  | The point sum passes the capacity through a path nobody tested                               | The table names five paths and three exemptions. Slice 3 and slice 4 together cover all five                                |
-| The refusal is not atomic                                      | A 400 leaves a `cycle_issues` row behind, so the cycle holds work the API says it refused    | No path opens `transaction.atomic()` today. Slice 3 and slice 4 add one, and the gate runs before the first write           |
-| The read serializer edit is missed                             | The capacity saves and vanishes on reload. The defect reads as a frontend bug and is not one | Slice 1 asserts both fields in the response body, and not only a 200                                                        |
-| The migration number collides with the cycle goal branch       | The second branch to merge fails `migrate` with two `0123` nodes                             | Renumber after the rebase. The spec names the head as `0122`                                                                |
-| A person edits `EstimatePoint.value` and every cycle sum moves | A cycle sits above its capacity with no refused request behind it                            | Named as an ungated path above. The evaluator measures the whole cycle, so the panel shows the alert and the next add fails |
-| The drag path shows a generic toast                            | The refusal message never reaches the user on the path they use most                         | Slice 7 changes the catch at `use-group-dragndrop.ts:77-93` to read the error body                                          |
-| A project with a categories estimate sets a capacity by API    | The point sum is 0, so the gate never fires, and the number lies to the team                 | The evaluator returns `not_set` for that project, and the UI hides both controls                                            |
-| Block mode freezes a cycle that a team needs to fix            | Nobody can bring the cycle back under its capacity                                           | Removal, deletion, and a lower estimate all pass in both modes. Two contract tests assert it                                |
-| The extra query slows down every add-to-cycle write            | A hot write path gains a point sum aggregate                                                 | The evaluator runs one aggregate over `cycle_issues`, and it runs only when `capacity` is not `NULL`                        |
+| Risk                                                           | Impact                                                                                           | Mitigation                                                                                                                  |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| The gate lands on one API surface only                         | A script with an `X-API-Key` walks past the capacity, and the product looks broken               | Slice 3 carries a test on the external surface, in a separate file                                                          |
+| A path in the table is missed                                  | The point sum passes the capacity through a path nobody tested                                   | The table names five paths and three exemptions. Slice 3 and slice 4 together cover all five                                |
+| The refusal is not atomic                                      | A 400 leaves a `cycle_issues` row behind, so the cycle holds work the API says it refused        | No path opens `transaction.atomic()` today. Slice 3 and slice 4 add one, and the gate runs before the first write           |
+| The read serializer edit is missed                             | The capacity saves and vanishes on reload. The defect reads as a frontend bug and is not one     | Slice 1 asserts both fields in the response body, and not only a 200                                                        |
+| The migration number collides with the cycle goal branch       | The second branch to merge fails `migrate` with two `0123` nodes                                 | Renumber after the rebase. The spec names the head as `0122`                                                                |
+| A person edits `EstimatePoint.value` and every cycle sum moves | A cycle sits above its capacity with no refused request behind it                                | Named as an ungated path above. The evaluator measures the whole cycle, so the panel shows the alert and the next add fails |
+| The drag path shows a generic toast                            | The refusal message never reaches the user on the path they use most                             | Slice 7 changes the catch at `use-group-dragndrop.ts:77-93` to read the error body                                          |
+| A project with a categories estimate sets a capacity by API    | The point sum is 0, so the gate never fires, and the number lies to the team                     | The evaluator returns `not_set` for that project, and the UI hides both controls                                            |
+| Block mode freezes a cycle that a team needs to fix            | Nobody can bring the cycle back under its capacity                                               | Removal, deletion, and a lower estimate all pass in both modes. Two contract tests assert it                                |
+| The extra query slows down every add-to-cycle write            | A hot write path gains a point sum aggregate for every team, including the ones with no capacity | Rule zero. The guard returns before the aggregate, and `test_no_query_runs_when_capacity_is_null` asserts zero queries      |
+| A fractional estimate makes the trip wire misfire              | A sum of `3.0000000000000004` trips a capacity of 3                                              | Named above, with the two candidate fixes. Open question 1a holds the decision                                              |
