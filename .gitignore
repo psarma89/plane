@@ -102,6 +102,8 @@ dev-editor
 
 storybook-static
 
+# Ignore a personal CLAUDE.md at any depth. Keep the tracked root file, which
+# is a symlink to AGENTS.md. To track a nested one, add a matching !/ rule.
 CLAUDE.md
 !/CLAUDE.md
 

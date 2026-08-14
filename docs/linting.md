@@ -59,6 +59,16 @@ Additional rule overrides:
 - `no-unused-vars` warns with `_` prefix pattern ignored
 - Several noisy unicorn rules disabled
 
+### Warning ceilings
+
+Each package pins a `--max-warnings` ceiling in its own `check:lint` script. That number is what fails CI.
+
+The ceilings are baselines, not targets. Measured on 2026-08-14 with `oxlint` 1.51.0, from each package directory: 1,090 real warnings across the workspace, against a ceiling total of 17,661. Seven packages sit at exactly 0, where one new warning fails the build at once. Six packages hold 99.8 percent of the remaining slack, and `apps/web` holds 67 percent of it alone.
+
+When you remove warnings from a package, lower its ceiling in the same commit. A ceiling that stays above the real count stops guarding the package.
+
+One caution when you edit this page. `oxfmt` reformats the category table above whenever it formats any other change in this file. Read the table rows in your diff before you commit, even when you did not mean to touch them.
+
 ## Backward Compatibility
 
 OxLint supports `eslint-disable` comments, so existing inline suppressions continue to work.
