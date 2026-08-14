@@ -47,13 +47,14 @@ The config applies to all TypeScript and JavaScript files across:
 
 OxLint uses category-based configuration:
 
-| Category        | Level | What It Catches                                    |
-| --------------- | ----- | -------------------------------------------------- |
-| **correctness** | error | Real bugs that will cause runtime errors            |
-| **suspicious**  | warn  | Code patterns that are likely mistakes              |
-| **perf**        | warn  | Performance anti-patterns                           |
+| Category        | Level | What It Catches                          |
+| --------------- | ----- | ---------------------------------------- |
+| **correctness** | warn  | Real bugs that will cause runtime errors |
+| **suspicious**  | warn  | Code patterns that are likely mistakes   |
+| **perf**        | warn  | Performance anti-patterns                |
 
 Additional rule overrides:
+
 - `react/prop-types` off (TypeScript handles prop validation)
 - `no-unused-vars` warns with `_` prefix pattern ignored
 - Several noisy unicorn rules disabled
@@ -85,6 +86,37 @@ Lint-staged runs automatically on commit via Husky:
 - OxLint fixes what it can (with `--deny-warnings`)
 
 If the commit fails due to lint errors, fix them before committing.
+
+## Architectural boundaries
+
+The `overrides` block holds rules that enforce layering, not style.
+
+| Rule                    | Applies to                                  | What it blocks                                                                                                                    |
+| ----------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `no-restricted-imports` | `**/core/components/**`, `**/core/hooks/**` | An import of `@/services/*`. A component reads state through a hook in `core/hooks/store/`. Only `core/store/` imports a service. |
+
+The rule is `warn`, not `error`. The pre-commit hook runs `oxlint --fix --deny-warnings` on staged files, so a warning is already a hard block on any file you edit.
+
+### The grandfather list
+
+A second `overrides` entry turns the rule off for 63 files that broke the boundary before the rule existed.
+
+The list is deliberate. Without it, the rule fuses two separate decisions:
+
+1. New code must not import a service. This is the rule.
+2. Existing code must be fixed the moment somebody touches it. This is a migration.
+
+All 63 files are live code. 56 of them took 5 or more commits in the last 12 months. Fusing the two decisions therefore taxes anyone who works in `apps/web`, for an import that they did not write.
+
+Treat the list as the burndown backlog. To retire an entry:
+
+1. Move the service call into the matching store slice under `apps/web/core/store/`.
+2. Read the result in the component through a hook in `apps/web/core/hooks/store/`.
+3. Delete the path from the `overrides` entry in `.oxlintrc.json`.
+
+Do not add a path to the list. A new violation must not land.
+
+[features/changes/service-import-boundary-burndown-2026-08-14.md](./features/changes/service-import-boundary-burndown-2026-08-14.md) holds the batch order, the risk ranking, and the regression plan.
 
 ## Reference Files
 
