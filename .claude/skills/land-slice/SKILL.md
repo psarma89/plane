@@ -76,10 +76,16 @@ docker compose ls                    # find this branch's project, if it has one
 .claude/skills/plane-env-teardown/scripts/env-teardown.sh
 git worktree remove <worktree>       # before the branch, not after
 git branch -D <branch>
-git push origin --delete <branch>    # only if --delete-branch left it behind
+git push origin --delete <branch>
+git fetch --prune origin
+git ls-remote --heads origin | grep <slug>    # must print nothing
 ```
 
-Remove the worktree before the local branch. Git refuses to delete a branch that a worktree has checked out, and `gh pr merge --delete-branch` hits the same refusal. It reports a warning and exits 0, so the merge looks clean and the branch survives.
+Remove the worktree before the local branch. Git refuses to delete a branch that a worktree has checked out, and `gh pr merge --delete-branch` hits the same refusal.
+
+That refusal costs both branches, not one. `--delete-branch` deletes the local branch first. When that step fails it stops, so it never reaches the remote, and it still exits 0 with only a warning on stderr. The merge looks clean while the branch survives on the local side and on the remote.
+
+`git fetch --prune` does not repair this. Pruning removes a remote-tracking ref whose remote branch is gone, and this remote branch is still there. Verify with `git ls-remote`, which asks the remote, rather than with `git branch -a`, which reads the local cache.
 
 A slice that changed no backend code has no container stack. Read `docker compose ls` rather than assuming either way.
 
@@ -95,7 +101,8 @@ cd <main checkout> && git checkout dev && git pull
 - [ ] The full check set ran on the rebased head, not the two-check subset
 - [ ] `docker compose ls` does not list the branch project
 - [ ] `git worktree list` does not list the worktree
-- [ ] `git branch -a | grep <slug>` prints nothing
+- [ ] `git ls-remote --heads origin | grep <slug>` prints nothing
+- [ ] `git branch --list '*<slug>*'` prints nothing
 - [ ] `dev` is pulled, and its tip is this slice's squash commit
 
 ## Next
