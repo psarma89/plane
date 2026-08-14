@@ -6,6 +6,34 @@
 > **Work item:** None. This page exists to exercise the feature development flow in [`../../sops/develop-a-feature-sop.md`](../../sops/develop-a-feature-sop.md).
 > **Pull request:** {Link, once one exists}
 
+## Implementation note
+
+Slice 1 found that the section below titled "The three serializer edits" is wrong.
+The count is not three, and the serializer is not what decides the response.
+
+`CycleViewSet` in `apps/api/plane/app/views/cycle/base.py` does not serialise its
+responses. It hand-builds them with `queryset.values(...)`, and it repeats that
+field list **five** times: in the list route, in two grouped list branches, in
+`partial_update`, and in `retrieve`. Adding the field to
+`CycleSerializer.Meta.fields` therefore changed nothing that a client can see.
+
+The real edit set for slice 1 is:
+
+| Where | Count | Why |
+| --- | --- | --- |
+| The model, plus one migration | 1 | The column |
+| `plane/app/views/cycle/base.py` `.values(...)` lists | 5 | These shape every `plane/app/` response |
+| `plane/app/serializers/cycle.py` `CycleSerializer` | 1 | Still used at line 345 to snapshot the instance for the activity log |
+| `plane/api/serializers/cycle.py` | 1 | The external surface **does** use its serializer. Its `.values()` calls are `.values("count")` aggregates, not response shaping. |
+
+So the two API surfaces are asymmetric. `plane/app/` bypasses its serializer and
+`plane/api/` does not. A field added to a shared model needs a different kind of
+edit on each side, and only the external side behaves the way a reader of the
+serializer would expect.
+
+Only running the code found this. The spec was written from the serializer field
+lists, which read as authoritative and are not.
+
 ## Goal
 
 A team cannot state what a cycle (`Cycle`) is for in a way that anyone sees. The

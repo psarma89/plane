@@ -212,6 +212,7 @@ class CycleViewSet(BaseViewSet):
                 # model fields
                 "name",
                 "description",
+                "goal",
                 "start_date",
                 "end_date",
                 "owned_by_id",
@@ -244,6 +245,7 @@ class CycleViewSet(BaseViewSet):
             # model fields
             "name",
             "description",
+            "goal",
             "start_date",
             "end_date",
             "owned_by_id",
@@ -286,6 +288,7 @@ class CycleViewSet(BaseViewSet):
                         # model fields
                         "name",
                         "description",
+                        "goal",
                         "start_date",
                         "end_date",
                         "owned_by_id",
@@ -367,6 +370,7 @@ class CycleViewSet(BaseViewSet):
                 # model fields
                 "name",
                 "description",
+                "goal",
                 "start_date",
                 "end_date",
                 "owned_by_id",
@@ -433,6 +437,7 @@ class CycleViewSet(BaseViewSet):
                 # model fields
                 "name",
                 "description",
+                "goal",
                 "start_date",
                 "end_date",
                 "owned_by_id",

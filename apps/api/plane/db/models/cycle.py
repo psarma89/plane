@@ -60,6 +60,11 @@ def get_default_display_properties():
 class Cycle(ProjectBaseModel):
     name = models.CharField(max_length=255, verbose_name="Cycle Name")
     description = models.TextField(verbose_name="Cycle Description", blank=True)
+    # A single line objective, rendered in the cycle header and in every list row.
+    # Bounded because a list row has to render it, which is what separates it from
+    # description. null=True as well as blank=True, so that an unset goal is one
+    # value and not two.
+    goal = models.CharField(max_length=255, verbose_name="Cycle Goal", blank=True, null=True)
     start_date = models.DateTimeField(verbose_name="Start Date", blank=True, null=True)
     end_date = models.DateTimeField(verbose_name="End Date", blank=True, null=True)
     owned_by = models.ForeignKey(
