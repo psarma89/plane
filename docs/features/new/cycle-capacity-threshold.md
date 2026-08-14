@@ -135,25 +135,55 @@ the gate.
 
 Every user-facing path that changes the point sum of a cycle:
 
-| #   | Path                                              | `path:line`                                                                   | Surface     |
-| --- | ------------------------------------------------- | ----------------------------------------------------------------------------- | ----------- |
-| 1   | Add work items to a cycle, or move them in        | `apps/api/plane/app/views/cycle/issue.py:264,299`                             | Session     |
-| 2   | Add work items to a cycle                         | `apps/api/plane/api/views/cycle.py:1009`                                      | `X-API-Key` |
-| 3   | Promote a draft work item into a cycle            | `apps/api/plane/app/views/workspace/draft.py:240`                             | Session     |
-| 4   | Transfer incomplete work items to another cycle   | `apps/api/plane/utils/cycle_transfer_issues.py:35`                            | Both        |
-| 5   | Change `estimate_point` on a work item in a cycle | `apps/api/plane/app/views/issue/base.py`, `apps/api/plane/api/views/issue.py` | Both        |
+| #   | Path                                              | `path:line`                                                                           | Surface     |
+| --- | ------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------- |
+| 1   | Add work items to a cycle, or move them in        | `apps/api/plane/app/views/cycle/issue.py:264,299`                                     | Session     |
+| 2   | Add work items to a cycle                         | `apps/api/plane/api/views/cycle.py:1009`                                              | `X-API-Key` |
+| 3   | Promote a draft work item into a cycle            | `apps/api/plane/app/views/workspace/draft.py:240`                                     | Session     |
+| 4   | Transfer incomplete work items to another cycle   | `apps/api/plane/utils/cycle_transfer_issues.py:35`                                    | Both        |
+| 5   | Change `estimate_point` on a work item in a cycle | `apps/api/plane/app/views/issue/base.py:682`, `apps/api/plane/api/views/issue.py:806` | Both        |
 
 Path 4 is one function that both surfaces import. One edit covers both.
 
-Two paths are exempt, because no user drives them:
+Path 5 is the only path with a real choke point. Both surfaces write `estimate_point`
+through a serializer, so one edit per serializer covers every caller:
 
-| Path           | `path:line`                                         |
-| -------------- | --------------------------------------------------- |
-| Workspace seed | `apps/api/plane/bgtasks/workspace_seed_task.py:323` |
-| Demo data      | `apps/api/plane/bgtasks/dummy_data_task.py:451`     |
+| Surface     | Serializer                                                            | The view method that calls `save()`          |
+| ----------- | --------------------------------------------------------------------- | -------------------------------------------- |
+| Session     | `IssueCreateSerializer`, `apps/api/plane/app/serializers/issue.py:82` | `apps/api/plane/app/views/issue/base.py:682` |
+| `X-API-Key` | `IssueSerializer`, `apps/api/plane/api/serializers/issue.py:46`       | `apps/api/plane/api/views/issue.py:806`      |
+
+The intake accept route at `apps/api/plane/app/views/intake/base.py:414` calls the
+session serializer with `partial=True`. It is a caller of path 5, and not a sixth
+path. The serializer edit covers it.
+
+### Three paths that need no gate
+
+| Path                            | `path:line`                                         | Reason            |
+| ------------------------------- | --------------------------------------------------- | ----------------- |
+| Remove a work item from a cycle | `apps/api/plane/app/views/cycle/issue.py:320`       | It lowers the sum |
+| Workspace seed                  | `apps/api/plane/bgtasks/workspace_seed_task.py:323` | No user drives it |
+| Demo data                       | `apps/api/plane/bgtasks/dummy_data_task.py:451`     | No user drives it |
 
 A seed that a capacity blocks leaves a half-built workspace. State the exemption in
 the code with a comment, so a later reader does not read it as an oversight.
+
+### The path this feature does not gate
+
+A person with admin rights can edit `EstimatePoint.value` through
+`apps/api/plane/app/views/estimate/base.py` or
+`apps/api/plane/api/views/estimate.py`. That renames a point from 5 to 8, for
+example. Every work item that holds that point changes its contribution, so the sum
+of every cycle in the project moves at once.
+
+No `Issue` row and no `CycleIssue` row is written, so none of the five hooks fire.
+This release does not gate that path. A gate there has to re-measure every cycle in
+the project inside one estimate write. That is a different feature.
+
+The result is a cycle that sits above its block threshold with no rejected request
+behind it. The read path handles this correctly, because the evaluator measures the
+whole cycle and not the size of the write. The panel shows `block`, and the next add
+fails. Risk row 8 records it.
 
 ### There is no single choke point
 
@@ -166,6 +196,33 @@ The precedent for that shape is `apps/api/plane/utils/cycle_transfer_issues.py`.
 It is a plain function in `plane/utils/`, and both `plane/app/views/cycle/base.py:606`
 and `plane/api/views/cycle.py:1250` import it. The capacity evaluator copies that
 shape.
+
+### No path runs in a transaction today
+
+None of the five paths opens a `transaction.atomic()` block. There is no
+`from django.db import transaction` in `app/views/cycle/issue.py`,
+`api/views/cycle.py`, `app/views/workspace/draft.py`,
+`utils/cycle_transfer_issues.py`, `app/views/issue/base.py`, or
+`api/views/issue.py`.
+
+The gate therefore has to run **before** the first write on each path, and not
+between two writes. Path 1 writes twice, at `cycle/issue.py:264` and again at
+`:299`. A gate placed between them leaves the `bulk_create` rows behind when the
+`bulk_update` is refused.
+
+Slice 3 and slice 4 each wrap their write block in `transaction.atomic()`. That is
+new behavior. It also fixes a defect that already exists. `draft.py:240` creates the
+`Issue` first and the `CycleIssue` second. A bad `cycle_id` today leaves an orphan
+work item, and nothing rolls it back.
+
+### Path 3 has no completed-cycle gate today
+
+`apps/api/plane/app/views/cycle/issue.py:232` refuses to add work to a cycle that
+ended. `apps/api/plane/app/views/workspace/draft.py:240` runs no such check, so a
+draft promotion can still land work in a completed cycle. That is a pre-existing
+defect, and this feature does not fix it. Slice 4 must not fix it either. A reviewer
+cannot tell a deliberate fix from an accident. Record the defect in References on
+the slice 4 pull request.
 
 ## The evaluator
 
@@ -352,23 +409,57 @@ matches `CYCLE_CAPACITY_EXCEEDED` and renders a translated string from
 `packages/i18n`. The English message in `error` stays as the fallback and as the
 log line.
 
+### The two surfaces disagree about the error key
+
+The cycle views return `{"error": "..."}`, for example at
+`apps/api/plane/app/views/cycle/issue.py:232`. The cycle modal reads a different
+key: `apps/web/core/components/cycles/modal.tsx:70-76` shows
+`err?.detail ?? "Error in creating cycle. Please try again."`.
+
+A 400 that carries only `error` therefore renders the generic fallback, and the
+three numbers never reach the user. Slice 7 must read `error` on this response, and
+not `detail`. Do not change the backend key to `detail`, because six existing
+handlers already return `error` and a rename breaks each one.
+
+### Drag and drop discards the message today
+
+`apps/web/core/hooks/use-group-dragndrop.ts:77-93` wraps the cycle mutation in
+`.catch(() => setToast(errorToastProps))`. The callback takes no argument, so a
+blocked drag shows a generic error and drops the arithmetic.
+
+Slice 7 changes that catch to read the error body. Without that change, the block
+message appears on the modal path only. The drag path is the path a person uses
+most.
+
 ## Frontend plan
 
-| Layer     | Path                                                                   | Change                                                                              |
-| --------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Type      | `packages/types/src/cycle/cycle.ts`                                    | Changed. Add `capacity` and `capacity_status` beside the point sums on lines 73-78. |
-| Type      | `packages/types/src/project/project.ts`                                | Changed. Add the two percents.                                                      |
-| Component | `apps/web/core/components/cycles/form.tsx`                             | Changed. One optional number input, under the date pair.                            |
-| Component | `apps/web/core/components/cycles/analytics-sidebar/issue-progress.tsx` | Changed. Render the meter and the alert from `capacity_status`.                     |
-| Component | `apps/web/core/components/cycles/active-cycle/progress.tsx`            | Changed. Render the same alert on the active cycle root.                            |
-| Store     | `apps/web/core/store/cycle.store.ts`                                   | Changed. Hold `capacity_status` on the cycle object.                                |
-| Service   | `apps/web/core/services/cycle.service.ts`                              | No change. It passes the payload through.                                           |
-| i18n      | `packages/i18n/src/locales/en/cycle.json`                              | Changed. New keys.                                                                  |
+| Layer     | Path                                                                   | Change                                                                                 |
+| --------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Type      | `packages/types/src/cycle/cycle.ts`                                    | Changed. Add `capacity` and `capacity_status` beside the point sums on lines 73-78.    |
+| Type      | `packages/types/src/project/project.ts`                                | Changed. Add the two percents.                                                         |
+| Component | `apps/web/core/components/cycles/form.tsx:183`                         | Changed. One optional number input, after the date pair block that closes on line 183. |
+| Component | `apps/web/core/components/cycles/analytics-sidebar/issue-progress.tsx` | Changed. Render the meter and the alert from `capacity_status`.                        |
+| Component | `apps/web/core/components/cycles/active-cycle/progress.tsx`            | Changed. Render the same alert on the active cycle root.                               |
+| Store     | `apps/web/core/store/cycle.store.ts`                                   | **No change.** See below.                                                              |
+| Service   | `apps/web/core/services/cycle.service.ts`                              | No change. It passes the payload through.                                              |
+| i18n      | `packages/i18n/src/locales/en/cycle.json`                              | Changed. New keys, nested.                                                             |
 
-- **Data fetching**: The existing progress request. `capacity_status` arrives inside
-  the body that the cycle panel already reads.
-- **State owner**: `CycleStore` owns the cycle object, and `capacity_status` rides
-  on it.
+- **Data fetching**: The existing progress request. The service method is
+  `workspaceActiveCyclesProgress()` at `apps/web/core/services/cycle.service.ts:40`.
+- **The store needs no edit.** `fetchActiveCycleProgress()` at
+  `apps/web/core/store/cycle.store.ts:485-492` spreads the whole response body onto
+  the cycle record: line 489 runs
+  `set(this.cycleMap, [cycleId], { ...this.cycleMap[cycleId], ...progress })`. A new
+  key on the `/progress/` body therefore reaches the component with no store code.
+  Only the type has to declare it, which slice 6 does.
+- **State owner**: `CycleStore` owns `cycleMap`, and `capacity_status` rides on the
+  cycle record inside it.
+- **Banner precedent**: `apps/web/core/components/pages/editor/content-limit-banner.tsx`
+  is the closest existing component. It is a standalone threshold banner with a
+  `TriangleAlert` icon, and a page renders it when it reaches a content limit. Copy
+  its shape rather than the inline JSX in
+  `apps/web/core/components/cycles/transfer-issues.tsx`. Two components render the
+  capacity alert, so an inline block gets duplicated.
 - **Background classes**: The modal and the cycle panel each take `bg-surface-1`,
   because they are siblings and the modal sits on its own plane. Each input takes
   `bg-layer-1`, which is the one allowed exception for a form control. The meter
@@ -378,7 +469,10 @@ log line.
   a color, not a fourth level. See `packages/tailwind-config/AGENTS.md` and the
   `plane-backgrounds` skill.
 - **Translation keys**, in `packages/i18n/src/locales/en/cycle.json`. Use the
-  `translate` skill.
+  `translate` skill. The file nests objects. It does not use flat dotted keys, so
+  write `{ "cycle": { "capacity": { "label": "..." } } }`. The table below gives the
+  access path, in the same shorthand the existing keys use, for example
+  `active_cycle.empty_state.progress.title`.
 
   | Key                             | English                                                                                                                  |
   | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
@@ -463,7 +557,14 @@ Contract, in `apps/api/plane/tests/contract/app/test_cycle_capacity_app.py`:
 - `test_add_work_items_over_block_returns_400_with_error_code` proves the gate and
   the `error_code`.
 - `test_blocked_request_writes_no_cycle_issue_row` proves that the rejection is
-  atomic. A 400 that leaves a row behind is the worst outcome of this feature.
+  atomic. A 400 that leaves a row behind is the worst outcome of this feature. The
+  session path writes twice, at `cycle/issue.py:264` and `:299`, and no transaction
+  wraps them today, so this test fails before slice 3 adds one.
+- `test_intake_accept_over_block_returns_400` proves that the intake route inherits
+  the gate through the shared serializer at `apps/api/plane/app/views/intake/base.py:414`.
+- `test_estimate_point_value_edit_does_not_return_400` proves the ungated path on
+  purpose. An estimate value edit must still succeed, and the cycle then reads
+  `block`.
 - `test_gate_does_not_run_for_an_upcoming_cycle` proves the active-cycle scope.
 - `test_gate_does_not_run_for_a_completed_cycle` proves the same on the other side.
 - `test_progress_endpoint_returns_capacity_status`.
@@ -490,7 +591,10 @@ request what was clicked.
 - The capacity input saves a value, and the value survives a reload.
 - The meter renders at the right width for 28 of 40 points.
 - The amber alert appears at 38 of 40 points, and the green meter turns amber.
-- A blocked add shows the toast, and the board does not show the item.
+- A blocked add through the cycle modal shows the toast with the three numbers.
+- A blocked add through a drag between board groups shows the same toast, and not
+  the generic one. This is the path the catch at `use-group-dragndrop.ts:77` changes.
+- After a blocked add, the board does not show the item.
 - A cycle with no capacity renders no meter and no alert.
 - A project with a categories-type estimate renders no capacity input.
 
@@ -499,15 +603,15 @@ request what was clicked.
 The spine is data model, then backend, then frontend. Seams come from
 `.claude/skills/develop-slice/SEAMS.md`.
 
-| #   | Slice                                   | Files                                                                                                                                                                                                                                                            | Depends on | Proof                                                                                                                                                      | Seam                                                          |
-| --- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| 1   | The three columns and both API surfaces | `apps/api/plane/db/models/cycle.py`, `apps/api/plane/db/models/project.py`, a new migration, `apps/api/plane/app/serializers/cycle.py`, `apps/api/plane/api/serializers/cycle.py`, `apps/api/plane/app/serializers/project.py`                                   | Nothing    | `test_patch_sets_capacity_and_response_returns_it`, plus `test_project_warn_percent_above_block_percent_returns_400`                                       | A DRF view through `session_client`                           |
-| 2   | The evaluator                           | `apps/api/plane/utils/cycle_capacity.py`, `apps/api/plane/tests/unit/utils/test_cycle_capacity.py`                                                                                                                                                               | 1          | The eight unit tests above. No database and no HTTP.                                                                                                       | A pure function, called directly                              |
-| 3   | The gate on the two add-to-cycle paths  | `apps/api/plane/app/views/cycle/issue.py`, `apps/api/plane/api/views/cycle.py`                                                                                                                                                                                   | 2          | `test_add_work_items_over_block_returns_400_with_error_code`, `test_blocked_request_writes_no_cycle_issue_row`, `test_external_add_over_block_returns_400` | A DRF view through `session_client` and an `X-API-Key` client |
-| 4   | The gate on the other three paths       | `apps/api/plane/utils/cycle_transfer_issues.py`, `apps/api/plane/app/views/workspace/draft.py`, `apps/api/plane/app/views/issue/base.py`, `apps/api/plane/api/views/issue.py`                                                                                    | 2          | `test_transfer_over_block_returns_400`, `test_draft_promotion_over_block_returns_400`, `test_estimate_point_change_over_block_returns_400`                 | A DRF view through `session_client`                           |
-| 5   | `capacity_status` on the progress body  | `apps/api/plane/app/views/cycle/base.py`                                                                                                                                                                                                                         | 2          | `test_progress_endpoint_returns_capacity_status`                                                                                                           | A DRF view through `session_client`                           |
-| 6   | The types                               | `packages/types/src/cycle/cycle.ts`, `packages/types/src/project/project.ts`                                                                                                                                                                                     | 5          | `pnpm --filter @plane/types build` then `pnpm --filter web check:types` exits 0                                                                            | A pure type change, so no runtime seam                        |
-| 7   | The form, the meter, the alerts         | `apps/web/core/components/cycles/form.tsx`, `apps/web/core/components/cycles/analytics-sidebar/issue-progress.tsx`, `apps/web/core/components/cycles/active-cycle/progress.tsx`, `apps/web/core/store/cycle.store.ts`, `packages/i18n/src/locales/en/cycle.json` | 6          | Manual verification against the running stack, recorded in the pull request                                                                                | None. No web suite exists.                                    |
+| #   | Slice                                   | Files                                                                                                                                                                                                                                                                    | Depends on | Proof                                                                                                                                                                                   | Seam                                                          |
+| --- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| 1   | The three columns and both API surfaces | `apps/api/plane/db/models/cycle.py`, `apps/api/plane/db/models/project.py`, a new migration, `apps/api/plane/app/serializers/cycle.py`, `apps/api/plane/api/serializers/cycle.py`, `apps/api/plane/app/serializers/project.py`                                           | Nothing    | `test_patch_sets_capacity_and_response_returns_it`, plus `test_project_warn_percent_above_block_percent_returns_400`                                                                    | A DRF view through `session_client`                           |
+| 2   | The evaluator                           | `apps/api/plane/utils/cycle_capacity.py`, `apps/api/plane/tests/unit/utils/test_cycle_capacity.py`                                                                                                                                                                       | 1          | The eight unit tests above. No database and no HTTP.                                                                                                                                    | A pure function, called directly                              |
+| 3   | The gate on the two add-to-cycle paths  | `apps/api/plane/app/views/cycle/issue.py`, `apps/api/plane/api/views/cycle.py`                                                                                                                                                                                           | 2          | `test_add_work_items_over_block_returns_400_with_error_code`, `test_blocked_request_writes_no_cycle_issue_row`, `test_external_add_over_block_returns_400`                              | A DRF view through `session_client` and an `X-API-Key` client |
+| 4   | The gate on the other three paths       | `apps/api/plane/utils/cycle_transfer_issues.py`, `apps/api/plane/app/views/workspace/draft.py`, `apps/api/plane/app/serializers/issue.py`, `apps/api/plane/api/serializers/issue.py`                                                                                     | 2          | `test_transfer_over_block_returns_400`, `test_draft_promotion_over_block_returns_400`, `test_estimate_point_change_over_block_returns_400`, `test_intake_accept_over_block_returns_400` | A DRF view through `session_client`                           |
+| 5   | `capacity_status` on the progress body  | `apps/api/plane/app/views/cycle/base.py`                                                                                                                                                                                                                                 | 2          | `test_progress_endpoint_returns_capacity_status`                                                                                                                                        | A DRF view through `session_client`                           |
+| 6   | The types                               | `packages/types/src/cycle/cycle.ts`, `packages/types/src/project/project.ts`                                                                                                                                                                                             | 5          | `pnpm --filter @plane/types build` then `pnpm --filter web check:types` exits 0                                                                                                         | A pure type change, so no runtime seam                        |
+| 7   | The form, the meter, the alerts         | `apps/web/core/components/cycles/form.tsx`, `apps/web/core/components/cycles/analytics-sidebar/issue-progress.tsx`, `apps/web/core/components/cycles/active-cycle/progress.tsx`, `apps/web/core/hooks/use-group-dragndrop.ts`, `packages/i18n/src/locales/en/cycle.json` | 6          | Manual verification against the running stack, recorded in the pull request                                                                                                             | None. No web suite exists.                                    |
 
 Slice 3 and slice 4 both depend on slice 2 and on nothing else. They can run in
 parallel worktrees, one `plane-env-create` stack each. Slice 5 is also independent
@@ -569,13 +673,15 @@ work that the cycle already holds.
 
 ## Risks
 
-| Risk                                                                 | Impact                                                                                       | Mitigation                                                                                                  |
-| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| The gate lands on one API surface only                               | A script with an `X-API-Key` walks past the limit, and the product looks broken to the team  | Slice 3 carries a test on the external surface, in a separate file                                          |
-| A path in the table is missed                                        | The point sum crosses the limit through a path nobody tested                                 | The table names five paths and two exemptions. Slice 3 and slice 4 together cover all five                  |
-| The rejection is not atomic                                          | A 400 leaves a `cycle_issues` row behind, so the cycle holds work the API says it refused    | `test_blocked_request_writes_no_cycle_issue_row` asserts the row count, and the write runs in a transaction |
-| The read serializer edit is missed                                   | The capacity saves and vanishes on reload. The defect reads as a frontend bug and is not one | Slice 1 asserts the field in the response body, and not only a 200                                          |
-| The migration number collides with the cycle goal branch             | The second branch to merge fails `migrate` with two `0123` nodes                             | Renumber after the rebase. The spec names the head as `0122`                                                |
-| A project with a categories estimate sets a capacity through the API | The point sum is 0, so the gate never fires, and the number lies to the team                 | The evaluator returns `not_set` for that project, and the UI hides the control                              |
-| The extra query slows down every add-to-cycle write                  | A hot write path gains a point sum aggregate                                                 | The evaluator runs one aggregate over `cycle_issues`, and it runs only when `capacity` is not `NULL`        |
-| A team treats the block as a bug                                     | The team raises the capacity to a number that means nothing, and the feature stops helping   | The block message names the arithmetic and the two ways out. No override exists, by decision                |
+| Risk                                                                 | Impact                                                                                       | Mitigation                                                                                                                                                                                |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The gate lands on one API surface only                               | A script with an `X-API-Key` walks past the limit, and the product looks broken to the team  | Slice 3 carries a test on the external surface, in a separate file                                                                                                                        |
+| A path in the table is missed                                        | The point sum crosses the limit through a path nobody tested                                 | The table names five paths and two exemptions. Slice 3 and slice 4 together cover all five                                                                                                |
+| The rejection is not atomic                                          | A 400 leaves a `cycle_issues` row behind, so the cycle holds work the API says it refused    | No path opens `transaction.atomic()` today. Slice 3 and slice 4 add one, and the gate runs before the first write. `test_blocked_request_writes_no_cycle_issue_row` asserts the row count |
+| A person edits `EstimatePoint.value` and every cycle sum moves       | A cycle sits above its block threshold with no rejected request behind it                    | Named as an ungated path above. The evaluator measures the whole cycle, so the panel shows `block` and the next add fails                                                                 |
+| The drag path shows a generic toast                                  | The block message never reaches the user on the path they use most                           | Slice 7 changes the catch at `use-group-dragndrop.ts:77-93` to read the error body                                                                                                        |
+| The read serializer edit is missed                                   | The capacity saves and vanishes on reload. The defect reads as a frontend bug and is not one | Slice 1 asserts the field in the response body, and not only a 200                                                                                                                        |
+| The migration number collides with the cycle goal branch             | The second branch to merge fails `migrate` with two `0123` nodes                             | Renumber after the rebase. The spec names the head as `0122`                                                                                                                              |
+| A project with a categories estimate sets a capacity through the API | The point sum is 0, so the gate never fires, and the number lies to the team                 | The evaluator returns `not_set` for that project, and the UI hides the control                                                                                                            |
+| The extra query slows down every add-to-cycle write                  | A hot write path gains a point sum aggregate                                                 | The evaluator runs one aggregate over `cycle_issues`, and it runs only when `capacity` is not `NULL`                                                                                      |
+| A team treats the block as a bug                                     | The team raises the capacity to a number that means nothing, and the feature stops helping   | The block message names the arithmetic and the two ways out. No override exists, by decision                                                                                              |
