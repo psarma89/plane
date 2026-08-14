@@ -5,6 +5,7 @@ One page per operational task. Each page gives numbered steps, a verification, a
 ## Pages
 
 - [Local Development Setup](./local-development-setup-sop.md) - Risk: Low - clone the repository, start the stack, register the instance admin, seed demo data, and snapshot the database.
+- [Run Backend Tests](./run-backend-tests-sop.md) - Risk: Low - run the 516 `apps/api` pytest tests in Docker, scope a run to a marker or a single test, and read a coverage report.
 
 Entry format: `- [Title](./<slug>-sop.md) - Risk: Low | Medium | High - one-line summary`
 
@@ -14,7 +15,6 @@ This list is a backlog, not a claim that the pages exist. Delete a row when you 
 
 | Task                                             | Risk   | Area          |
 | ------------------------------------------------ | ------ | ------------- |
-| Run the Django and pytest suite in Docker        | Low    | Contributor   |
 | Cut a release and tag images                     | Medium | Release       |
 | Roll back a release                              | High   | Release       |
 | Apply a database migration to a running instance | High   | Database      |

@@ -20,7 +20,9 @@ The `apps/api` pytest suite needs the stack in `docker-compose-test.yml` at the 
 
 Run `./setup.sh` once first. It generates `apps/api/.env` from `.env.example`.
 
-For the commands, read `apps/api/tests/RUNNING_TESTS.md`. For fixtures and conventions, read `apps/api/tests/TESTING_GUIDE.md`.
+Export `COMPOSE_PROJECT_NAME` before any test command, and never pass `--remove-orphans`. Both compose files resolve to the same project name, so one call against the test file deletes every container of the development stack.
+
+For the commands, use the `plane-test-api` skill or read [`docs/sops/run-backend-tests-sop.md`](docs/sops/run-backend-tests-sop.md). For fixtures and conventions, read `apps/api/plane/tests/TESTING_GUIDE.md`.
 
 ## Documentation
 
