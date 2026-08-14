@@ -25,8 +25,7 @@ from plane.app.serializers import CycleIssueSerializer
 from plane.bgtasks.issue_activities_task import issue_activity
 from plane.db.models import Cycle, CycleIssue, Issue, FileAsset, IssueLink
 from plane.utils.cycle_capacity import (
-    CAPACITY_EXCEEDED_ERROR_CODE,
-    capacity_error_message,
+    capacity_error_payload,
     evaluate_cycle_addition,
     status_after_write,
 )
@@ -249,11 +248,7 @@ class CycleIssueViewSet(BaseViewSet):
         capacity_status = evaluate_cycle_addition(cycle=cycle, project=cycle.project, issue_ids=issues)
         if not capacity_status["write_allowed"]:
             return Response(
-                {
-                    "error": capacity_error_message(cycle_name=cycle.name, capacity_status=capacity_status),
-                    "error_code": CAPACITY_EXCEEDED_ERROR_CODE,
-                    "capacity_status": capacity_status,
-                },
+                capacity_error_payload(cycle_name=cycle.name, capacity_status=capacity_status),
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

@@ -31,8 +31,7 @@ from plane.utils.analytics_plot import burndown_plot
 from plane.utils.cycle_capacity import (
     capacity_error_payload,
     capacity_gate_applies,
-    evaluate_cycle_capacity,
-    points_for_issues,
+    evaluate_cycle_addition,
 )
 from plane.bgtasks.issue_activities_task import issue_activity
 from plane.utils.host import base_host
@@ -87,14 +86,12 @@ def transfer_cycle_issues(
                 state__group__in=["backlog", "unstarted", "started"],
             ).values_list("id", flat=True)
         )
-        capacity_status = evaluate_cycle_capacity(
+        # `evaluate_cycle_addition` drops a work item that already sits in the
+        # destination, so a transfer of a cycle into itself counts nothing twice.
+        capacity_status = evaluate_cycle_addition(
             cycle=new_cycle,
             project=new_cycle.project,
-            incoming_points=points_for_issues(
-                issue_ids=transferring_ids,
-                workspace_id=new_cycle.workspace_id,
-                project_id=project_id,
-            ),
+            issue_ids=transferring_ids,
         )
         if not capacity_status["write_allowed"]:
             return {

@@ -21,7 +21,7 @@ from django.utils import timezone
 
 from plane.db.models import Cycle, Estimate, Project
 from plane.db.models.cycle import CycleCapacityMode
-from plane.utils.cycle_capacity import build_capacity_status, evaluate_cycle_capacity
+from plane.utils.cycle_capacity import _finite, build_capacity_status, evaluate_cycle_capacity
 
 
 def make_project(estimate_type="points"):
@@ -211,3 +211,31 @@ class TestWriteAllowed:
         assert allowed["write_allowed"] is True
         assert allowed["verdict"] == "ok"
         assert refused["write_allowed"] is False
+
+
+@pytest.mark.unit
+class TestAValueThatIsNotFinite:
+    """`EstimatePoint.value` is an unrestricted CharField.
+
+    A points-type estimate can therefore hold "NaN" or "inf". Every comparison
+    against NaN is false, so one such point would disable block mode for the whole
+    project. `_finite` turns such a value into 0 before it reaches a comparison.
+    """
+
+    def test_nan_becomes_zero(self):
+        assert _finite(float("nan")) == 0
+
+    def test_infinity_becomes_zero(self):
+        assert _finite(float("inf")) == 0
+        assert _finite(float("-inf")) == 0
+
+    def test_a_real_number_passes_through(self):
+        assert _finite(2.5) == 2.5
+        assert _finite(0) == 0
+
+    def test_a_nan_sum_does_not_disable_block_mode(self):
+        result = build_capacity_status(
+            capacity=40, mode=CycleCapacityMode.BLOCK, used_points=_finite(float("nan")), incoming_points=41
+        )
+
+        assert result["write_allowed"] is False

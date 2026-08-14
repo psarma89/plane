@@ -15,6 +15,9 @@ This module raises nothing and writes nothing. The caller decides what to do
 with the verdict.
 """
 
+# Python imports
+import math
+
 # Django imports
 from django.db.models import FloatField, Sum, Value
 from django.db.models.functions import Cast
@@ -60,12 +63,9 @@ def is_cycle_active(cycle):
     to UTC. Both conversions keep the same instant, so this comparison gives the same
     result with one step.
     """
-    if cycle.archived_at is not None:
+    if cycle.archived_at is not None or cycle.start_date is None or cycle.end_date is None:
         return False
-    if cycle.start_date is None or cycle.end_date is None:
-        return False
-    now = timezone.now()
-    return cycle.start_date <= now <= cycle.end_date
+    return cycle.start_date <= timezone.now() <= cycle.end_date
 
 
 def capacity_gate_applies(cycle, project):
@@ -82,12 +82,29 @@ def capacity_gate_applies(cycle, project):
     )
 
 
-def _sum_points(queryset):
-    """Sum the estimate point values of a work item queryset, as a float."""
-    aggregate = queryset.annotate(value_as_float=Cast("estimate_point__value", FloatField())).aggregate(
-        points=Sum("value_as_float", default=Value(0), output_field=FloatField())
+def _finite(value):
+    """Return the number, or 0 when it is NaN or infinite.
+
+    `EstimatePoint.value` is an unrestricted CharField, so a points-type estimate can
+    hold "NaN" or "inf". Both PostgreSQL and Python accept those strings as floats.
+    Every comparison against NaN is false, so one such point disables block mode for
+    the whole project. Treat a value that is not finite as no points.
+    """
+    return value if math.isfinite(value) else 0
+
+
+def _sum_points(**filters):
+    """Sum the estimate point values of the matching work items, as a float.
+
+    Every sum counts a points-type estimate only. A categories-type point holds a
+    label and not a number, so it must never reach the Cast.
+    """
+    aggregate = (
+        Issue.issue_objects.filter(estimate_point__estimate__type=EstimateType.POINTS, **filters)
+        .annotate(value_as_float=Cast("estimate_point__value", FloatField()))
+        .aggregate(points=Sum("value_as_float", default=Value(0), output_field=FloatField()))
     )
-    return aggregate["points"] or 0
+    return _finite(aggregate["points"] or 0)
 
 
 def cycle_used_points(cycle):
@@ -98,13 +115,10 @@ def cycle_used_points(cycle):
     estimate type first.
     """
     return _sum_points(
-        Issue.issue_objects.filter(
-            estimate_point__estimate__type=EstimateType.POINTS,
-            issue_cycle__cycle_id=cycle.id,
-            issue_cycle__deleted_at__isnull=True,
-            workspace_id=cycle.workspace_id,
-            project_id=cycle.project_id,
-        )
+        issue_cycle__cycle_id=cycle.id,
+        issue_cycle__deleted_at__isnull=True,
+        workspace_id=cycle.workspace_id,
+        project_id=cycle.project_id,
     )
 
 
@@ -116,14 +130,7 @@ def points_for_issues(*, issue_ids, workspace_id, project_id):
     """
     if not issue_ids:
         return 0
-    return _sum_points(
-        Issue.issue_objects.filter(
-            estimate_point__estimate__type=EstimateType.POINTS,
-            pk__in=issue_ids,
-            workspace_id=workspace_id,
-            project_id=project_id,
-        )
-    )
+    return _sum_points(pk__in=issue_ids, workspace_id=workspace_id, project_id=project_id)
 
 
 def build_capacity_status(*, capacity, mode, used_points, incoming_points=0):
@@ -189,6 +196,8 @@ def evaluate_cycle_addition(*, cycle, project, issue_ids):
     if not capacity_gate_applies(cycle, project):
         return not_set_status()
 
+    # The request body carries the ids as strings, and the column returns UUID
+    # objects. Both sides become strings, so that the comparison holds.
     already_in_cycle = {
         str(issue_id)
         for issue_id in CycleIssue.objects.filter(cycle_id=cycle.id, issue_id__in=issue_ids).values_list(
@@ -234,7 +243,7 @@ def estimate_point_value(estimate_point):
     if estimate_point.estimate.type != EstimateType.POINTS:
         return 0
     try:
-        return float(estimate_point.value)
+        return _finite(float(estimate_point.value))
     except (TypeError, ValueError):
         return 0
 
@@ -293,12 +302,14 @@ def capacity_error_message(*, cycle_name, capacity_status):
     The web client renders a translated string from the error code. This message is
     the fallback and the log line.
     """
+    incoming = format_points(capacity_status["incoming_points"])
+    used = format_points(capacity_status["used_points"])
+    capacity = format_points(capacity_status["capacity"])
+    projected = format_points(capacity_status["projected_points"])
     return (
-        f"The work is worth {format_points(capacity_status['incoming_points'])} points. "
-        f"{cycle_name} holds {format_points(capacity_status['used_points'])} of "
-        f"{format_points(capacity_status['capacity'])} points, so the total reaches "
-        f"{format_points(capacity_status['projected_points'])} points, which is over the "
-        f"{format_points(capacity_status['capacity'])}-point capacity."
+        f"The work is worth {incoming} points. "
+        f"{cycle_name} holds {used} of {capacity} points, so the total reaches "
+        f"{projected} points, which is over the {capacity}-point capacity."
     )
 
 

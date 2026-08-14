@@ -16,7 +16,7 @@ import pytest
 from django.utils import timezone
 from rest_framework import status
 
-from plane.db.models import CycleIssue
+from plane.db.models import CycleIssue, EstimatePoint, Issue
 from plane.tests.contract.conftest import set_capacity
 
 
@@ -169,8 +169,9 @@ class TestAddWorkItemsToACycle:
         joining = make_issue(5)
 
         url = cycle_issues_url(workspace.slug, capacity_project.id, active_cycle.id)
-        session_client.post(url, {"issues": [str(joining.id)]}, format="json")
+        response = session_client.post(url, {"issues": [str(joining.id)]}, format="json")
 
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert not CycleIssue.objects.filter(cycle_id=active_cycle.id, issue_id=joining.id).exists()
 
     @pytest.mark.django_db
@@ -234,7 +235,7 @@ class TestAddWorkItemsToACycle:
         assert response.data["capacity_status"]["verdict"] == "not_set"
 
     @pytest.mark.django_db
-    def test_a_cycle_with_no_capacity_runs_no_capacity_query(
+    def test_a_cycle_with_no_capacity_returns_not_set(
         self, session_client, workspace, capacity_project, active_cycle, make_issue
     ):
         """Rule zero. A NULL capacity leaves the write path exactly as it is today."""
@@ -280,6 +281,20 @@ class TestTransferWorkItemsIntoACycle:
         assert response.status_code == status.HTTP_200_OK, f"Got {response.status_code}: {response.data!r}"
         assert CycleIssue.objects.filter(cycle_id=active_cycle.id, issue_id=moving.id).exists()
 
+    @pytest.mark.django_db
+    def test_transfer_of_a_cycle_into_itself_is_not_double_counted(
+        self, session_client, workspace, capacity_project, active_cycle, make_issue
+    ):
+        """The work items already sit in the destination, so they add nothing."""
+        set_capacity(active_cycle, 40, mode="block")
+        make_issue(20, in_cycle=active_cycle)
+        make_issue(13, in_cycle=active_cycle)
+
+        url = transfer_url(workspace.slug, capacity_project.id, active_cycle.id)
+        response = session_client.post(url, {"new_cycle_id": str(active_cycle.id)}, format="json")
+
+        assert response.status_code == status.HTTP_200_OK, f"Got {response.status_code}: {response.data!r}"
+
 
 @pytest.mark.contract
 class TestPromoteADraftIntoACycle:
@@ -289,8 +304,6 @@ class TestPromoteADraftIntoACycle:
     def test_draft_promotion_past_capacity_in_block_mode_returns_400(
         self, session_client, workspace, capacity_project, active_cycle, make_issue, make_draft, points_estimate
     ):
-        from plane.db.models import EstimatePoint, Issue
-
         set_capacity(active_cycle, 40, mode="block")
         make_issue(40, in_cycle=active_cycle)
         draft = make_draft()
@@ -315,8 +328,6 @@ class TestPromoteADraftIntoACycle:
     def test_draft_promotion_under_capacity_still_succeeds(
         self, session_client, workspace, capacity_project, active_cycle, make_issue, make_draft, points_estimate
     ):
-        from plane.db.models import EstimatePoint
-
         set_capacity(active_cycle, 40, mode="block")
         make_issue(20, in_cycle=active_cycle)
         draft = make_draft()
@@ -334,6 +345,9 @@ class TestPromoteADraftIntoACycle:
         )
 
         assert response.status_code == status.HTTP_201_CREATED, f"Got {response.status_code}: {response.data!r}"
+        promoted = Issue.objects.filter(name="Promoted work item").first()
+        assert promoted is not None
+        assert CycleIssue.objects.filter(cycle_id=active_cycle.id, issue_id=promoted.id).exists()
 
 
 @pytest.mark.contract
@@ -344,8 +358,6 @@ class TestRaiseAnEstimateInsideACycle:
     def test_estimate_point_raise_past_capacity_in_block_mode_returns_400(
         self, session_client, workspace, capacity_project, active_cycle, make_issue, points_estimate
     ):
-        from plane.db.models import EstimatePoint
-
         set_capacity(active_cycle, 40, mode="block")
         make_issue(20, in_cycle=active_cycle)
         raised = make_issue(13, in_cycle=active_cycle)
@@ -364,8 +376,6 @@ class TestRaiseAnEstimateInsideACycle:
         self, session_client, workspace, capacity_project, active_cycle, make_issue, points_estimate
     ):
         """A cycle at 45 of 40 points is not frozen. A lower estimate always passes."""
-        from plane.db.models import EstimatePoint
-
         set_capacity(active_cycle, 40, mode="block")
         make_issue(40, in_cycle=active_cycle)
         lowered = make_issue(5, in_cycle=active_cycle)
@@ -382,8 +392,6 @@ class TestRaiseAnEstimateInsideACycle:
     def test_estimate_raise_that_lands_on_the_capacity_still_succeeds(
         self, session_client, workspace, capacity_project, active_cycle, make_issue, points_estimate
     ):
-        from plane.db.models import EstimatePoint
-
         set_capacity(active_cycle, 40, mode="block")
         make_issue(20, in_cycle=active_cycle)
         raised = make_issue(13, in_cycle=active_cycle)
@@ -393,6 +401,8 @@ class TestRaiseAnEstimateInsideACycle:
         response = session_client.patch(url, {"estimate_point": str(bigger.id)}, format="json")
 
         assert response.status_code == status.HTTP_204_NO_CONTENT, f"Got {response.status_code}: {response.data!r}"
+        raised.refresh_from_db()
+        assert raised.estimate_point.value == "20"
 
 
 @pytest.mark.contract
