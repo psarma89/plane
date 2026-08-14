@@ -52,7 +52,7 @@ def stack_email_notification():
     # {"issue_id" : { "actor_id1": [ { data }, { data } ], "actor_id2": [ { data }, { data } ] }}
 
     # Convert to unique receivers list
-    receivers = list(set([str(notification.get("receiver_id")) for notification in email_notifications]))
+    receivers = list({str(notification.get("receiver_id")) for notification in email_notifications})
     processed_notifications = []
     # Loop through all the issues to create the emails
     for receiver_id in receivers:

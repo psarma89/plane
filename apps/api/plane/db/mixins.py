@@ -64,7 +64,9 @@ class SoftDeleteModel(models.Model):
     deleted_at = models.DateTimeField(verbose_name="Deleted At", null=True, blank=True)
 
     objects = SoftDeletionManager()
-    all_objects = models.Manager()
+    # ruff reads `all_objects` as a field, not a manager, because the name is not
+    # `objects`, so DJ012 reports a field after a manager. Both lines are managers.
+    all_objects = models.Manager()  # noqa: DJ012
 
     class Meta:
         abstract = True

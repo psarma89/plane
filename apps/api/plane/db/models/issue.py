@@ -290,7 +290,7 @@ IssueRelationChoices._RELATION_PAIRS = (
 )
 
 # Generate reverse mapping from pairs
-IssueRelationChoices._REVERSE_MAPPING = {forward: reverse for forward, reverse in IssueRelationChoices._RELATION_PAIRS}
+IssueRelationChoices._REVERSE_MAPPING = dict(IssueRelationChoices._RELATION_PAIRS)
 
 
 class IssueRelation(ProjectBaseModel):

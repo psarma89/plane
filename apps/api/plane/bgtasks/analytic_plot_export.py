@@ -197,7 +197,7 @@ def generate_segmented_rows(
     cycle_details,
     module_details,
 ):
-    segment_zero = list(set(item.get("segment") for sublist in distribution.values() for item in sublist))
+    segment_zero = list({item.get("segment") for sublist in distribution.values() for item in sublist})
 
     segmented = segment
 

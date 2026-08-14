@@ -48,9 +48,41 @@ indent-style = "space"
 line-ending = "auto"
 
 [tool.ruff.lint]
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-select = ["E", "F"]
-ignore = []
+# Ruff runs a rule only when its family appears here. Every family below is
+# clean on this branch, so each one blocks new violations from today.
+select = [
+    "E",     # pycodestyle errors
+    "F",     # Pyflakes
+    "S",     # flake8-bandit. Gates SQL injection, eval, pickle, yaml.load,
+             # insecure hashes, and `verify=False`, which all sit at zero.
+    "DJ",    # flake8-django. Django model and ModelForm anti-patterns.
+    "ASYNC", # flake8-async. Blocking calls inside async def.
+    "C4",    # flake8-comprehensions
+    "PIE",   # flake8-pie
+    "PT",    # flake8-pytest-style
+    "RSE",   # flake8-raise
+    "EXE",   # flake8-executable
+    "FLY",   # flynt. static-join-to-f-string
+    "ISC",   # flake8-implicit-str-concat
+    "LOG",   # flake8-logging
+    "INT",   # flake8-gettext
+    "YTT",   # flake8-2020. Unsafe sys.version checks.
+]
+
+# Each entry is a rule that fires on code already on this branch. The number is
+# the violation count with ruff 0.9.7, which is what a full fix costs. Clear an
+# entry, then delete its line. Never add an entry to silence new code.
+ignore = [
+    "DJ001", # 94: null=True on a string-based model field. Every fix needs a migration.
+    "S113",  # 10: HTTP request with no timeout. Fix this one first. A request
+             #     with no timeout can hang a worker until the process restarts.
+    "S311",  # 30: non-cryptographic random. Needs a read of each call site.
+    "S105",  #  6: possible hardcoded password string.
+    "S106",  #  4: possible hardcoded password argument.
+    "S110",  #  4: try-except-pass. Each site needs a decision about logging.
+    "S104",  #  3: bind to all interfaces. Intended in the container entry points.
+    "S603",  #  2: subprocess call without an explicit shell argument.
+]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
@@ -59,13 +91,41 @@ unfixable = []
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
+# ---------------------------------------------------------------------------
+# The six sections below configure rule families that `select` does not list,
+# so ruff never reads them. Each one needs its code added to `select` to take
+# effect. The number is the violation count with ruff 0.9.7, measured on the
+# commit that added this comment.
+#
+#   pep8-naming            N       166  (159 are N806, a non-lowercase local)
+#   mccabe                 C90      29  needs refactoring, not a fix
+#   isort                  I       334  every one is autofixable
+#   flake8-tidy-imports    TID      49  parent-relative imports
+#   pycodestyle            W       194  (185 are W505, and max-doc-length = 88
+#                                        contradicts line-length = 120)
+#   pydocstyle             D      3880  docstring style only
+#
+# Other families measured at the same time, none of them selected:
+#   RUF 651 (479 are RUF012)   UP 279   PL 246   SIM 90   FA 83   G 60
+#   PERF 22 (20 trade readability for speed)
+#
+# Start with I. It is the largest family that a single `--fix` run clears.
+# ---------------------------------------------------------------------------
+
 [tool.ruff.lint.pep8-naming]
 # Allow lowercase variables like "id"
 classmethod-decorators = ["classmethod", "validator", "root_validator"]
 
 [tool.ruff.lint.per-file-ignores]
-# Ignore specific rules for tests
+# Ignore specific rules for tests.
+# This glob matches nothing today. Every test file sits in plane/tests/, and
+# apps/api/tests/ holds only markdown. E402, F401, and F811 already report zero
+# violations under plane/tests/, so no test file needs the exemption. Kept for
+# the day a test lands in apps/api/tests/.
 "tests/*" = ["E402", "F401", "F811"]
+# An assert is the point of a test, so S101 does not apply there. Written with
+# a leading `**` because the tests live at plane/tests/, not tests/.
+"**/tests/**" = ["S101"]
 # Ignore imported but unused in __init__.py files
 "__init__.py" = ["F401"]
 

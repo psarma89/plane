@@ -137,7 +137,7 @@ def create_labels(workspace, project, user_id):
                 created_by_id=user_id,
                 sort_order=random.randint(0, 65535),
             )
-            for _ in range(0, 50)
+            for _ in range(50)
         ],
         ignore_conflicts=True,
     )
@@ -193,7 +193,7 @@ def create_modules(workspace, project, user_id, module_count):
     Faker.seed(0)
 
     modules = []
-    for _ in range(0, module_count):
+    for _ in range(module_count):
         start_date = [None, fake.date_this_year()][random.randint(0, 1)]
         end_date = (
             None
@@ -223,7 +223,7 @@ def create_pages(workspace, project, user_id, pages_count):
     Faker.seed(0)
 
     pages = []
-    for _ in range(0, pages_count):
+    for _ in range(pages_count):
         text = fake.text(max_nb_chars=60000)
         pages.append(
             Page(
@@ -289,7 +289,7 @@ def create_issues(workspace, project, user_id, issue_count):
 
     largest_sort_order = 65535 if largest_sort_order is None else largest_sort_order + 10000
 
-    for _ in range(0, issue_count):
+    for _ in range(issue_count):
         start_date = [None, fake.date_this_year()][random.randint(0, 1)]
         end_date = (
             None

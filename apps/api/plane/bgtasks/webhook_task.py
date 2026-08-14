@@ -363,7 +363,7 @@ def webhook_send_task(
                     current_site=current_site,
                 )
             return
-        raise requests.RequestException()
+        raise requests.RequestException
 
     except ValueError as e:
         # SSRF validation failure (blocked/internal target or unresolvable host).

@@ -200,7 +200,7 @@ def _compute_html_sanitization_diff(before_html: str, after_html: str):
             after_set = attrs_after.get(tag, set())
             removed = before_set - after_set
             if removed:
-                removed_attributes[tag] = sorted(list(removed))
+                removed_attributes[tag] = sorted(removed)
 
         return {"removed_tags": removed_tags, "removed_attributes": removed_attributes}
     except Exception:

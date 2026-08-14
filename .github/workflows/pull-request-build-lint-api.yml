@@ -24,9 +24,7 @@ jobs:
     name: Lint API
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    if: |
-      github.event.pull_request.draft == false &&
-      github.event.pull_request.requested_reviewers != null
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
     steps:
       - uses: actions/checkout@v6
       - name: Set up Python
@@ -35,9 +33,16 @@ jobs:
           python-version: "3.12.x"
           cache: 'pip'
           cache-dependency-path: 'apps/api/requirements.txt'
-      - name: Install Pylint
-        run: python -m pip install ruff
+      # Keep this pin equal to ruff in apps/api/requirements/local.txt. CI
+      # installs requirements.txt, which resolves to production.txt and does
+      # not carry ruff, so an unpinned install here reports different results
+      # than a developer gets locally.
+      - name: Install ruff
+        run: python -m pip install ruff==0.9.7
       - name: Install API Dependencies
         run: cd apps/api && pip install -r requirements.txt
+      # No --fix. A fix applied here is discarded with the runner, so the job
+      # would report success for code that still violates the rule on the
+      # branch. --output-format=github annotates the diff instead.
       - name: Lint apps/api
-        run: ruff check --fix apps/api
+        run: ruff check --output-format=github apps/api

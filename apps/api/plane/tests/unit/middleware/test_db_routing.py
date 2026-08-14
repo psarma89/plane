@@ -272,7 +272,7 @@ class TestAttributeDetection:
         assert result is True  # Should use direct attribute
 
     @pytest.mark.parametrize(
-        "value,expected",
+        ("value", "expected"),
         [
             (True, True),
             (False, False),
