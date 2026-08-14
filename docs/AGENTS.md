@@ -75,6 +75,18 @@ Every folder inherits these four rules. No sub-folder repeats them.
 - Keep one diagram under about 15 nodes. Split a larger diagram into focused sections in the same page.
 - Add a prose table below every diagram. The table holds the detail. The diagram holds the shape.
 
+## Placeholders
+
+Write a placeholder in braces: `{slug}`. Never leave one bare in angle brackets: `<slug>`.
+
+GitHub Markdown reads a bare `<slug>` as an HTML tag and drops it from the page. Mermaid drops it from a node label. The diagram still parses and the build still passes, so the failure is silent. The page ships with a blank cell or an empty box. No build step catches this.
+
+- In a `TEMPLATE.md` fill-in slot, use braces everywhere, including inside backticks. A reader copies the row whole, so one syntax must cover it.
+- A fenced code block renders its content literally. Leave a placeholder inside one alone.
+- Quote a Mermaid label that holds a placeholder: `a["{container-id}"]`. Backticks do not protect an angle bracket inside a Mermaid label, and a bare brace reads as a node shape.
+- A real HTML tag, such as `<br/>` or `<i>`, is intentional. Leave it.
+- A literal string that a writer must type, such as `<redacted>`, is not a placeholder. Leave it.
+
 ## Dates and staleness
 
 - Write every date as `YYYY-MM-DD`. Never write a relative date such as "last month".
