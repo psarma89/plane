@@ -26,11 +26,17 @@ For unattended use:
 
 ## What it destroys
 
-| Order | Target                       | Command                                                                      |
-| ----- | ---------------------------- | ---------------------------------------------------------------------------- |
-| 1     | Containers, volumes, network | `docker compose -f docker-compose-local.yml -p {project} down -v`                       |
-| 2     | Frontend dev servers         | `kill` on the PID that holds the web, admin, space, or live port             |
-| 3     | Generated files              | `.env`, `apps/api/.env`, `apps/{web,admin,space,live}/.env`, `.plane-env.sh` |
+| Order | Target | Command |
+| --- | --- | --- |
+| 1 | Containers, volumes, network | `docker compose -f docker-compose-local.yml -p {project} down -v` |
+| 2 | The backend test project | `docker compose -f docker-compose-test.yml -p {test-project} down -v` |
+| 3 | Frontend dev servers | `kill` on the PID that holds the web, admin, space, or live port |
+| 4 | Generated files | `.env`, `apps/api/.env`, `apps/{web,admin,space,live}/.env`, `.plane-env.sh` |
+
+The backend test suite runs in its own Compose project, named per branch, so step
+1 does not reach it. Step 2 exists because nothing else removes it, and because
+step 4 deletes `.plane-env.sh`, which is the only file that records the name.
+The script reads the name before it deletes the file.
 
 Volumes always go. There is no flag that keeps them.
 
@@ -60,8 +66,14 @@ The script reads `COMPOSE_PROJECT_NAME` from `.env` and acts on that project
 only. Another worktree's stack is a different project, with different volumes,
 and this skill does not touch it.
 
-If `.env` is absent, the script falls back to the directory name, which is what
-Docker Compose uses when no project name is set.
+If `.env` is absent, the script falls back to the directory name, normalized the
+way Docker Compose normalizes it: lower-cased, with every character outside
+`[a-z0-9_-]` removed.
+
+A raw `basename` is not enough. A checkout at `~/Development/Plane` yields
+`Plane`, while the running project is `plane`. `down -v` then matches nothing and
+exits 0, so the script reports success while every container and volume survives,
+and the `.env` that named them is already gone.
 
 ## Related
 

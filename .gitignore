@@ -113,11 +113,13 @@ build/
 build/
 .react-router/
 temp/
-# This pattern is not anchored, so it ignores a scripts/ directory at any depth.
-# Every directory that must stay tracked needs its own exception below.
-scripts/
+# Anchored on purpose. Upstream ships this as a bare `scripts/`, which ignores a
+# scripts directory at ANY depth, and that silently dropped two committed skill
+# script directories. Every scripts/ directory in this tree is one we track, so
+# the pattern earns nothing unanchored. The exception below is upstream's and is
+# now redundant. It stays so that a merge from upstream applies cleanly.
+/scripts/
 !packages/i18n/scripts/
-!.claude/skills/*/scripts/
 
 # i18n auto-generated types (regenerated on every build)
 packages/i18n/src/types/keys.generated.ts

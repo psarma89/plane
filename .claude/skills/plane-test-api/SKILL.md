@@ -10,43 +10,57 @@ user_invocable: true
 
 ## Always set the project name first
 
+If the checkout has a `.plane-env.sh`, which `plane-env-create` writes, use the
+name that file already records:
+
 ```bash
-export COMPOSE_PROJECT_NAME="plane-api-tests-$(git branch --show-current \
+source .plane-env.sh
+export COMPOSE_PROJECT_NAME="$PLANE_TEST_PROJECT_NAME"
+```
+
+Otherwise derive the same name. Use `git rev-parse`, not `git branch
+--show-current`, so that the result matches what `plane-env-create` wrote:
+
+```bash
+export COMPOSE_PROJECT_NAME="plane-api-tests-$(git rev-parse --abbrev-ref HEAD \
   | tr '[:upper:]' '[:lower:]' | tr -c 'a-z0-9' '-' | sed -E 's/-+/-/g; s/^-|-$//g')"
 ```
 
-Two reasons, and both matter.
+`git branch --show-current` prints nothing on a detached HEAD, mid-rebase, and
+mid-bisect, which collapses the name to `plane-api-tests-` and puts every
+detached checkout on the machine into one project. `git rev-parse --abbrev-ref
+HEAD` prints `HEAD` in the same states, which is what `plane-env-create` uses.
 
-**The project name protects the development stack.** Both compose files in this
-repository resolve to the same project name. Without this variable the test
-stack joins the development stack's project. A later `docker compose ...
---remove-orphans` then deletes every container of the other stack. Confirmed
-with `docker compose --dry-run -f docker-compose-test.yml down
---remove-orphans`, which listed the development `api`, `worker`, `plane-db`,
-`plane-mq`, `plane-minio`, and `migrator` containers for removal.
+Two reasons this variable matters, and both are load-bearing.
+
+**It protects the development stack.** Both compose files in this repository
+resolve to the same project name. Without this variable the test stack joins the
+development stack's project. A later `docker compose ... --remove-orphans` then
+deletes every container of the other stack. Confirmed with `docker compose
+--dry-run -f docker-compose-test.yml down --remove-orphans`, which listed the
+development `api`, `worker`, `plane-db`, `plane-mq`, `plane-minio`, and
+`migrator` containers for removal.
 
 **The branch suffix keeps two worktrees apart.** A fixed name gives every
 checkout one project, so a second worktree that starts a test run joins the
-first run's containers and the two suites share one database. The suffix gives
-each branch its own project. `docker-compose-test.yml` publishes no host port
-and declares no named volume, so the project name is the only thing that
-couples two runs. Scope it and the runs are independent.
+first run's containers and the two suites share one database.
+`docker-compose-test.yml` publishes no host port and declares no named volume,
+so the project name is the only thing that couples two runs. Scope it and the
+runs are independent.
 
 Never pass `--remove-orphans` in this repository.
 
-Every command below assumes that this variable is exported in the current
-shell.
-
-> **Destructive:** `.plane-env.sh` exports `COMPOSE_PROJECT_NAME` for the
-> **development** stack. If you source that file and then run a test command
-> without overriding the variable, the test stack joins the development project.
-> Always set the test name after you source it. `plane-env-create` writes
-> `PLANE_TEST_PROJECT_NAME` into the same file for exactly this purpose, so the
-> safe one-liner is:
+> **Destructive:** the hazard is `.env`, not `.plane-env.sh`. Docker Compose
+> auto-loads `.env` from the working directory on every invocation, and
+> `plane-env-create` writes `COMPOSE_PROJECT_NAME` into it. So a brand-new
+> terminal that sources nothing is exposed as well. Verified: with only
+> `COMPOSE_PROJECT_NAME=dev-stack-xyz` in `.env`, `docker compose -f
+> docker-compose-test.yml config` reports `name: dev-stack-xyz`.
 >
-> ```bash
-> export COMPOSE_PROJECT_NAME="$PLANE_TEST_PROJECT_NAME"
-> ```
+> Export the test project name in every shell that runs a test command. Sourcing
+> `.plane-env.sh` is not the trigger, and skipping it is not a defence.
+
+Every command below assumes that this variable is exported in the current shell.
 
 ## Whole suite
 

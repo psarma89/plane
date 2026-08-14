@@ -15,8 +15,29 @@ die() { red "Error: $1" >&2; exit 1; }
 read_var() { grep "^$2=" "$1" 2>/dev/null | head -1 | cut -d= -f2- | tr -d '"' || true; }
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)
+
+# Docker Compose derives a default project name from the directory name by
+# lower-casing it and dropping every character outside [a-z0-9_-]. A raw
+# `basename` does not match that, so a checkout at ~/Development/Plane produced
+# `Plane` while the real project was `plane`. `down -v` then matched nothing,
+# exited 0, and this script reported success while every container survived.
+normalize_project_name() {
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9_-]//g; s/^[^a-z0-9]+//'
+}
+
 PROJECT=$(read_var .env COMPOSE_PROJECT_NAME)
-[ -n "$PROJECT" ] || PROJECT=$(basename "$PWD")
+[ -n "$PROJECT" ] || PROJECT=$(normalize_project_name "$(basename "$PWD")")
+
+# The backend test suite runs in its own project, named per branch so that two
+# worktrees do not share one test database. Nothing else removes it, and this
+# script deletes .plane-env.sh, which is the only file that records the name. So
+# read it before that happens and tear it down too.
+# .plane-env.sh writes `export KEY=value`, so read_var's `^KEY=` pattern misses it.
+TEST_PROJECT=$(grep '^export PLANE_TEST_PROJECT_NAME=' .plane-env.sh 2>/dev/null \
+  | head -1 | cut -d= -f2- | tr -d '"' || true)
+if [ -z "$TEST_PROJECT" ] && [ -n "$PROJECT" ]; then
+  TEST_PROJECT="plane-api-tests-${PROJECT#plane-}"
+fi
 
 # Frontend ports only. The API, PostgreSQL, Valkey, and MinIO ports are
 # published by Docker, and the process that holds them is com.docker.backend.
@@ -45,9 +66,29 @@ echo
 printf '  Branch:  %s\n' "$BRANCH"
 printf '  Project: %s\n' "$PROJECT"
 echo
+# `docker compose ps` exits 0 when the project holds no container, so a `||`
+# fallback never fires and the heading was followed by a blank line. On the one
+# screen that stands between the user and an irreversible `down -v`, a blank line
+# reads as a failed lookup rather than "there is nothing to remove".
+list_containers() {
+  docker compose -f "$COMPOSE_FILE" -p "$1" ps --format '    {{.Name}} ({{.State}})' 2>/dev/null || true
+}
+
 echo '  Containers:'
-docker compose -f "$COMPOSE_FILE" -p "$PROJECT" ps --format '    {{.Name}} ({{.State}})' 2>/dev/null \
-  || echo '    none running'
+CONTAINER_LIST=$(list_containers "$PROJECT")
+if [ -n "$CONTAINER_LIST" ]; then
+  printf '%s\n' "$CONTAINER_LIST"
+else
+  echo '    none running'
+fi
+echo
+echo "  Backend test project ($TEST_PROJECT):"
+TEST_CONTAINER_LIST=$(list_containers "$TEST_PROJECT")
+if [ -n "$TEST_CONTAINER_LIST" ]; then
+  printf '%s\n' "$TEST_CONTAINER_LIST"
+else
+  echo '    none running'
+fi
 echo
 echo '  Volumes, with every row of data in them:'
 for volume in pgdata uploads redisdata rabbitmq_data; do
@@ -96,6 +137,15 @@ fi
 # declares, which is the whole target of this script.
 bold "Removing containers, volumes, and the network"
 docker compose -f "$COMPOSE_FILE" -p "$PROJECT" down -v
+
+# The test project is a separate Compose project, so the call above does not
+# reach it. Without this, every branch that ever ran the backend suite leaks one
+# test project, and the name is gone as soon as .plane-env.sh is deleted below.
+if [ -n "$TEST_PROJECT" ] && [ "$TEST_PROJECT" != "$PROJECT" ]; then
+  bold "Removing the backend test project $TEST_PROJECT"
+  docker compose -f docker-compose-test.yml -p "$TEST_PROJECT" down -v 2>/dev/null \
+    || bold "  nothing to remove for $TEST_PROJECT"
+fi
 
 bold "Stopping the frontend dev servers"
 for pid in $FOUND_PIDS; do
