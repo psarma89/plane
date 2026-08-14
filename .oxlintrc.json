@@ -49,5 +49,23 @@
         "ignoreRestSiblings": true
       }
     ]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["**/core/components/**", "**/core/hooks/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "warn",
+          {
+            "patterns": [
+              {
+                "group": ["@/services", "@/services/*", "@/services/**"],
+                "message": "Components and hooks reach the API through a store slice. Import the hook from core/hooks/store/ instead. Only core/store/ may import a service."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }

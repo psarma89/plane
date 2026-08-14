@@ -47,16 +47,32 @@ The config applies to all TypeScript and JavaScript files across:
 
 OxLint uses category-based configuration:
 
-| Category        | Level | What It Catches                                    |
-| --------------- | ----- | -------------------------------------------------- |
-| **correctness** | error | Real bugs that will cause runtime errors            |
-| **suspicious**  | warn  | Code patterns that are likely mistakes              |
-| **perf**        | warn  | Performance anti-patterns                           |
+| Category        | Level | What It Catches                          |
+| --------------- | ----- | ---------------------------------------- |
+| **correctness** | warn  | Real bugs that will cause runtime errors |
+| **suspicious**  | warn  | Code patterns that are likely mistakes   |
+| **perf**        | warn  | Performance anti-patterns                |
 
 Additional rule overrides:
+
 - `react/prop-types` off (TypeScript handles prop validation)
 - `no-unused-vars` warns with `_` prefix pattern ignored
 - Several noisy unicorn rules disabled
+
+## Architectural boundaries
+
+The `overrides` block holds rules that enforce layering, not style.
+
+| Rule                    | Applies to                                  | What it blocks                                                                                                                    |
+| ----------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `no-restricted-imports` | `**/core/components/**`, `**/core/hooks/**` | An import of `@/services/*`. A component reads state through a hook in `core/hooks/store/`. Only `core/store/` imports a service. |
+
+The rule is `warn`, not `error`. That choice is deliberate:
+
+- 61 files in `apps/web` already break the boundary. An `error` level breaks CI on code that nobody touched.
+- The pre-commit hook runs `oxlint --fix --deny-warnings` on staged files. A warning is therefore a hard block on any file you edit.
+
+The result is a ratchet. Old violations stay until someone refactors them. New violations cannot land.
 
 ## Backward Compatibility
 
