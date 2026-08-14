@@ -9,6 +9,7 @@ One page per operational task. Each page gives numbered steps, a verification, a
 - [Run JavaScript Tests](./run-javascript-tests-sop.md) - Risk: Low - run the two Vitest suites, and read what they do not cover.
 - [Run Static Checks](./run-static-checks-sop.md) - Risk: Low - run lint, format, and type checks, and tell your failure from the two that are already red on dev.
 - [Apply Database Migration](./apply-database-migration-sop.md) - Risk: High - author, preview, apply, and reverse a Django migration, and know that the reversal floor is db 0107.
+- [Add Environment Variable](./add-environment-variable-sop.md) - Risk: Low - add or change a variable across the six .env files, and apply it to the right process.
 
 Entry format: `- [Title](./<slug>-sop.md) - Risk: Low | Medium | High - one-line summary`
 
