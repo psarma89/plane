@@ -10,6 +10,12 @@ Plane is a pnpm and Turbo monorepo. `apps/` holds the deployables. `packages/` h
 - Build every shared component in `@plane/ui` with a Storybook story. Do not add one straight to an app.
 - Components and hooks never import a service. Only `core/store/` imports one. A component reads state through a hook in `core/hooks/store/`. `no-restricted-imports` in `.oxlintrc.json` enforces this, and the pre-commit hook blocks the commit.
 
+## Scoped conventions
+
+- `apps/api/AGENTS.md` and `apps/web/AGENTS.md` hold the per-app rules and traps.
+- `CONTEXT.md` maps the product names to the code names. Read it before you name anything.
+- `docs/architecture/plane-patterns-census.md` holds every measured pattern count. `bin/check-agents-md` verifies every reference in the instruction files, and `bin/check-counts` verifies every count.
+
 ## Instruction files
 
 The two files below hold the shell and TypeScript conventions. They carry Copilot `applyTo:` frontmatter, which only Copilot reads. The imports load them for every other agent.

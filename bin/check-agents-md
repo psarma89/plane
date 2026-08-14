@@ -1,0 +1,236 @@
+#!/usr/bin/env bash
+# Assert that every path and command named in an instruction file exists.
+#
+# Why this exists:
+#   Instruction files rot silently. A path moves, a script is renamed, and the
+#   prose keeps pointing at the old name. Prose that humans read drifts.
+#   Assertions do not.
+#
+# Files checked:
+#   Every AGENTS.md outside node_modules, plus CONTEXT.md. CLAUDE.md is checked
+#   only when it is a real file. In this repo it is a symlink to AGENTS.md, so a
+#   check would run twice on the same content.
+#
+# Checks, per instruction file:
+#   1. Every `bin/{name}` exists and is executable.
+#   2. Every `pnpm {script}` and `pnpm --filter {pkg} {script}` exists in a package.json.
+#   3. Every backticked repo-relative path resolves on disk.
+#
+# Usage:
+#   bin/check-agents-md          # check, exit 1 on any failure
+#   bin/check-agents-md --list   # show what it parsed, do not fail
+set -uo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
+
+LIST_ONLY=false
+[ "${1:-}" = "--list" ] && LIST_ONLY=true
+
+# Discover the instruction files. Never hardcode the list, because the point of
+# this script is that the file system wins over any written inventory.
+FILES=()
+while IFS= read -r f; do
+  FILES+=("${f#./}")
+done < <(find . -name 'AGENTS.md' -not -path '*/node_modules/*' -not -path './.git/*' | sort)
+[ -f CONTEXT.md ] && FILES+=("CONTEXT.md")
+[ -f CLAUDE.md ] && [ ! -L CLAUDE.md ] && FILES+=("CLAUDE.md")
+
+if [ ${#FILES[@]} -eq 0 ]; then
+  echo "no instruction files found" >&2
+  exit 1
+fi
+
+FAILURES=0
+CHECKED=0
+
+fail() {
+  FAILURES=$((FAILURES + 1))
+  echo "  FAIL  $1"
+}
+
+ok() {
+  CHECKED=$((CHECKED + 1))
+  [ "$LIST_ONLY" = true ] && echo "  ok    $1"
+  return 0
+}
+
+# script_exists <package.json> <script-name>
+script_exists() {
+  [ -f "$1" ] || return 1
+  node -e "
+    const p = require('$PWD/$1');
+    process.exit(p.scripts && p.scripts['$2'] ? 0 : 1);
+  " 2>/dev/null
+}
+
+# pkg_json <pnpm-filter-value>
+# Resolve a pnpm --filter value to its package.json by name or directory.
+pkg_json() {
+  # The program is wrapped in a function, because node -e rejects a top-level return.
+  node -e '(() => {
+    const fs = require("fs"), path = require("path");
+    const want = process.argv[1];
+    for (const base of ["apps", "packages"]) {
+      if (!fs.existsSync(base)) continue;
+      for (const d of fs.readdirSync(base)) {
+        const pj = path.join(base, d, "package.json");
+        if (!fs.existsSync(pj)) continue;
+        let name;
+        try { name = JSON.parse(fs.readFileSync(pj, "utf8")).name; } catch { continue; }
+        if (name === want || d === want) { console.log(pj); return; }
+      }
+    }
+  })()' "$1" 2>/dev/null
+}
+
+for FILE in "${FILES[@]}"; do
+  echo "$FILE"
+
+  # Collect backticked tokens, one per line.
+  TOKENS="$(grep -o '`[^`]*`' "$FILE" 2>/dev/null | sed 's/^`//; s/`$//' || true)"
+
+  while IFS= read -r tok; do
+    [ -z "$tok" ] && continue
+
+    # --- bin/ scripts ---------------------------------------------------------
+    if [[ "$tok" =~ ^(bin/[A-Za-z0-9._/-]+) ]]; then
+      script="${BASH_REMATCH[1]}"
+      if [ -d "$script" ]; then
+        ok "$tok (directory)"
+      elif [ ! -f "$script" ]; then
+        fail "$tok -> $script does not exist"
+      elif [ ! -x "$script" ]; then
+        fail "$tok -> $script is not executable"
+      else
+        ok "$tok"
+      fi
+      continue
+    fi
+
+    # --- pnpm --filter <pkg> <script>, with = or space after --filter ---------
+    if [[ "$tok" =~ ^pnpm[[:space:]]+--filter[=[:space:]]([^[:space:]]+)[[:space:]]+(run[[:space:]]+)?([A-Za-z][A-Za-z0-9:_-]*) ]]; then
+      pkg="${BASH_REMATCH[1]}"
+      scr="${BASH_REMATCH[3]}"
+      # A placeholder filter such as {pkg} is an example, not a reference.
+      if [[ "$pkg" == *"{"* || "$pkg" == *"<"* || "$scr" == *"{"* ]]; then
+        ok "$tok (placeholder, skipped)"
+        continue
+      fi
+      pj="$(pkg_json "$pkg")"
+      if [ -z "$pj" ]; then
+        fail "$tok -> package '$pkg' not found under apps/ or packages/"
+      elif script_exists "$pj" "$scr"; then
+        ok "$tok"
+      else
+        fail "$tok -> script '$scr' not in $pj"
+      fi
+      continue
+    fi
+
+    # --- pnpm <script> --------------------------------------------------------
+    if [[ "$tok" =~ ^pnpm[[:space:]]+(run[[:space:]]+)?([a-z][a-z0-9:_-]*)$ ]]; then
+      scr="${BASH_REMATCH[2]}"
+      case "$scr" in
+        install | add | remove | exec | dlx)
+          ok "$tok (builtin)"
+          continue
+          ;;
+      esac
+      if script_exists "package.json" "$scr"; then
+        ok "$tok"
+      else
+        fail "$tok -> script '$scr' not in root package.json"
+      fi
+      continue
+    fi
+
+    # --- paths ----------------------------------------------------------------
+    # A token counts as a path if it contains a slash and either has a file
+    # extension or ends in a slash. Skipped: URLs, globs, placeholders, tokens
+    # with spaces or shell fragments, and home-relative paths.
+    #
+    # A nested instruction file names paths relative to its own directory, so
+    # resolve there first and fall back to the repo root.
+    if [[ "$tok" == *"/"* ]] &&
+      [[ "$tok" != *"://"* ]] &&
+      [[ "$tok" != *"*"* ]] &&
+      [[ "$tok" != *" "* ]] &&
+      [[ "$tok" != *'$'* ]] &&
+      [[ "$tok" != *"<"* ]] &&
+      [[ "$tok" != *"{"* ]] &&
+      [[ "$tok" != "~"* ]] &&
+      [[ "$tok" =~ (\.[a-z]+$|/$) ]]; then
+      p="${tok%/}"
+      p="${p#./}"
+      base="$(dirname "$FILE")"
+      # A struck-through token documents a removed path, so its absence is the point.
+      if grep -qF -- "~~\`$tok\`~~" "$FILE"; then
+        ok "$tok (struck through, historical)"
+        continue
+      fi
+      if [ -e "$base/$p" ] || [ -e "$p" ]; then
+        ok "$tok"
+        continue
+      fi
+      # A folder file often names its own folder or a sibling from the parent's
+      # point of view, for example `devops/cicd/` inside docs/devops/AGENTS.md.
+      if [ -e "$(dirname "$base")/$p" ]; then
+        ok "$tok (resolves from the parent directory)"
+        continue
+      fi
+      # A gitignored path is generated. A clean clone does not have it, so its
+      # absence is not a broken reference. Probe both spellings, because a
+      # directory pattern such as `graphify-out/` only matches with the slash.
+      if git check-ignore -q "$p" 2>/dev/null || git check-ignore -q "$tok" 2>/dev/null; then
+        ok "$tok (generated, ignored)"
+        continue
+      fi
+      # A conventions file shows link examples that its child pages use, so the
+      # example resolves one level below the file, not beside it.
+      resolved=""
+      for sub in "$base"/*/; do
+        [ -e "${sub}${p}" ] && resolved="${sub}${p}" && break
+      done
+      if [ -n "$resolved" ]; then
+        ok "$tok (resolves for child pages)"
+        continue
+      fi
+      # Prose often names a path relative to one of the deployable apps, for
+      # example `core/store/` for apps/web/core/store/.
+      for sub in apps/*/ packages/*/; do
+        [ -e "${sub}${p}" ] && resolved="${sub}${p}" && break
+      done
+      if [ -n "$resolved" ]; then
+        ok "$tok (resolves inside $resolved)"
+        continue
+      fi
+      # A single-segment directory token such as `system/` is a name in prose,
+      # not a reference. Every checkable reference above already resolved.
+      if [[ "$tok" =~ ^[A-Za-z0-9._-]+/$ ]]; then
+        ok "$tok (single-segment name, not checked)"
+        continue
+      fi
+      fail "$tok -> not found at $base/$p or $p"
+      continue
+    fi
+
+  done <<<"$TOKENS"
+done
+
+echo ""
+# A checker that verifies nothing must not report success. Zero extracted
+# references means the extraction broke, not that the files are clean.
+if [ "$CHECKED" -eq 0 ]; then
+  echo "FAIL  extracted 0 references. The checker ran but verified nothing."
+  exit 1
+fi
+
+if [ "$FAILURES" -eq 0 ]; then
+  echo "PASS  $CHECKED references verified across ${#FILES[@]} instruction files"
+  exit 0
+fi
+
+echo "FAIL  $FAILURES broken reference(s), $CHECKED verified"
+[ "$LIST_ONLY" = true ] && exit 0
+exit 1
