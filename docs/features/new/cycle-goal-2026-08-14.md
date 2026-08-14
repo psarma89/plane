@@ -3,6 +3,7 @@
 > **Status:** Draft
 > **Owner:** Priyam Sarma
 > **Date:** 2026-08-14
+> **Mockup:** [`cycle-goal-2026-08-14.mockup.html`](./cycle-goal-2026-08-14.mockup.html). Open it with `open docs/features/new/cycle-goal-2026-08-14.mockup.html`.
 > **Work item:** None. This page exists to exercise the feature development flow in [`../../sops/develop-a-feature-sop.md`](../../sops/develop-a-feature-sop.md).
 > **Pull request:** {Link, once one exists}
 
@@ -152,6 +153,23 @@ frontend defect and is not one.
   `packages/i18n/src/locales/en/cycle.json`. Use the `translate` skill.
 - **Accessibility**: The input needs a label bound by `htmlFor`. The list row
   renders the goal as text, not as a title attribute.
+
+### What the mockup decided
+
+The form takes one input, so on its own it does not need a drawing. The list row
+does. That row already carries a name, a progress bar, a percentage, a date range,
+and a favorite control, so a new line in it is a layout decision and not a field.
+
+The gate is in `.claude/skills/plan-feature/MOCKUP.md`.
+
+| Question                   | Answer                                                                                               |
+| -------------------------- | ---------------------------------------------------------------------------------------------------- |
+| An empty goal              | Render nothing. No placeholder. A placeholder in every row is noise, and most cycles carry no goal.  |
+| A goal longer than the row | Truncate on one line with an ellipsis. Do not wrap. A row that grows to three lines breaks the list. |
+| The color                  | `text-tertiary`, under the cycle name. The name stays the subject of the row.                        |
+
+Each answer is cheap now and expensive in review. None of the three appears in the
+prose above, which is the reason the drawing exists.
 
 `packages/types` is a built package. After the type changes, run
 `pnpm --filter @plane/types build` before any `check:types`, or the new member

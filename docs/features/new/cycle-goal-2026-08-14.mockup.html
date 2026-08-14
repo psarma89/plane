@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Mockup: Cycle goal</title>
+    <!--
+      The real design tokens. The browser can refuse a local subresource, so every
+      var() below carries a literal fallback taken from this same file.
+    -->
+    <link rel="stylesheet" href="../../../packages/tailwind-config/variables.css" />
+    <style>
+      :root {
+        --canvas: var(--bg-canvas, oklch(0.9543 0.001 230.67));
+        --surface: var(--bg-surface-1, oklch(1 0 0));
+        --layer: var(--bg-layer-1, oklch(0.9696 0.0007 230.67));
+        --primary: var(--txt-primary, oklch(0.2378 0.0029 230.83));
+        --secondary: var(--txt-secondary, oklch(0.4377 0.0066 230.87));
+        --tertiary: var(--txt-tertiary, oklch(0.5288 0.0083 230.88));
+        --placeholder: var(--txt-placeholder, oklch(0.6161 0.009153 230.867));
+        --danger: var(--txt-danger-primary, oklch(0.4446 0.1774 26.79));
+        --edge: var(--border-subtle, oklch(0.9389 0.0014 230.68));
+        --accent: var(--bg-accent-primary, oklch(0.4799 0.1158 242.91));
+        --success: var(--bg-success-primary, oklch(0.632 0.185972 147.3695));
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0; padding: 32px;
+        background: var(--canvas); color: var(--primary);
+        font: 14px/1.5 ui-sans-serif, system-ui, sans-serif;
+      }
+      .wrap { max-width: 940px; margin: 0 auto; }
+      .banner {
+        background: var(--surface); border: 1px solid var(--edge);
+        border-left: 4px solid var(--accent);
+        border-radius: 6px; padding: 14px 18px; margin-bottom: 28px;
+      }
+      .banner h1 { margin: 0 0 6px; font-size: 17px; }
+      .banner p { margin: 4px 0 0; color: var(--secondary); font-size: 13px; }
+      code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+      h2 { font-size: 15px; margin: 32px 0 4px; }
+      h2 + p { margin: 0 0 14px; color: var(--tertiary); font-size: 12px; }
+      .states { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+      .state { flex: 1 1 280px; }
+      .state > figcaption {
+        font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+        color: var(--tertiary); margin-bottom: 6px;
+      }
+      /* The modal sits on its own plane, so it takes a surface. */
+      .modal {
+        background: var(--surface); border: 1px solid var(--edge);
+        border-radius: 8px; padding: 16px; box-shadow: 0 6px 20px rgb(0 0 0 / 8%);
+      }
+      .modal h3 { margin: 0 0 12px; font-size: 15px; color: var(--secondary); }
+      .field { margin-bottom: 10px; }
+      .input {
+        width: 100%; background: var(--layer); border: 1px solid var(--edge);
+        border-radius: 5px; padding: 7px 9px; font-size: 13px; color: var(--primary);
+      }
+      .input.is-empty { color: var(--placeholder); }
+      .input.is-invalid { border-color: var(--danger); }
+      .input.textarea { min-height: 54px; }
+      .new { position: relative; }
+      .new::after {
+        content: "NEW"; position: absolute; top: -7px; right: 8px;
+        background: var(--accent); color: #fff; font-size: 9px; font-weight: 700;
+        letter-spacing: 0.06em; padding: 1px 5px; border-radius: 3px;
+      }
+      .error { color: var(--danger); font-size: 11px; margin-top: 3px; }
+      .dates { display: flex; gap: 8px; }
+      /* The list is a top-level container, so its rows take a layer. */
+      .list { background: var(--surface); border: 1px solid var(--edge); border-radius: 8px; }
+      .row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; }
+      .row + .row { border-top: 1px solid var(--edge); }
+      .row-main { flex: 1; min-width: 0; }
+      .row-name { font-weight: 500; }
+      .row-goal {
+        color: var(--tertiary); font-size: 12px; margin-top: 2px;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      }
+      .meta { color: var(--tertiary); font-size: 12px; white-space: nowrap; }
+      .bar { width: 54px; height: 5px; border-radius: 3px; background: var(--edge); }
+      .bar > span { display: block; height: 100%; border-radius: 3px; background: var(--success); }
+      .note {
+        background: var(--surface); border: 1px solid var(--edge); border-radius: 6px;
+        padding: 12px 16px; margin-top: 10px; font-size: 12px; color: var(--secondary);
+      }
+      .note strong { color: var(--primary); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="banner">
+        <h1>Mockup: Cycle goal</h1>
+        <p>Sketch of intent. Not a screenshot, and not a component.</p>
+        <p>Spec: <code>docs/features/new/cycle-goal-2026-08-14.md</code> &middot; 2026-08-14</p>
+      </div>
+
+      <h2>1. The create and update modal</h2>
+      <p><code>apps/web/core/components/cycles/form.tsx</code> &middot; one input, between Title and Description</p>
+      <div class="states">
+        <figure class="state" style="margin:0">
+          <figcaption>Empty</figcaption>
+          <div class="modal">
+            <h3>Create Cycle</h3>
+            <div class="field"><div class="input is-empty">Title</div></div>
+            <div class="field new"><div class="input is-empty">What is this cycle for?</div></div>
+            <div class="field"><div class="input is-empty textarea">Description</div></div>
+            <div class="field dates">
+              <div class="input is-empty">Start date</div>
+              <div class="input is-empty">End date</div>
+            </div>
+          </div>
+        </figure>
+
+        <figure class="state" style="margin:0">
+          <figcaption>Filled</figcaption>
+          <div class="modal">
+            <h3>Update Cycle</h3>
+            <div class="field"><div class="input">Sprint 14</div></div>
+            <div class="field new"><div class="input">Ship the export pipeline behind a flag</div></div>
+            <div class="field"><div class="input is-empty textarea">Description</div></div>
+            <div class="field dates">
+              <div class="input">Aug 1, 2026</div>
+              <div class="input">Aug 14, 2026</div>
+            </div>
+          </div>
+        </figure>
+
+        <figure class="state" style="margin:0">
+          <figcaption>Over the limit</figcaption>
+          <div class="modal">
+            <h3>Update Cycle</h3>
+            <div class="field"><div class="input">Sprint 14</div></div>
+            <div class="field new">
+              <div class="input is-invalid">Ship the export pipeline behind a flag, and also&hellip;</div>
+              <div class="error">The goal must be 255 characters or fewer.</div>
+            </div>
+            <div class="field"><div class="input is-empty textarea">Description</div></div>
+            <div class="field dates">
+              <div class="input">Aug 1, 2026</div>
+              <div class="input">Aug 14, 2026</div>
+            </div>
+          </div>
+        </figure>
+      </div>
+
+      <h2>2. The cycles list row</h2>
+      <p><code>apps/web/core/components/cycles/list/cycles-list-item.tsx</code> &middot; the dense surface, and the reason this feature earns a mockup</p>
+      <div class="list">
+        <div class="row">
+          <div class="row-main">
+            <div class="row-name">Sprint 14</div>
+            <div class="row-goal">Ship the export pipeline behind a flag</div>
+          </div>
+          <div class="bar"><span style="width:60%"></span></div>
+          <div class="meta">60%</div>
+          <div class="meta">Aug 1 &ndash; Aug 14</div>
+          <div class="meta">&starf;</div>
+        </div>
+        <div class="row">
+          <div class="row-main">
+            <div class="row-name">Sprint 15</div>
+            <!-- No goal. The line is absent, so the row keeps its old height. -->
+          </div>
+          <div class="bar"><span style="width:0%"></span></div>
+          <div class="meta">0%</div>
+          <div class="meta">Aug 15 &ndash; Aug 28</div>
+          <div class="meta">&starf;</div>
+        </div>
+        <div class="row">
+          <div class="row-main">
+            <div class="row-name">Sprint 13</div>
+            <div class="row-goal">
+              Close every open defect from the July release, verify each fix against the
+              staging stack, and write the release note before the freeze on Friday
+            </div>
+          </div>
+          <div class="bar"><span style="width:100%"></span></div>
+          <div class="meta">100%</div>
+          <div class="meta">Jul 18 &ndash; Jul 31</div>
+          <div class="meta">&starf;</div>
+        </div>
+      </div>
+
+      <div class="note">
+        <p style="margin:0 0 6px"><strong>Three decisions that this drawing forces.</strong></p>
+        <p style="margin:0 0 4px">
+          1. An empty goal renders nothing. It does not render a placeholder. A placeholder in
+          every row of a list is noise, and most cycles will never carry a goal.
+        </p>
+        <p style="margin:0 0 4px">
+          2. A long goal truncates on one line with an ellipsis. It does not wrap. A row that
+          grows to three lines breaks the rhythm of the list.
+        </p>
+        <p style="margin:0">
+          3. The goal reads as <code>text-tertiary</code>, below the cycle name. The name stays
+          the subject of the row.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

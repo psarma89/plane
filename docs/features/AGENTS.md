@@ -4,21 +4,21 @@ A feature page states **what we plan to build or change, and why**. It is a spec
 
 Every page lives in one of three sub-folders.
 
-| Sub-folder | Holds |
-| --- | --- |
-| [`new/`](./new/INDEX.md) | A capability that does not exist yet |
-| [`changes/`](./changes/INDEX.md) | A change to behavior that already ships |
+| Sub-folder                         | Holds                                           |
+| ---------------------------------- | ----------------------------------------------- |
+| [`new/`](./new/INDEX.md)           | A capability that does not exist yet            |
+| [`changes/`](./changes/INDEX.md)   | A change to behavior that already ships         |
 | [`bugfixes/`](./bugfixes/INDEX.md) | A defect: the system does not do what it claims |
 
 ## Which sub-folder gets the page
 
 Ask the questions in order. Stop at the first `yes`.
 
-| Question | Sub-folder |
-| --- | --- |
-| Does a user gain an ability they do not have today? | `new/` |
-| Does the current behavior work as documented, and we want it to work differently? | `changes/` |
-| Does the current behavior contradict what the product claims? | `bugfixes/` |
+| Question                                                                          | Sub-folder  |
+| --------------------------------------------------------------------------------- | ----------- |
+| Does a user gain an ability they do not have today?                               | `new/`      |
+| Does the current behavior work as documented, and we want it to work differently? | `changes/`  |
+| Does the current behavior contradict what the product claims?                     | `bugfixes/` |
 
 The boundary case: a defect whose fix changes documented behavior goes in `changes/`. Link to it from `bugfixes/`.
 
@@ -26,17 +26,19 @@ The boundary case: a defect whose fix changes documented behavior goes in `chang
 
 [`../AGENTS.md`](../AGENTS.md) gives the work item ID prefix. One addition applies here: keep the work item ID in its original case, even though the rest of the slug is lower-kebab-case.
 
+A page can carry one mockup: a static HTML drawing of the screen. Name it after the page, with the suffix `.mockup.html`, and put it in the same folder. `INDEX.md` lists pages. It does not list a mockup, because a mockup is part of the page that links it. The gate that decides whether a page needs one is in `.claude/skills/plan-feature/MOCKUP.md`.
+
 ## Status
 
 Every page carries a status in its header block. Use exactly one of five values.
 
-| Status | Meaning |
-| --- | --- |
-| `Draft` | Written. Not agreed. |
-| `Agreed` | Reviewed and accepted. Work can start. |
-| `In progress` | Implementation started. |
-| `Shipped` | Merged and released. |
-| `Abandoned` | Will not be built. The reason is in the page. |
+| Status        | Meaning                                       |
+| ------------- | --------------------------------------------- |
+| `Draft`       | Written. Not agreed.                          |
+| `Agreed`      | Reviewed and accepted. Work can start.        |
+| `In progress` | Implementation started.                       |
+| `Shipped`     | Merged and released.                          |
+| `Abandoned`   | Will not be built. The reason is in the page. |
 
 Never delete an abandoned page. Set the status to `Abandoned` and write the reason, so the next author does not re-propose it.
 
