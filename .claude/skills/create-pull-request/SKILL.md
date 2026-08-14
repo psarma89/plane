@@ -1,65 +1,122 @@
 ---
 name: create-pull-request
-description: Use when creating a pull request for the current branch — gathers branch context, generates a PR description following the repo's pull_request_template.md, and creates the PR with a Plane work item ID prefix in the title.
+description: Use when opening a pull request for the current branch, including a slice in a stack. Gathers branch context, bases the pull request on the branch below it rather than on the trunk, writes the body from the repo template, and prefixes the title with a Plane work item ID when one exists.
 user_invocable: true
 ---
 
-# Create PR
+# Create a pull request
 
-Create a pull request using the repo's PR template, a Plane work item ID as the title prefix, and a fully filled-out description based on the actual diff.
+## The trunk is `dev`
+
+This fork opens every pull request against `dev`. Upstream uses `preview`, so a
+default copied from upstream targets the wrong branch and shows hundreds of
+unrelated commits.
+
+Override the base only for a stacked slice, where the base is the branch below it.
+
+## Stacking, when the branch is a slice
+
+A stacked pull request is based on the slice below it, not on the trunk. Without
+that, `gh pr create` bases on `dev` and the reviewer sees every earlier slice's
+diff inside this one. On the third slice of a stack that is the difference between
+a 40-line review and a 400-line review.
+
+Record the parent when the branch is created, so it does not have to be guessed
+later.
+
+```bash
+git config "branch.$(git branch --show-current).stackparent" "<parent-branch>"
+```
+
+Read it back when the pull request is opened.
+
+```bash
+PARENT=$(git config --get "branch.$(git branch --show-current).stackparent" || true)
+[ -n "$PARENT" ] || PARENT=$(gh pr view "$(git branch --show-current)" --json baseRefName -q .baseRefName 2>/dev/null || true)
+[ -n "$PARENT" ] || PARENT=dev
+```
+
+The fallback order matters. Git config is authoritative and costs no network. An
+open pull request is the next best record, for a stack that someone opened by
+hand. `dev` is last, because assuming the trunk silently is exactly the failure
+this section exists to prevent.
+
+Print the chain before opening anything, and confirm that each branch has a
+recorded parent. A branch with no parent is a branch about to be based on the
+trunk by accident.
 
 ## Workflow
 
-1. **Determine the base branch**: Default to `preview` unless the user specifies otherwise.
+1. **Resolve the base.** Use the stack parent when one exists. Otherwise `dev`.
 
-2. **Gather context** (in parallel):
-   - `git status -s` — check for uncommitted changes
-   - `git diff <base>...HEAD --stat` — files changed
-   - `git log <base>...HEAD --oneline` — all commits on the branch
-   - `git diff <base>...HEAD --no-color` — full diff for understanding changes (if very large, focus on the most important files first)
-   - `git rev-parse --abbrev-ref --symbolic-full-name @{u}` — check if branch tracks a remote
-   - Read `.github/pull_request_template.md` from the repo root
+2. **Gather context**, in parallel:
+   - `git status -s`, to catch uncommitted work
+   - `git diff <base>...HEAD --stat`, for the files changed
+   - `git log <base>...HEAD --oneline`, for every commit on the branch
+   - `git diff <base>...HEAD --no-color`, for the full diff
+   - `git rev-parse --abbrev-ref --symbolic-full-name @{u}`, to check for an upstream
+   - Read `.github/PULL_REQUEST_TEMPLATE.md`
 
-3. **Determine work item ID**:
-   - Extract from branch name if it contains an identifier (e.g., `chore/silo-1146-foo` → `SILO-1146`, `feat/web-1234-x` → `WEB-1234`)
-   - If not found in branch name, ask the user
+   Use the three-dot form. `git diff <base>..HEAD` includes commits that landed on
+   the base after this branch left it, which inflates the diff with other
+   people's work.
 
-4. **Draft the PR** using the template from step 2:
+3. **Resolve the work item ID.** Extract it from the branch name, for example
+   `fix/silo-1146-relative-config-urls` gives `SILO-1146`. If the branch carries
+   none, omit the prefix. Do not invent one.
 
-   **Title**: `[WORK-ITEM-ID] <type>: <concise summary>` (under 70 chars)
-   - Type reflects the change: `fix`, `feat`, `chore`, `refactor`, `docs`, `perf`, etc.
+4. **Draft the pull request.**
 
-   **Body**: Fill in every section from the PR template based on the actual diff:
-   - **Description** — Clear, concise summary of what the PR does and why. Focus on the "what" and "why", not line-by-line changes. Mention important implementation decisions.
-   - **Type of Change** — Check the appropriate box(es): Bug fix, Feature, Improvement, Code refactoring, Performance improvements, Documentation update.
-   - **Screenshots and Media** — Leave a placeholder: `<!-- Add screenshots here -->`
-   - **Test Scenarios** — Suggest concrete scenarios grounded in the actual changes (e.g., "Navigate to project settings and verify the new toggle works"), not generic ones.
-   - **References** — Include the work item ID, any linked issues the user mentions, and any Sentry issue links/IDs (e.g., `SENTRY-ABC123` or Sentry URLs) referenced earlier in the conversation.
+   Title: `[WORK-ITEM-ID] <type>: <concise summary>`, under 70 characters. Drop
+   the bracketed prefix when there is no work item. The type matches the eventual
+   commit type: `fix`, `feat`, `chore`, `refactor`, `docs`, `perf`.
 
-   Append a Claude Code session line at the bottom of the body.
+   Body: fill every section of the template from the actual diff.
 
-5. **Push and create** (in parallel where possible):
-   - Push branch with `-u` if no upstream is set
-   - Create PR via `gh pr create` using a HEREDOC for the body
+   | Section               | What goes in it                                                                                                                                               |
+   | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | Description           | What the change does and why. Lead with the defect or the need, not the file list. The diff is readable.                                                      |
+   | Type of Change        | Check every box that applies.                                                                                                                                 |
+   | Screenshots and Media | Real evidence. For a backend or tooling change, paste the command and its output. A dry run that proves a destructive behavior is stronger than a screenshot. |
+   | Test Scenarios        | A table of check, command, and result. Every row must be a command someone can rerun.                                                                         |
+   | References            | Related pull requests, the work item, and any finding deferred out of this pull request, with the reason.                                                     |
 
-6. **Return the PR URL** to the user.
+   When the pull request is stacked, open the body with a line naming the pull
+   request below it and stating that this diff is measured against that branch.
 
-## Example Title
+5. **Run the body through `/simple-english`** before you post it. The repo writes
+   every artifact in Simplified Technical English, and a pull request body is an
+   artifact. That pass removes the contractions, the semicolons, the `should`,
+   and the `-ing` clause joins.
 
-```
-[SILO-1146] fix: allow relative URLs for configuration_url and improve app tile visibility
-```
+6. **Push and create.** Push with `-u` when there is no upstream. Create with
+   `gh pr create --base "$PARENT" --head "$BRANCH"`, passing the body through a
+   heredoc.
 
-## Guidelines
+7. **Return the pull request URL.**
 
-- Keep the description concise but informative
-- Use bullet points when listing multiple changes
-- Focus on user-facing impact, not implementation details
-- Don't fabricate test scenarios that aren't relevant to the actual changes
+## Commit with the git CLI
 
-## Common Mistakes
+Create commits with `git add` and `git commit`. Do not create them through the
+GitHub API, the Contents API, `gh api`, or an MCP file-write tool. Those commits
+are unsigned and a repository with required signatures rejects them.
 
-- Summarizing only the latest commit instead of all commits on the branch
-- Forgetting to check for an upstream before pushing
-- Using a work item ID format that doesn't match the branch convention
-- Wrapping the PR body in a code fence when passing it to `gh pr create`
+## Done when
+
+- [ ] The base is the stack parent, or `dev`, and never `preview`
+- [ ] `git diff <base>...HEAD --stat` shows this slice only, and no earlier slice
+- [ ] Every template section is filled from the real diff
+- [ ] Every Test Scenarios row names a command that can be rerun
+- [ ] The body passed `/simple-english`
+- [ ] A stacked pull request names the one below it in its first line
+- [ ] Any deferred finding is recorded in References, with its reason
+
+## Common mistakes
+
+- Basing on `preview`, which is upstream's trunk and not this fork's.
+- Summarising only the newest commit instead of every commit on the branch.
+- Using `..` instead of `...` in the diff range.
+- Wrapping the body in a code fence when passing it to `gh pr create`.
+- Inventing test scenarios that the diff does not support.
+- Opening a stacked pull request before the one below it exists, which makes the
+  base branch unresolvable.
