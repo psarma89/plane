@@ -113,8 +113,11 @@ build/
 build/
 .react-router/
 temp/
+# This pattern is not anchored, so it ignores a scripts/ directory at any depth.
+# Every directory that must stay tracked needs its own exception below.
 scripts/
 !packages/i18n/scripts/
+!.claude/skills/*/scripts/
 
 # i18n auto-generated types (regenerated on every build)
 packages/i18n/src/types/keys.generated.ts

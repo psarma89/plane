@@ -28,7 +28,7 @@ For unattended use:
 
 | Order | Target                       | Command                                                                      |
 | ----- | ---------------------------- | ---------------------------------------------------------------------------- |
-| 1     | Containers, volumes, network | `docker compose -p <project> down -v --remove-orphans`                       |
+| 1     | Containers, volumes, network | `docker compose -f docker-compose-local.yml -p {project} down -v`                       |
 | 2     | Frontend dev servers         | `kill` on the PID that holds the web, admin, space, or live port             |
 | 3     | Generated files              | `.env`, `apps/api/.env`, `apps/{web,admin,space,live}/.env`, `.plane-env.sh` |
 
