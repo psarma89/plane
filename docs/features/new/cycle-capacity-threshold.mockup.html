@@ -127,7 +127,8 @@
         <h1>Mockup: Cycle capacity threshold</h1>
         <p>Sketch of intent. Not a screenshot, and not a component.</p>
         <p>Spec: <code>docs/features/new/cycle-capacity-threshold.md</code> &middot; 2026-08-14</p>
-        <p>One number and one toggle. No percent appears anywhere.</p>
+        <p>One number and one toggle. No percent appears anywhere. The capacity is a trip
+        wire: 28 of 40 is green, 40 of 40 is green, and 41 of 40 trips it.</p>
       </div>
 
       <h2>1. The two controls on the cycle form</h2>
@@ -193,19 +194,19 @@
       <p><code>apps/web/core/components/cycles/analytics-sidebar/issue-progress.tsx</code> &middot; every number arrives from <code>GET&nbsp;.../progress/</code></p>
       <div class="states">
         <figure class="state">
-          <figcaption>ok &mdash; under the capacity</figcaption>
+          <figcaption>ok &mdash; full, and not over</figcaption>
           <div class="panel">
             <h3>Sprint 14</h3>
             <div class="meter">
-              <div class="meter-top"><span>Capacity</span><span>28 / 40 points</span></div>
-              <div class="track"><span style="width:70%; background: var(--ok-fill)"></span></div>
+              <div class="meter-top"><span>Capacity</span><span>40 / 40 points</span></div>
+              <div class="track"><span style="width:100%; background: var(--ok-fill)"></span></div>
             </div>
-            <!-- No alert. Silence is the state. -->
+            <!-- No alert. 40 of 40 is not over 40. 28 of 40 draws the same way. -->
           </div>
         </figure>
 
         <figure class="state">
-          <figcaption>warn &mdash; at the capacity, warn mode</figcaption>
+          <figcaption>warn &mdash; over the capacity, warn mode</figcaption>
           <div class="panel">
             <h3>Sprint 14</h3>
             <div class="meter">
@@ -215,22 +216,22 @@
             </div>
             <div class="alert warn">
               <span>&#9888;</span>
-              <span><b>Cycle is at capacity.</b> This cycle holds 43 of 40 points. Anyone can still add work.</span>
+              <span><b>Cycle is over capacity.</b> This cycle holds 43 of 40 points. Anyone can still add work.</span>
             </div>
           </div>
         </figure>
 
         <figure class="state">
-          <figcaption>block &mdash; at the capacity, block mode</figcaption>
+          <figcaption>block &mdash; over the capacity, block mode</figcaption>
           <div class="panel">
             <h3>Sprint 14</h3>
             <div class="meter">
-              <div class="meter-top"><span>Capacity</span><span>40 / 40 points</span></div>
+              <div class="meter-top"><span>Capacity</span><span>41 / 40 points</span></div>
               <div class="track"><span style="width:100%; background: var(--block-fill)"></span></div>
             </div>
             <div class="alert block">
               <span>&#9888;</span>
-              <span><b>Cycle is at capacity.</b> This cycle holds 40 of 40 points. Remove work, or
+              <span><b>Cycle is over capacity.</b> This cycle holds 41 of 40 points. Remove work, or
               lower an estimate, before you add more.</span>
             </div>
           </div>
@@ -248,21 +249,24 @@
       </div>
 
       <div class="note">
-        <p><strong>Seven decisions that this drawing forces.</strong></p>
+        <p><strong>Eight decisions that this drawing forces.</strong></p>
         <p>1. An empty capacity draws nothing in the panel. No meter, no alert, and no reserved
         space. Most cycles will never carry a capacity, so the panel must not grow for them.</p>
         <p>2. The toggle renders on the form even with no capacity, and it is disabled. Hiding it
         hides the feature from the person most likely to want it.</p>
-        <p>3. The <code>ok</code> verdict shows the meter and no alert. An always-visible green
-        banner trains the user to ignore the amber one.</p>
-        <p>4. The two alerts share one slot. The color changes and the second sentence changes.
+        <p>3. A full cycle is green. 40 of 40 is not over 40, so the meter fills to 100% and no
+        alert renders. The first amber pixel appears at 41. This is the boundary the whole
+        feature turns on, so the drawing shows it rather than an easy 28 of 40.</p>
+        <p>4. There is no success banner. An always-visible green message trains the user to
+        ignore the amber one.</p>
+        <p>5. The two alerts share one slot. The color changes and the second sentence changes.
         The title does not, because the fact is the same in both modes.</p>
-        <p>5. The bar caps at 100% and the label carries the real number. A warn-mode cycle can
+        <p>6. The bar caps at 100% and the label carries the real number. A warn-mode cycle can
         reach 43 of 40, and a bar that overflows its track reads as a rendering defect.</p>
-        <p>6. The refusal message names three numbers: the incoming points, the current points,
+        <p>7. The refusal message names three numbers: the incoming points, the current points,
         and the capacity. A message that only says "over capacity" sends the user hunting for
         the arithmetic.</p>
-        <p>7. The block alert names the two ways out, because block mode is the only state where
+        <p>8. The block alert names the two ways out, because block mode is the only state where
         the user cannot simply continue.</p>
       </div>
 

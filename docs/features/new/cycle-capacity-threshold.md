@@ -27,28 +27,33 @@ warns at the limit, or it refuses the write, and the toggle decides which.
 - No override. In block mode, no role can force a write past the capacity.
 - No capacity from velocity history. A person types the number.
 - No new chart. The burn-down chart does not change.
-- No notification, no email, and no webhook when a cycle reaches its capacity.
+- No notification, no email, and no webhook when a cycle passes its capacity.
 
 ## The rule
 
-Two columns, one comparison. There is no percent math anywhere in this feature.
+Two columns, one comparison. The capacity is a trip wire in points. There is no
+percent math anywhere in this feature.
 
 ```
 used_points      = sum of the estimate points of every work item in the cycle
 incoming_points  = the points that this write adds
 projected_points = used_points + incoming_points
 
-The alert shows when       used_points      >= capacity
-A write is refused when    projected_points >  capacity   AND   mode is block
+The alert shows when       used_points      > capacity
+A write is refused when    projected_points > capacity   AND   mode is block
 ```
 
-The two comparisons differ on purpose. A capacity of 40 points must let the cycle
-hold exactly 40 points. The alert states that the cycle reached its limit. The
-refusal stops the cycle from passing that limit. Open question 2 records the choice.
+One comparison, used twice. The capacity itself is not over the capacity.
+
+| `used_points` | `capacity` | Result                  |
+| ------------- | ---------- | ----------------------- |
+| 28            | 40         | Green. Nothing happens. |
+| 40            | 40         | Green. Nothing happens. |
+| 41            | 40         | The alert shows.        |
 
 ### What each mode does
 
-| Mode    | At the limit                                        | A write that passes the limit |
+| Mode    | Above the capacity                                  | A write that lands above it   |
 | ------- | --------------------------------------------------- | ----------------------------- |
 | `warn`  | An amber alert renders. Every write still succeeds. | Succeeds. The alert stays.    |
 | `block` | A red alert renders.                                | HTTP 400. Nothing is written. |
@@ -102,10 +107,13 @@ and it is nullable.
 1. A project admin opens the cycle form, types a capacity of 40 points, and leaves
    the toggle on Warn.
 2. A member adds work items. The panel shows 28 of 40 points and no alert.
-3. A member adds 12 more points. The sum reaches 40, which is the capacity.
-4. The backend returns the verdict `warn`. The panel shows an amber alert.
-5. A member removes a 5-point work item. The sum drops to 35.
-6. The backend returns the verdict `ok`. The alert disappears.
+3. A member adds 12 more points. The sum reaches 40, which is the capacity itself.
+4. The backend returns the verdict `ok`. No alert renders. The cycle is full and not
+   over.
+5. A member adds one more point. The sum reaches 41.
+6. The backend returns the verdict `warn`. The panel shows an amber alert.
+7. A member removes a 5-point work item. The sum drops to 36.
+8. The backend returns the verdict `ok`. The alert disappears.
 
 ### Happy path, block mode
 
@@ -313,9 +321,9 @@ It returns one dictionary:
 | `verdict` | Rule                                                              |
 | --------- | ----------------------------------------------------------------- |
 | `not_set` | `cycle.capacity` is `NULL`, or the project has no points estimate |
-| `ok`      | `used_points` is less than `capacity`                             |
-| `warn`    | `used_points` reaches `capacity`, and `capacity_mode` is `warn`   |
-| `block`   | `used_points` reaches `capacity`, and `capacity_mode` is `block`  |
+| `ok`      | `used_points` is at or under `capacity`                           |
+| `warn`    | `used_points` passes `capacity`, and `capacity_mode` is `warn`    |
+| `block`   | `used_points` passes `capacity`, and `capacity_mode` is `block`   |
 
 `write_allowed` describes the write in front of it. It is `false` only when the mode
 is `block` and `projected_points` passes `capacity`:
@@ -402,15 +410,15 @@ a plain dictionary, so a new key is additive.
 
 ```json
 {
-  "total_estimate_points": 40,
+  "total_estimate_points": 41,
   "completed_estimate_points": 12,
   "total_issues": 14,
   "capacity_status": {
     "capacity": 40,
     "mode": "warn",
-    "used_points": 40,
+    "used_points": 41,
     "incoming_points": 0,
-    "projected_points": 40,
+    "projected_points": 41,
     "verdict": "warn",
     "write_allowed": true
   }
@@ -547,9 +555,9 @@ appears on the modal path only. The drag path is the path a person uses most.
   | `cycle.capacity.mode.hint_warn`  | Show a warning. Anyone can still add work.                                                                               |
   | `cycle.capacity.mode.hint_block` | Refuse new work. Removing work and lowering an estimate still succeed.                                                   |
   | `cycle.capacity.meter`           | {used} / {capacity} points                                                                                               |
-  | `cycle.capacity.warn.title`      | Cycle is at capacity                                                                                                     |
+  | `cycle.capacity.warn.title`      | Cycle is over capacity                                                                                                   |
   | `cycle.capacity.warn.body`       | This cycle holds {used} of {capacity} points. Anyone can still add work.                                                 |
-  | `cycle.capacity.block.title`     | Cycle is at capacity                                                                                                     |
+  | `cycle.capacity.block.title`     | Cycle is over capacity                                                                                                   |
   | `cycle.capacity.block.body`      | This cycle holds {used} of {capacity} points. Remove work, or lower an estimate, before you add more.                    |
   | `cycle.capacity.rejected.title`  | Cannot add this work item                                                                                                |
   | `cycle.capacity.rejected.body`   | The work is worth {incoming} points. {cycle} holds {used} of {capacity} points, so the total reaches {projected} points. |
@@ -610,11 +618,11 @@ Unit, in `apps/api/plane/tests/unit/utils/test_cycle_capacity.py`:
 
 - `test_verdict_is_not_set_when_capacity_is_null` proves that `NULL` disables the gate.
 - `test_verdict_is_not_set_when_project_estimate_is_categories` proves the estimate rule.
-- `test_verdict_is_ok_one_point_below_capacity` proves the lower boundary.
-- `test_verdict_is_warn_exactly_at_capacity_in_warn_mode` proves that the alert
-  boundary is inclusive.
-- `test_verdict_is_block_exactly_at_capacity_in_block_mode` proves the same in the
-  other mode.
+- `test_verdict_is_ok_at_28_of_40` proves the plain case the requester gave.
+- `test_verdict_is_ok_at_40_of_40` proves that the capacity itself is not over the
+  capacity. This is the boundary the whole feature turns on.
+- `test_verdict_is_warn_at_41_of_40_in_warn_mode` proves the first point past it.
+- `test_verdict_is_block_at_41_of_40_in_block_mode` proves the same in the other mode.
 - `test_write_allowed_when_projected_equals_capacity_in_block_mode` proves that a
   cycle can fill to exactly its capacity.
 - `test_write_refused_when_projected_passes_capacity_in_block_mode` proves the one
@@ -623,7 +631,8 @@ Unit, in `apps/api/plane/tests/unit/utils/test_cycle_capacity.py`:
   mode never refuses.
 - `test_write_allowed_when_incoming_points_are_negative` proves that lowering an
   estimate always passes.
-- `test_capacity_of_zero_refuses_every_add` proves that 0 and `NULL` differ.
+- `test_capacity_of_zero_refuses_any_add_worth_a_point` proves that 0 and `NULL`
+  differ. A capacity of 0 allows a sum of 0, and refuses a sum of 1.
 
 Contract, in `apps/api/plane/tests/contract/app/test_cycle_capacity_app.py`:
 
@@ -631,7 +640,9 @@ Contract, in `apps/api/plane/tests/contract/app/test_cycle_capacity_app.py`:
   serializer edit.
 - `test_patch_rejects_an_unknown_capacity_mode` proves the choices validation.
 - `test_add_work_items_under_capacity_returns_201_with_verdict_ok`.
-- `test_add_work_items_at_capacity_in_warn_mode_returns_201_with_verdict_warn` proves
+- `test_add_work_items_to_exactly_capacity_returns_201_with_verdict_ok` proves that
+  filling a cycle to 40 of 40 raises no alert in either mode.
+- `test_add_work_items_past_capacity_in_warn_mode_returns_201_with_verdict_warn` proves
   that warn mode does not refuse.
 - `test_add_work_items_past_capacity_in_block_mode_returns_400_with_error_code` proves
   the gate and the `error_code`.
@@ -672,7 +683,8 @@ what was clicked.
 
 - The capacity input and the toggle both save, and both survive a reload.
 - The meter renders at the right width for 28 of 40 points.
-- The amber alert appears at 40 of 40 points in warn mode, and a further add succeeds.
+- No alert appears at 40 of 40 points, in either mode.
+- The amber alert appears at 41 of 40 points in warn mode, and a further add succeeds.
 - Removing a work item clears the alert without a page reload.
 - A refused add through the cycle modal shows the toast with the three numbers.
 - A refused add through a drag between board groups shows the same toast, and not the
@@ -727,7 +739,7 @@ needs a worktree only. Slice 7 needs a stack to verify by hand.
 | #   | Question                                                                          | Decides     | Resolved                                                                                                                                       |
 | --- | --------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | Can a project member set the capacity and the mode, or admin only?                | Product     | Open. The spec lets a member set both, because the cycle update route already allows it. That lets a member raise the number that blocks them. |
-| 2   | Does a write that lands on exactly the capacity succeed in block mode?            | Product     | Open. The spec says yes. A capacity of 40 lets the cycle hold 40 points, and 41 is refused.                                                    |
+| 2   | Does a write that lands on exactly the capacity succeed in block mode?            | Product     | 2026-08-14. Yes. 28 of 40 is green, 40 of 40 is green, and 41 of 40 trips the wire. Both comparisons use `>`.                                  |
 | 3   | Does the active check use `project.timezone` or `Cycle.timezone`?                 | Engineering | Open. The spec follows the existing definition, which uses `project.timezone`.                                                                 |
 | 4   | Where does the capacity number live?                                              | Product     | 2026-08-14. On the cycle only. It is optional, and a person can change it later.                                                               |
 | 5   | Percent thresholds, or one number and a toggle?                                   | Product     | 2026-08-14. One number and a toggle. No percent appears anywhere in the feature.                                                               |
