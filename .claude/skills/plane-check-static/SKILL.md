@@ -66,10 +66,31 @@ Apps use bare names (`web`, `admin`, `space`, `live`). Packages use the scope.
 CI sets `TURBO_SCM_BASE`, so it checks only affected packages. `pnpm check`
 locally checks everything. That gap is why the `i18n` failure never shows in CI.
 
-**A draft PR runs nothing.** Every job is gated on
+**A draft PR runs nothing.** Three of the four web-app jobs are gated on
 `github.event.pull_request.draft == false`. The same `if` also tests
 `requested_reviewers != null`, but that clause never blocks, because an empty
-reviewer list is not null. A draft PR shows no failures because no job ran.
+reviewer list is not null. `check:types` has no gate of its own: it declares
+`needs: build`, so it dies with `Build packages`. A draft PR shows no failures
+because no job ran.
+
+**Marking it ready does not fix that.** `pull-request-build-lint-web-apps.yml`
+answers only `opened`, `synchronize`, and `reopened`. `ready_for_review` is
+absent, so `gh pr ready` clears the flag and starts no run. The four jobs keep
+their `skipped` result forever.
+
+```bash
+gh pr ready <number>
+gh pr close <number>   # fires nothing
+gh pr reopen <number>  # fires `reopened`, and the jobs finally run
+```
+
+`pull-request-build-lint-api.yml` does list `ready_for_review`. The two
+workflows disagree.
+
+**A skipped job is not a passing job.** Read the latest run per check name
+before merging. `concurrency.cancel-in-progress` also leaves a cancelled run
+beside a successful one on the same commit, which reads as a failure and is not
+one.
 
 ## Lint ceilings
 
