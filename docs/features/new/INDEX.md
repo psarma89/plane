@@ -4,7 +4,7 @@ One page per capability that does not exist yet. Each page holds enough detail t
 
 ## Specs
 
-> No spec exists yet. Add the first one with [`TEMPLATE.md`](./TEMPLATE.md), then list it here.
+- [Cycle goal](./cycle-goal-2026-08-14.md) - Draft - A short single-line objective on a cycle, shown in the cycle header and every list row.
 
 Entry format: `- [Title](./<WORK-ITEM-ID>-<slug>.md) - Status - one-line summary`
 
