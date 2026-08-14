@@ -32,6 +32,7 @@
     "VITE_WEB_BASE_URL",
     "VITE_WEBSITE_URL"
   ],
+  "globalPassThroughEnv": ["PLANE_HOST_ADMIN_PORT", "PLANE_HOST_SPACE_PORT", "PLANE_HOST_WEB_PORT"],
   "remoteCache": {
     "enabled": false
   },
