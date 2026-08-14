@@ -31,7 +31,7 @@ ARCHIVED_CYCLES_URL = "/api/workspaces/{slug}/projects/{project_id}/archived-cyc
 
 GOAL = "Ship the export pipeline behind a flag"
 
-# Workspace.goal is CharField(max_length=255), so 256 is the first rejected length.
+# Cycle.goal is CharField(max_length=255), so 256 is the first rejected length.
 GOAL_OVER_LIMIT = "x" * 256
 
 
@@ -131,24 +131,46 @@ class TestCycleGoal:
         )
 
     @pytest.mark.django_db
-    def test_a_cycle_with_no_goal_returns_null_not_empty_string(
-        self, session_client, workspace, project, cycle
-    ):
-        """NULL and "" must not be two ways to say the same absence."""
+    def test_an_unset_goal_is_the_empty_string(self, session_client, workspace, project, cycle):
+        """Absence must be one value, not two.
+
+        The field carries blank=True with a default and no null=True, so an unset
+        goal is always "". An earlier version allowed NULL as well, which made a
+        reader handle two spellings of the same absence.
+        """
         url = CYCLE_DETAIL_URL.format(slug=workspace.slug, project_id=project.id, pk=cycle.id)
 
         response = session_client.get(url)
 
         assert response.status_code == status.HTTP_200_OK
-        # Assert the key is PRESENT and null. `.get("goal") is None` is true both
-        # when the field is absent and when it is null, so it passes before the
-        # field exists and cannot fail for the right reason.
+        # Assert the key is PRESENT, then its value. `.get("goal") is None` is true
+        # both when the field is absent and when it is null, so that form passes
+        # before the field exists and cannot fail for the right reason.
         assert "goal" in response.data, (
-            f"The read serializer does not expose goal at all. Body: {response.data!r}"
+            f"The read path does not expose goal at all. Body: {response.data!r}"
         )
-        assert response.data["goal"] is None, (
-            f"An unset goal must serialise as null, not as an empty string. Body: {response.data!r}"
+        assert response.data["goal"] == "", (
+            f"An unset goal must serialise as an empty string. Body: {response.data!r}"
         )
+
+    @pytest.mark.django_db
+    def test_clearing_the_goal_stores_the_empty_string_not_null(
+        self, session_client, workspace, project, cycle
+    ):
+        """A client that clears the field must not create a second kind of absence."""
+        url = CYCLE_DETAIL_URL.format(slug=workspace.slug, project_id=project.id, pk=cycle.id)
+        session_client.patch(url, {"goal": GOAL}, format="json")
+
+        response = session_client.patch(url, {"goal": ""}, format="json")
+
+        assert response.status_code == status.HTTP_200_OK, (
+            f"Got {response.status_code}: {getattr(response, 'data', None)!r}"
+        )
+        assert response.data.get("goal") == "", (
+            f"Clearing the goal must yield an empty string. Body: {response.data!r}"
+        )
+        cycle.refresh_from_db()
+        assert cycle.goal == "", f"The column holds {cycle.goal!r}, not an empty string"
 
     @pytest.mark.django_db
     def test_the_archived_cycle_list_also_returns_the_goal(
@@ -216,7 +238,14 @@ class TestCycleGoal:
 
         response = outsider_client.get(url)
 
-        assert response.status_code in (
-            status.HTTP_403_FORBIDDEN,
-            status.HTTP_404_NOT_FOUND,
-        ), f"Cross-workspace read was not refused. Got {response.status_code}"
+        # 403, not 404. `allow_permission` in plane/app/permissions/base.py refuses
+        # before `get_queryset()` runs, and it returns an explicit 403 Response
+        # rather than raising. A scoped queryset would give 404, but the decorator
+        # never lets the request reach it.
+        #
+        # Asserting `in (403, 404)` would pass either way, so it could not catch a
+        # regression in either direction. Pin the status the code actually returns.
+        assert response.status_code == status.HTTP_403_FORBIDDEN, (
+            f"Cross-workspace read must be refused with 403. Got {response.status_code}: "
+            f"{getattr(response, 'data', None)!r}"
+        )
